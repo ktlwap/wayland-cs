@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace Wayland.Protocol.Common;
 
 public class MessageWriter
@@ -63,11 +65,21 @@ public class MessageWriter
     
     public void Write(string value)
     {
-        byte[] data = StringConverter.Convert(value);
-        for (int i = 0; i < data.Length; ++i)
-        {
-            Write(data[i]);
-        }
+        if (!BitConverter.IsLittleEndian)
+            throw new Exception("Big Endian systems are not supported yet.");
+        
+        byte[] data = new byte[sizeof(int) + value.Length + 1];
+        byte[] utf8String = Encoding.Default.GetBytes(value);
+        int length = utf8String.Length + 1;
+
+        data[0] = (byte)(length << 24);
+        data[1] = (byte)(length << 16);
+        data[2] = (byte)(length << 8);
+        data[3] = (byte)(length << 0);
+        Buffer.BlockCopy(utf8String, 0, data, 4, utf8String.Length);
+        data[^1] = 0;
+        
+        Write(data);
     }
     
     public void Write(Fd id)
