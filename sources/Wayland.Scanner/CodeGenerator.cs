@@ -63,7 +63,9 @@ public static class CodeGenerator
     private static byte[] GenerateSource(Interface @interface, bool isServer)
     {
         var sb = new StringBuilder();
-        sb.Append("namespace Wayland.Protocol.Common;\n");
+        sb.Append("using Wayland.Protocol.Common;\n");
+        sb.Append('\n');
+        sb.Append(isServer ? "namespace Wayland.Protocol.Server;\n" : "namespace Wayland.Protocol.Client;\n");
         sb.Append('\n');
         sb.Append($"public sealed class {@interface.Name} : ProtocolObject\n");
         sb.Append("{\n");
@@ -75,13 +77,13 @@ public static class CodeGenerator
         sb.Append("        Events = new EventsWrapper(this);\n");
         sb.Append("        Requests = new RequestsWrapper(this);\n");
         sb.Append("    }\n");
-        sb.Append("    \n");
+        sb.Append('\n');
         AddEventOpCodeStub(sb, @interface.Events);
-        sb.Append("    \n");
+        sb.Append('\n');
         AddRequestOpCodeStub(sb, @interface.Requests);
-        sb.Append("    \n");
+        sb.Append('\n');
         AddEventsWrapperStub(sb, @interface.Events, isServer);
-        sb.Append("    \n");
+        sb.Append('\n');
         AddRequestsWrapperStub(sb, @interface.Requests, isServer);
         sb.Append("}\n");
 
@@ -115,7 +117,7 @@ public static class CodeGenerator
 
         if (isServer)
         {
-            AddEventsStub(sb, events);
+            AddEventsStubForEvents(sb, events);
         }
         else
         {
@@ -142,13 +144,13 @@ public static class CodeGenerator
         }
         else
         {
-            AddEventsStub(sb, requests);
+            AddEventsStubForRequests(sb, requests);
         }
 
         sb.Append("    }\n");
     }
 
-    public static void AddEventsStub(StringBuilder sb, List<Event> events)
+    public static void AddEventsStubForEvents(StringBuilder sb, List<Event> events)
     {
         foreach (var @event in events)
             if (@event.Arguments.Count > 0)
@@ -231,7 +233,7 @@ public static class CodeGenerator
         }
     }
     
-    public static void AddEventsStub(StringBuilder sb, List<Request> requests)
+    public static void AddEventsStubForRequests(StringBuilder sb, List<Request> requests)
     {
         foreach (var request in requests)
             if (request.Arguments.Count > 0)
@@ -252,7 +254,7 @@ public static class CodeGenerator
 
         foreach (var request in requests)
         {
-            sb.Append($"                case (ushort) EventOpCode.{request.Name}:\n");
+            sb.Append($"                case (ushort) RequestOpCode.{request.Name}:\n");
             sb.Append($"                    Handle{request.Name}Event(socketConnection, length);\n");
             sb.Append("                    return;\n");
         }
