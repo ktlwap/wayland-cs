@@ -139,7 +139,7 @@ public sealed class ShellSurface : ProtocolObject
         
         private void HandlePongEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -151,7 +151,7 @@ public sealed class ShellSurface : ProtocolObject
         
         private void HandleMoveEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -164,7 +164,7 @@ public sealed class ShellSurface : ProtocolObject
         
         private void HandleResizeEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -178,7 +178,7 @@ public sealed class ShellSurface : ProtocolObject
         
         private void HandleSetToplevelEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -189,7 +189,7 @@ public sealed class ShellSurface : ProtocolObject
         
         private void HandleSetTransientEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -204,7 +204,7 @@ public sealed class ShellSurface : ProtocolObject
         
         private void HandleSetFullscreenEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -218,7 +218,7 @@ public sealed class ShellSurface : ProtocolObject
         
         private void HandleSetPopupEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -235,7 +235,7 @@ public sealed class ShellSurface : ProtocolObject
         
         private void HandleSetMaximizedEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -247,7 +247,7 @@ public sealed class ShellSurface : ProtocolObject
         
         private void HandleSetTitleEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -259,7 +259,7 @@ public sealed class ShellSurface : ProtocolObject
         
         private void HandleSetClassEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);

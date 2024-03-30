@@ -32,11 +32,8 @@ public sealed class Output : ProtocolObject
         Release = 0,
     }
 
-    internal override void HandleEvent()
+    internal override void HandleEvent(ushort length, ushort opCode)
     {
-        ushort length = _socketConnection.ReadUInt16();
-        ushort opCode = _socketConnection.ReadUInt16();
-        
         switch (opCode)
         {
             case (ushort) EventOpCode.Geometry:
@@ -71,7 +68,7 @@ public sealed class Output : ProtocolObject
         
         internal void HandleGeometryEvent(ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -90,7 +87,7 @@ public sealed class Output : ProtocolObject
         
         internal void HandleModeEvent(ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -105,7 +102,7 @@ public sealed class Output : ProtocolObject
         
         internal void HandleDoneEvent(ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -116,7 +113,7 @@ public sealed class Output : ProtocolObject
         
         internal void HandleScaleEvent(ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -128,7 +125,7 @@ public sealed class Output : ProtocolObject
         
         internal void HandleNameEvent(ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -140,7 +137,7 @@ public sealed class Output : ProtocolObject
         
         internal void HandleDescriptionEvent(ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);

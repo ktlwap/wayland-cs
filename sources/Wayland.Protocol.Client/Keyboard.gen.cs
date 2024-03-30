@@ -32,11 +32,8 @@ public sealed class Keyboard : ProtocolObject
         Release = 0,
     }
 
-    internal override void HandleEvent()
+    internal override void HandleEvent(ushort length, ushort opCode)
     {
-        ushort length = _socketConnection.ReadUInt16();
-        ushort opCode = _socketConnection.ReadUInt16();
-        
         switch (opCode)
         {
             case (ushort) EventOpCode.Keymap:
@@ -71,7 +68,7 @@ public sealed class Keyboard : ProtocolObject
         
         internal void HandleKeymapEvent(ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -85,7 +82,7 @@ public sealed class Keyboard : ProtocolObject
         
         internal void HandleEnterEvent(ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -99,7 +96,7 @@ public sealed class Keyboard : ProtocolObject
         
         internal void HandleLeaveEvent(ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -112,7 +109,7 @@ public sealed class Keyboard : ProtocolObject
         
         internal void HandleKeyEvent(ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -127,7 +124,7 @@ public sealed class Keyboard : ProtocolObject
         
         internal void HandleModifiersEvent(ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -143,7 +140,7 @@ public sealed class Keyboard : ProtocolObject
         
         internal void HandleRepeatInfoEvent(ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);

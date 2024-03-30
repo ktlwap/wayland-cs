@@ -31,11 +31,8 @@ public sealed class Subsurface : ProtocolObject
         SetDesync = 5,
     }
 
-    internal override void HandleEvent()
+    internal override void HandleEvent(ushort length, ushort opCode)
     {
-        ushort length = _socketConnection.ReadUInt16();
-        ushort opCode = _socketConnection.ReadUInt16();
-        
         switch (opCode)
         {
         }

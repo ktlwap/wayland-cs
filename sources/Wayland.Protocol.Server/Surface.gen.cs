@@ -159,7 +159,7 @@ public sealed class Surface : ProtocolObject
         
         private void HandleDestroyEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -170,7 +170,7 @@ public sealed class Surface : ProtocolObject
         
         private void HandleAttachEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -184,7 +184,7 @@ public sealed class Surface : ProtocolObject
         
         private void HandleDamageEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -199,7 +199,7 @@ public sealed class Surface : ProtocolObject
         
         private void HandleFrameEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -211,7 +211,7 @@ public sealed class Surface : ProtocolObject
         
         private void HandleSetOpaqueRegionEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -223,7 +223,7 @@ public sealed class Surface : ProtocolObject
         
         private void HandleSetInputRegionEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -235,7 +235,7 @@ public sealed class Surface : ProtocolObject
         
         private void HandleCommitEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -246,7 +246,7 @@ public sealed class Surface : ProtocolObject
         
         private void HandleSetBufferTransformEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -258,7 +258,7 @@ public sealed class Surface : ProtocolObject
         
         private void HandleSetBufferScaleEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -270,7 +270,7 @@ public sealed class Surface : ProtocolObject
         
         private void HandleDamageBufferEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -285,7 +285,7 @@ public sealed class Surface : ProtocolObject
         
         private void HandleOffsetEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);

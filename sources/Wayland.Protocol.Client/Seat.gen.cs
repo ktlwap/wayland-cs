@@ -31,11 +31,8 @@ public sealed class Seat : ProtocolObject
         Release = 3,
     }
 
-    internal override void HandleEvent()
+    internal override void HandleEvent(ushort length, ushort opCode)
     {
-        ushort length = _socketConnection.ReadUInt16();
-        ushort opCode = _socketConnection.ReadUInt16();
-        
         switch (opCode)
         {
             case (ushort) EventOpCode.Capabilities:
@@ -54,7 +51,7 @@ public sealed class Seat : ProtocolObject
         
         internal void HandleCapabilitiesEvent(ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -66,7 +63,7 @@ public sealed class Seat : ProtocolObject
         
         internal void HandleNameEvent(ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);

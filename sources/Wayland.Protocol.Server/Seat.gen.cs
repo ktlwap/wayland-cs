@@ -92,7 +92,7 @@ public sealed class Seat : ProtocolObject
         
         private void HandleGetPointerEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -104,7 +104,7 @@ public sealed class Seat : ProtocolObject
         
         private void HandleGetKeyboardEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -116,7 +116,7 @@ public sealed class Seat : ProtocolObject
         
         private void HandleGetTouchEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -128,7 +128,7 @@ public sealed class Seat : ProtocolObject
         
         private void HandleReleaseEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);

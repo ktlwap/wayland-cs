@@ -26,11 +26,8 @@ public sealed class Callback : ProtocolObject
     {
     }
 
-    internal override void HandleEvent()
+    internal override void HandleEvent(ushort length, ushort opCode)
     {
-        ushort length = _socketConnection.ReadUInt16();
-        ushort opCode = _socketConnection.ReadUInt16();
-        
         switch (opCode)
         {
             case (ushort) EventOpCode.Done:
@@ -45,7 +42,7 @@ public sealed class Callback : ProtocolObject
         
         internal void HandleDoneEvent(ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);

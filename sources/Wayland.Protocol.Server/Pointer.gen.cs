@@ -240,7 +240,7 @@ public sealed class Pointer : ProtocolObject
         
         private void HandleSetCursorEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -255,7 +255,7 @@ public sealed class Pointer : ProtocolObject
         
         private void HandleReleaseEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);

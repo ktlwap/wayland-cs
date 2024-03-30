@@ -50,7 +50,7 @@ public sealed class DataDeviceManager : ProtocolObject
         
         private void HandleCreateDataSourceEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -62,7 +62,7 @@ public sealed class DataDeviceManager : ProtocolObject
         
         private void HandleGetDataDeviceEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
