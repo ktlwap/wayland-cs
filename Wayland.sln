@@ -10,13 +10,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wayland.Protocol.Common", "
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{DF41C3D9-4AB6-4371-9899-75E6E60CC6BD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Simple.Client", "Simple.Client\Simple.Client.csproj", "{F9E3704F-82D5-4592-BA67-D387DB26B07D}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{7DA75F4E-1796-4D6C-B87B-BBA206412F23}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wayland.Protocol.Server", "sources\Wayland.Protocol.Server\Wayland.Protocol.Server.csproj", "{450E730D-631D-4BA0-934F-41E2EF8393AB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wayland.Protocol.Client", "sources\Wayland.Protocol.Client\Wayland.Protocol.Client.csproj", "{82C79FA4-EF87-4A8B-9340-6F56C33EFF3F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Simple.Client", "examples\Simple.Client\Simple.Client.csproj", "{4746C1A0-8E80-43E4-B969-07089586A061}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -40,10 +40,6 @@ Global
 		{A6770958-4828-4D9D-B174-0B5F4CAE3024}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A6770958-4828-4D9D-B174-0B5F4CAE3024}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A6770958-4828-4D9D-B174-0B5F4CAE3024}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F9E3704F-82D5-4592-BA67-D387DB26B07D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F9E3704F-82D5-4592-BA67-D387DB26B07D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F9E3704F-82D5-4592-BA67-D387DB26B07D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F9E3704F-82D5-4592-BA67-D387DB26B07D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{450E730D-631D-4BA0-934F-41E2EF8393AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{450E730D-631D-4BA0-934F-41E2EF8393AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{450E730D-631D-4BA0-934F-41E2EF8393AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -52,8 +48,12 @@ Global
 		{82C79FA4-EF87-4A8B-9340-6F56C33EFF3F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{82C79FA4-EF87-4A8B-9340-6F56C33EFF3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{82C79FA4-EF87-4A8B-9340-6F56C33EFF3F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4746C1A0-8E80-43E4-B969-07089586A061}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4746C1A0-8E80-43E4-B969-07089586A061}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4746C1A0-8E80-43E4-B969-07089586A061}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4746C1A0-8E80-43E4-B969-07089586A061}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{F9E3704F-82D5-4592-BA67-D387DB26B07D} = {DF41C3D9-4AB6-4371-9899-75E6E60CC6BD}
+		{4746C1A0-8E80-43E4-B969-07089586A061} = {DF41C3D9-4AB6-4371-9899-75E6E60CC6BD}
 	EndGlobalSection
 EndGlobal
