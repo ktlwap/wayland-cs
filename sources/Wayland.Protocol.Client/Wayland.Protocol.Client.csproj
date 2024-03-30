@@ -1,13 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
+        <AssemblyName>Wayland.Protocol.Client</AssemblyName>
+        <RootNamespace>Wayland.Protocol.Client</RootNamespace>
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Wayland.Protocol.Common\Wayland.Protocol.Common.csproj" />
+        <ProjectReference Include="..\Wayland.Protocol.Common\Wayland.Protocol.Common.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>Wayland.Client</_Parameter1>
+        </AssemblyAttribute>
     </ItemGroup>
 
 </Project>

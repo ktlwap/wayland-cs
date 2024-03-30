@@ -4,11 +4,13 @@ namespace Wayland.Protocol.Client;
 
 public sealed class DataDevice : ProtocolObject
 {
+    private readonly SocketConnection _socketConnection;
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
     public DataDevice(SocketConnection socketConnection, uint id, uint version) : base(id, version)
     {
+        _socketConnection = socketConnection;
         Events = new EventsWrapper(socketConnection, this);
         Requests = new RequestsWrapper(socketConnection, this);
     }
@@ -30,6 +32,34 @@ public sealed class DataDevice : ProtocolObject
         Release = 2,
     }
 
+    internal override void HandleEvent()
+    {
+        ushort length = _socketConnection.ReadUInt16();
+        ushort opCode = _socketConnection.ReadUInt16();
+        
+        switch (opCode)
+        {
+            case (ushort) EventOpCode.DataOffer:
+                Events.HandleDataOfferEvent(length);
+                return;
+            case (ushort) EventOpCode.Enter:
+                Events.HandleEnterEvent(length);
+                return;
+            case (ushort) EventOpCode.Leave:
+                Events.HandleLeaveEvent(length);
+                return;
+            case (ushort) EventOpCode.Motion:
+                Events.HandleMotionEvent(length);
+                return;
+            case (ushort) EventOpCode.Drop:
+                Events.HandleDropEvent(length);
+                return;
+            case (ushort) EventOpCode.Selection:
+                Events.HandleSelectionEvent(length);
+                return;
+        }
+    }
+
     public class EventsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
         public Action<NewId>? DataOffer { get; set; }
@@ -39,35 +69,7 @@ public sealed class DataDevice : ProtocolObject
         public Action? Drop { get; set; }
         public Action<ObjectId>? Selection { get; set; }
         
-        internal void HandleEvent()
-        {
-            ushort length = socketConnection.ReadUInt16();
-            ushort opCode = socketConnection.ReadUInt16();
-            
-            switch (opCode)
-            {
-                case (ushort) EventOpCode.DataOffer:
-                    HandleDataOfferEvent(length);
-                    return;
-                case (ushort) EventOpCode.Enter:
-                    HandleEnterEvent(length);
-                    return;
-                case (ushort) EventOpCode.Leave:
-                    HandleLeaveEvent(length);
-                    return;
-                case (ushort) EventOpCode.Motion:
-                    HandleMotionEvent(length);
-                    return;
-                case (ushort) EventOpCode.Drop:
-                    HandleDropEvent(length);
-                    return;
-                case (ushort) EventOpCode.Selection:
-                    HandleSelectionEvent(length);
-                    return;
-            }
-        }
-        
-        private void HandleDataOfferEvent(ushort length)
+        internal void HandleDataOfferEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -79,7 +81,7 @@ public sealed class DataDevice : ProtocolObject
             DataOffer?.Invoke(arg0);
         }
         
-        private void HandleEnterEvent(ushort length)
+        internal void HandleEnterEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -95,7 +97,7 @@ public sealed class DataDevice : ProtocolObject
             Enter?.Invoke(arg0, arg1, arg2, arg3, arg4);
         }
         
-        private void HandleLeaveEvent(ushort length)
+        internal void HandleLeaveEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -106,7 +108,7 @@ public sealed class DataDevice : ProtocolObject
             Leave?.Invoke();
         }
         
-        private void HandleMotionEvent(ushort length)
+        internal void HandleMotionEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -120,7 +122,7 @@ public sealed class DataDevice : ProtocolObject
             Motion?.Invoke(arg0, arg1, arg2);
         }
         
-        private void HandleDropEvent(ushort length)
+        internal void HandleDropEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -131,7 +133,7 @@ public sealed class DataDevice : ProtocolObject
             Drop?.Invoke();
         }
         
-        private void HandleSelectionEvent(ushort length)
+        internal void HandleSelectionEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);

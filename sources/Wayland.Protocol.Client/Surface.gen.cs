@@ -4,11 +4,13 @@ namespace Wayland.Protocol.Client;
 
 public sealed class Surface : ProtocolObject
 {
+    private readonly SocketConnection _socketConnection;
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
     public Surface(SocketConnection socketConnection, uint id, uint version) : base(id, version)
     {
+        _socketConnection = socketConnection;
         Events = new EventsWrapper(socketConnection, this);
         Requests = new RequestsWrapper(socketConnection, this);
     }
@@ -36,6 +38,28 @@ public sealed class Surface : ProtocolObject
         Offset = 10,
     }
 
+    internal override void HandleEvent()
+    {
+        ushort length = _socketConnection.ReadUInt16();
+        ushort opCode = _socketConnection.ReadUInt16();
+        
+        switch (opCode)
+        {
+            case (ushort) EventOpCode.Enter:
+                Events.HandleEnterEvent(length);
+                return;
+            case (ushort) EventOpCode.Leave:
+                Events.HandleLeaveEvent(length);
+                return;
+            case (ushort) EventOpCode.PreferredBufferScale:
+                Events.HandlePreferredBufferScaleEvent(length);
+                return;
+            case (ushort) EventOpCode.PreferredBufferTransform:
+                Events.HandlePreferredBufferTransformEvent(length);
+                return;
+        }
+    }
+
     public class EventsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
         public Action<ObjectId>? Enter { get; set; }
@@ -43,29 +67,7 @@ public sealed class Surface : ProtocolObject
         public Action<int>? PreferredBufferScale { get; set; }
         public Action<uint>? PreferredBufferTransform { get; set; }
         
-        internal void HandleEvent()
-        {
-            ushort length = socketConnection.ReadUInt16();
-            ushort opCode = socketConnection.ReadUInt16();
-            
-            switch (opCode)
-            {
-                case (ushort) EventOpCode.Enter:
-                    HandleEnterEvent(length);
-                    return;
-                case (ushort) EventOpCode.Leave:
-                    HandleLeaveEvent(length);
-                    return;
-                case (ushort) EventOpCode.PreferredBufferScale:
-                    HandlePreferredBufferScaleEvent(length);
-                    return;
-                case (ushort) EventOpCode.PreferredBufferTransform:
-                    HandlePreferredBufferTransformEvent(length);
-                    return;
-            }
-        }
-        
-        private void HandleEnterEvent(ushort length)
+        internal void HandleEnterEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -77,7 +79,7 @@ public sealed class Surface : ProtocolObject
             Enter?.Invoke(arg0);
         }
         
-        private void HandleLeaveEvent(ushort length)
+        internal void HandleLeaveEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -89,7 +91,7 @@ public sealed class Surface : ProtocolObject
             Leave?.Invoke(arg0);
         }
         
-        private void HandlePreferredBufferScaleEvent(ushort length)
+        internal void HandlePreferredBufferScaleEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -101,7 +103,7 @@ public sealed class Surface : ProtocolObject
             PreferredBufferScale?.Invoke(arg0);
         }
         
-        private void HandlePreferredBufferTransformEvent(ushort length)
+        internal void HandlePreferredBufferTransformEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
