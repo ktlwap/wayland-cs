@@ -89,11 +89,8 @@ public static class ClientCodeGenerator
     
     private static void AddEventHandler(StringBuilder sb, List<Event> events)
     {
-        sb.Append("    internal override void HandleEvent()\n");
+        sb.Append("    internal override void HandleEvent(ushort length, ushort opCode)\n");
         sb.Append("    {\n");
-        sb.Append("        ushort length = _socketConnection.ReadUInt16();\n");
-        sb.Append("        ushort opCode = _socketConnection.ReadUInt16();\n");
-        sb.Append("        \n");
         sb.Append("        switch (opCode)\n");
         sb.Append("        {\n");
 
@@ -128,7 +125,7 @@ public static class ClientCodeGenerator
             sb.Append(
                 $"        internal void Handle{@event.Name}Event(ushort length)\n");
             sb.Append("        {\n");
-            sb.Append("            byte[] buffer = new byte[length / 8];\n");
+            sb.Append("            byte[] buffer = new byte[length];\n");
             sb.Append("            socketConnection.Read(buffer, 0, buffer.Length);\n");
             sb.Append('\n');
             sb.Append("            MessageReader reader = new MessageReader(buffer);\n");

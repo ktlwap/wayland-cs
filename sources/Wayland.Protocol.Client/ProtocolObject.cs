@@ -24,7 +24,7 @@ public abstract class ProtocolObject
         _protocolObjects.Add(id, this);
     }
 
-    internal abstract void HandleEvent();
+    internal abstract void HandleEvent(ushort length, ushort opCode);
     
     public static NewId AllocateId()
     {

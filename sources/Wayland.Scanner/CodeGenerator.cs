@@ -185,7 +185,7 @@ public static class CodeGenerator
             sb.Append(
                 $"        private void Handle{@event.Name}Event(SocketConnection socketConnection, ushort length)\n");
             sb.Append("        {\n");
-            sb.Append("            byte[] buffer = new byte[length / 8];\n");
+            sb.Append("            byte[] buffer = new byte[length];\n");
             sb.Append("            socketConnection.Read(buffer, 0, buffer.Length);\n");
             sb.Append('\n');
             sb.Append("            MessageReader reader = new MessageReader(buffer);\n");
@@ -268,7 +268,7 @@ public static class CodeGenerator
             sb.Append(
                 $"        private void Handle{request.Name}Event(SocketConnection socketConnection, ushort length)\n");
             sb.Append("        {\n");
-            sb.Append("            byte[] buffer = new byte[length / 8];\n");
+            sb.Append("            byte[] buffer = new byte[length];\n");
             sb.Append("            socketConnection.Read(buffer, 0, buffer.Length);\n");
             sb.Append('\n');
             sb.Append("            MessageReader reader = new MessageReader(buffer);\n");
