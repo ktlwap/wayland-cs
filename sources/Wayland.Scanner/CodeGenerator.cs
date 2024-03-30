@@ -32,7 +32,7 @@ public static class CodeGenerator
 
             using FileStream fileStream = File.Create(Path.Combine(ClientFilePath, @interface.Name + ".gen.cs"));
 
-            byte[] data = GenerateSource(@interface, false);
+            byte[] data = GenerateSource(@interface, true);
             fileStream.Write(data, 0, data.Length);
         }
     }
@@ -55,17 +55,17 @@ public static class CodeGenerator
 
             using FileStream fileStream = File.Create(Path.Combine(ServerFilePath, @interface.Name + ".gen.cs"));
 
-            byte[] data = GenerateSource(@interface, true);
+            byte[] data = GenerateSource(@interface, false);
             fileStream.Write(data, 0, data.Length);
         }
     }
 
-    private static byte[] GenerateSource(Interface @interface, bool isServer)
+    private static byte[] GenerateSource(Interface @interface, bool isClient)
     {
         var sb = new StringBuilder();
         sb.Append("using Wayland.Protocol.Common;\n");
         sb.Append('\n');
-        sb.Append(isServer ? "namespace Wayland.Protocol.Server;\n" : "namespace Wayland.Protocol.Client;\n");
+        sb.Append(isClient ? "namespace Wayland.Protocol.Client;\n" : "namespace Wayland.Protocol.Server;\n");
         sb.Append('\n');
         sb.Append($"public sealed class {@interface.Name} : ProtocolObject\n");
         sb.Append("{\n");
@@ -82,9 +82,9 @@ public static class CodeGenerator
         sb.Append('\n');
         AddRequestOpCodeStub(sb, @interface.Requests);
         sb.Append('\n');
-        AddEventsWrapperStub(sb, @interface.Events, isServer);
+        AddEventsWrapperStub(sb, @interface.Events, isClient);
         sb.Append('\n');
-        AddRequestsWrapperStub(sb, @interface.Requests, isServer);
+        AddRequestsWrapperStub(sb, @interface.Requests, isClient);
         sb.Append("}\n");
 
         return Encoding.Default.GetBytes(sb.ToString());
@@ -110,12 +110,12 @@ public static class CodeGenerator
         sb.Append("    }\n");
     }
 
-    private static void AddEventsWrapperStub(StringBuilder sb, List<Event> events, bool isServer)
+    private static void AddEventsWrapperStub(StringBuilder sb, List<Event> events, bool isClient)
     {
         sb.Append("    public class EventsWrapper(ProtocolObject protocolObject)\n");
         sb.Append("    {\n");
 
-        if (isServer)
+        if (isClient)
         {
             AddEventsStubForEvents(sb, events);
         }
@@ -130,12 +130,12 @@ public static class CodeGenerator
         sb.Append("    }\n");
     }
 
-    private static void AddRequestsWrapperStub(StringBuilder sb, List<Request> requests, bool isServer)
+    private static void AddRequestsWrapperStub(StringBuilder sb, List<Request> requests, bool isClient)
     {
         sb.Append("    public class RequestsWrapper(ProtocolObject protocolObject)\n");
         sb.Append("    {\n");
 
-        if (isServer)
+        if (isClient)
         {
             foreach (var request in requests)
             {
