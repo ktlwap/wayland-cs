@@ -4,11 +4,13 @@ namespace Wayland.Protocol.Client;
 
 public sealed class Compositor : ProtocolObject
 {
+    public const string Name = "wl_compositor";
+
     private readonly SocketConnection _socketConnection;
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public Compositor(SocketConnection socketConnection, uint id, uint version) : base(id, version, "wl_compositor")
+    public Compositor(SocketConnection socketConnection, uint id, uint version) : base(id, version, Name)
     {
         _socketConnection = socketConnection;
         Events = new EventsWrapper(socketConnection, this);

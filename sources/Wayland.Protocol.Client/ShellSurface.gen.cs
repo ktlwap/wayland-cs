@@ -4,11 +4,13 @@ namespace Wayland.Protocol.Client;
 
 public sealed class ShellSurface : ProtocolObject
 {
+    public const string Name = "wl_shell_surface";
+
     private readonly SocketConnection _socketConnection;
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public ShellSurface(SocketConnection socketConnection, uint id, uint version) : base(id, version, "wl_shell_surface")
+    public ShellSurface(SocketConnection socketConnection, uint id, uint version) : base(id, version, Name)
     {
         _socketConnection = socketConnection;
         Events = new EventsWrapper(socketConnection, this);

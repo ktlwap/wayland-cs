@@ -4,11 +4,13 @@ namespace Wayland.Protocol.Client;
 
 public sealed class Subcompositor : ProtocolObject
 {
+    public const string Name = "wl_subcompositor";
+
     private readonly SocketConnection _socketConnection;
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public Subcompositor(SocketConnection socketConnection, uint id, uint version) : base(id, version, "wl_subcompositor")
+    public Subcompositor(SocketConnection socketConnection, uint id, uint version) : base(id, version, Name)
     {
         _socketConnection = socketConnection;
         Events = new EventsWrapper(socketConnection, this);

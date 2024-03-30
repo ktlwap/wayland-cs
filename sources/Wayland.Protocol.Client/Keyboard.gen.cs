@@ -4,11 +4,13 @@ namespace Wayland.Protocol.Client;
 
 public sealed class Keyboard : ProtocolObject
 {
+    public const string Name = "wl_keyboard";
+
     private readonly SocketConnection _socketConnection;
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public Keyboard(SocketConnection socketConnection, uint id, uint version) : base(id, version, "wl_keyboard")
+    public Keyboard(SocketConnection socketConnection, uint id, uint version) : base(id, version, Name)
     {
         _socketConnection = socketConnection;
         Events = new EventsWrapper(socketConnection, this);

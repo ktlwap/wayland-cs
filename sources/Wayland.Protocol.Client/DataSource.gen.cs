@@ -4,11 +4,13 @@ namespace Wayland.Protocol.Client;
 
 public sealed class DataSource : ProtocolObject
 {
+    public const string Name = "wl_data_source";
+
     private readonly SocketConnection _socketConnection;
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public DataSource(SocketConnection socketConnection, uint id, uint version) : base(id, version, "wl_data_source")
+    public DataSource(SocketConnection socketConnection, uint id, uint version) : base(id, version, Name)
     {
         _socketConnection = socketConnection;
         Events = new EventsWrapper(socketConnection, this);

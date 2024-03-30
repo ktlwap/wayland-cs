@@ -4,11 +4,13 @@ namespace Wayland.Protocol.Client;
 
 public sealed class DataDeviceManager : ProtocolObject
 {
+    public const string Name = "wl_data_device_manager";
+
     private readonly SocketConnection _socketConnection;
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public DataDeviceManager(SocketConnection socketConnection, uint id, uint version) : base(id, version, "wl_data_device_manager")
+    public DataDeviceManager(SocketConnection socketConnection, uint id, uint version) : base(id, version, Name)
     {
         _socketConnection = socketConnection;
         Events = new EventsWrapper(socketConnection, this);

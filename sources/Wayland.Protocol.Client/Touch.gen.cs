@@ -4,11 +4,13 @@ namespace Wayland.Protocol.Client;
 
 public sealed class Touch : ProtocolObject
 {
+    public const string Name = "wl_touch";
+
     private readonly SocketConnection _socketConnection;
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public Touch(SocketConnection socketConnection, uint id, uint version) : base(id, version, "wl_touch")
+    public Touch(SocketConnection socketConnection, uint id, uint version) : base(id, version, Name)
     {
         _socketConnection = socketConnection;
         Events = new EventsWrapper(socketConnection, this);

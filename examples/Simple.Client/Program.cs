@@ -1,5 +1,6 @@
 ﻿using Wayland.Client;
 using Wayland.Protocol.Client;
+using Wayland.Protocol.Common;
 
 namespace Simple.Client;
 
@@ -10,25 +11,26 @@ class Program
     {
         using Connection connection = new Connection();
         Console.WriteLine("Connection established.");
-        
-        connection.Display.Requests.GetRegistry(ProtocolObject.AllocateId());
 
-        connection.Registry.Events.Global += (uint name, string @interface, uint version) =>
+        NewId registryId = ProtocolObject.AllocateId();
+        connection.Display.Requests.GetRegistry(ProtocolObject.AllocateId());
+        connection.Bind(Registry.Name, registryId.Value, 1);
+
+        connection.Registry!.Events.Global += (uint name, string @interface, uint version) =>
         {
             Console.WriteLine($"Global: {name} {@interface} {version}");
-        };
-        
-        connection.Callback.Events.Done += (uint callbackData) =>
-        {
-            Console.WriteLine($"Callback done: {callbackData}");
-            _isDone = true;
+            connection.Bind(@interface, registryId.Value, version);
         };
         
         connection.Display.Requests.Sync(ProtocolObject.AllocateId());
+        
+        connection.Callback.Events.Done += (uint callbackData) =>
+        {
+            Console.WriteLine($"Request done: {callbackData}. Closing connection.");
+            _isDone = true;
+        };
 
         while (!_isDone)
             connection.EventQueue.Dispatch();
-        
-        Console.WriteLine("Done round trip. Closing connection.");
     }
 }

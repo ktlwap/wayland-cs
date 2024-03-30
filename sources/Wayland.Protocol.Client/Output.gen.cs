@@ -4,11 +4,13 @@ namespace Wayland.Protocol.Client;
 
 public sealed class Output : ProtocolObject
 {
+    public const string Name = "wl_output";
+
     private readonly SocketConnection _socketConnection;
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public Output(SocketConnection socketConnection, uint id, uint version) : base(id, version, "wl_output")
+    public Output(SocketConnection socketConnection, uint id, uint version) : base(id, version, Name)
     {
         _socketConnection = socketConnection;
         Events = new EventsWrapper(socketConnection, this);

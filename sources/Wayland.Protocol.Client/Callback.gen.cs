@@ -4,11 +4,13 @@ namespace Wayland.Protocol.Client;
 
 public sealed class Callback : ProtocolObject
 {
+    public const string Name = "wl_callback";
+
     private readonly SocketConnection _socketConnection;
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public Callback(SocketConnection socketConnection, uint id, uint version) : base(id, version, "wl_callback")
+    public Callback(SocketConnection socketConnection, uint id, uint version) : base(id, version, Name)
     {
         _socketConnection = socketConnection;
         Events = new EventsWrapper(socketConnection, this);

@@ -4,11 +4,13 @@ namespace Wayland.Protocol.Client;
 
 public sealed class Seat : ProtocolObject
 {
+    public const string Name = "wl_seat";
+
     private readonly SocketConnection _socketConnection;
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public Seat(SocketConnection socketConnection, uint id, uint version) : base(id, version, "wl_seat")
+    public Seat(SocketConnection socketConnection, uint id, uint version) : base(id, version, Name)
     {
         _socketConnection = socketConnection;
         Events = new EventsWrapper(socketConnection, this);
