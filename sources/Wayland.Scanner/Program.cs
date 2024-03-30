@@ -1,4 +1,5 @@
-﻿using Wayland.Scanner.Types.Xml;
+﻿using System.Diagnostics;
+using Wayland.Scanner.Types.Xml;
 
 namespace Wayland.Scanner;
 
@@ -6,9 +7,16 @@ class Program
 {
     static void Main(string[] args)
     {
-        Protocol protocol = XmlParser.Run("wayland.xml");
+        Stopwatch stopwatch = Stopwatch.StartNew();
         
+        stopwatch.Start();
+        
+        Protocol protocol = XmlParser.Run("wayland.xml");
         Symbolizer.Process(protocol.Interfaces);
         CodeGenerator.Generate(protocol);
+        
+        stopwatch.Stop();
+
+        Console.WriteLine("Code generation completed in " + stopwatch.ElapsedMilliseconds + "ms.");
     }
 }

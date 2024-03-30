@@ -23,6 +23,16 @@ public sealed class SocketConnection : IDisposable
         _binaryWriter.Write(value);
     }
     
+    public void Write(short value)
+    {
+        _binaryWriter.Write(value);
+    }
+    
+    public void Write(ushort value)
+    {
+        _binaryWriter.Write(value);
+    }
+    
     public void Write(int value)
     {
         _binaryWriter.Write(value);
@@ -31,6 +41,11 @@ public sealed class SocketConnection : IDisposable
     public void Write(uint value)
     {
         _binaryWriter.Write(value);
+    }
+
+    public void Write(byte[] data)
+    {
+        _binaryWriter.Write(data);
     }
 
     public ushort ReadUInt16()
