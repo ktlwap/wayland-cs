@@ -4,7 +4,7 @@ namespace Wayland.Protocol.Client;
 
 public sealed class ShellSurface : ProtocolObject
 {
-    public const string Name = "wl_shell_surface";
+    public new const string Name = "wl_shell_surface";
 
     private readonly SocketConnection _socketConnection;
     public readonly EventsWrapper Events;
@@ -114,7 +114,7 @@ public sealed class ShellSurface : ProtocolObject
             byte[] data = writer.ToArray();
             int length = data.Length - 8;
             data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue << 8 & length);
+            data[6] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }
@@ -130,7 +130,7 @@ public sealed class ShellSurface : ProtocolObject
             byte[] data = writer.ToArray();
             int length = data.Length - 8;
             data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue << 8 & length);
+            data[6] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }
@@ -147,7 +147,7 @@ public sealed class ShellSurface : ProtocolObject
             byte[] data = writer.ToArray();
             int length = data.Length - 8;
             data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue << 8 & length);
+            data[6] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }
@@ -161,7 +161,7 @@ public sealed class ShellSurface : ProtocolObject
             byte[] data = writer.ToArray();
             int length = data.Length - 8;
             data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue << 8 & length);
+            data[6] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }
@@ -179,7 +179,7 @@ public sealed class ShellSurface : ProtocolObject
             byte[] data = writer.ToArray();
             int length = data.Length - 8;
             data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue << 8 & length);
+            data[6] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }
@@ -196,7 +196,7 @@ public sealed class ShellSurface : ProtocolObject
             byte[] data = writer.ToArray();
             int length = data.Length - 8;
             data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue << 8 & length);
+            data[6] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }
@@ -216,7 +216,7 @@ public sealed class ShellSurface : ProtocolObject
             byte[] data = writer.ToArray();
             int length = data.Length - 8;
             data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue << 8 & length);
+            data[6] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }
@@ -231,7 +231,7 @@ public sealed class ShellSurface : ProtocolObject
             byte[] data = writer.ToArray();
             int length = data.Length - 8;
             data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue << 8 & length);
+            data[6] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }
@@ -246,7 +246,7 @@ public sealed class ShellSurface : ProtocolObject
             byte[] data = writer.ToArray();
             int length = data.Length - 8;
             data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue << 8 & length);
+            data[6] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }
@@ -261,7 +261,7 @@ public sealed class ShellSurface : ProtocolObject
             byte[] data = writer.ToArray();
             int length = data.Length - 8;
             data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue << 8 & length);
+            data[6] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }

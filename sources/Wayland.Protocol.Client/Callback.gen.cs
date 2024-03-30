@@ -4,7 +4,7 @@ namespace Wayland.Protocol.Client;
 
 public sealed class Callback : ProtocolObject
 {
-    public const string Name = "wl_callback";
+    public new const string Name = "wl_callback";
 
     private readonly SocketConnection _socketConnection;
     public readonly EventsWrapper Events;

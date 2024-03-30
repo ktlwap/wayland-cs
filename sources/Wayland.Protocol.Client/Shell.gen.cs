@@ -4,7 +4,7 @@ namespace Wayland.Protocol.Client;
 
 public sealed class Shell : ProtocolObject
 {
-    public const string Name = "wl_shell";
+    public new const string Name = "wl_shell";
 
     private readonly SocketConnection _socketConnection;
     public readonly EventsWrapper Events;
@@ -54,7 +54,7 @@ public sealed class Shell : ProtocolObject
             byte[] data = writer.ToArray();
             int length = data.Length - 8;
             data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue << 8 & length);
+            data[6] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }

@@ -7,6 +7,7 @@ namespace Simple.Client;
 class Program
 {
     private static bool _isDone = false;
+    
     static void Main(string[] args)
     {
         using Connection connection = new Connection();
@@ -24,7 +25,7 @@ class Program
         
         connection.Display.Requests.Sync(ProtocolObject.AllocateId());
         
-        connection.Callback.Events.Done += (uint callbackData) =>
+        connection.Callback!.Events.Done += (uint callbackData) =>
         {
             Console.WriteLine($"Request done: {callbackData}. Closing connection.");
             _isDone = true;

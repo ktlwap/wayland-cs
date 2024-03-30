@@ -4,7 +4,7 @@ namespace Wayland.Protocol.Client;
 
 public sealed class Pointer : ProtocolObject
 {
-    public const string Name = "wl_pointer";
+    public new const string Name = "wl_pointer";
 
     private readonly SocketConnection _socketConnection;
     public readonly EventsWrapper Events;
@@ -258,7 +258,7 @@ public sealed class Pointer : ProtocolObject
             byte[] data = writer.ToArray();
             int length = data.Length - 8;
             data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue << 8 & length);
+            data[6] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }
@@ -272,7 +272,7 @@ public sealed class Pointer : ProtocolObject
             byte[] data = writer.ToArray();
             int length = data.Length - 8;
             data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue << 8 & length);
+            data[6] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }

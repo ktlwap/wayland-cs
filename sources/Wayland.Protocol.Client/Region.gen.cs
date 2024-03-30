@@ -4,7 +4,7 @@ namespace Wayland.Protocol.Client;
 
 public sealed class Region : ProtocolObject
 {
-    public const string Name = "wl_region";
+    public new const string Name = "wl_region";
 
     private readonly SocketConnection _socketConnection;
     public readonly EventsWrapper Events;
@@ -54,7 +54,7 @@ public sealed class Region : ProtocolObject
             byte[] data = writer.ToArray();
             int length = data.Length - 8;
             data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue << 8 & length);
+            data[6] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }
@@ -72,7 +72,7 @@ public sealed class Region : ProtocolObject
             byte[] data = writer.ToArray();
             int length = data.Length - 8;
             data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue << 8 & length);
+            data[6] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }
@@ -90,7 +90,7 @@ public sealed class Region : ProtocolObject
             byte[] data = writer.ToArray();
             int length = data.Length - 8;
             data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue << 8 & length);
+            data[6] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }
