@@ -8,7 +8,7 @@ public sealed class Buffer : ProtocolObject
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public Buffer(SocketConnection socketConnection, uint id, uint version) : base(id, version)
+    public Buffer(SocketConnection socketConnection, uint id, uint version) : base(id, version, "wl_buffer")
     {
         _socketConnection = socketConnection;
         Events = new EventsWrapper(socketConnection, this);

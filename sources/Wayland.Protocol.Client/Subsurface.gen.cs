@@ -8,7 +8,7 @@ public sealed class Subsurface : ProtocolObject
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public Subsurface(SocketConnection socketConnection, uint id, uint version) : base(id, version)
+    public Subsurface(SocketConnection socketConnection, uint id, uint version) : base(id, version, "wl_subsurface")
     {
         _socketConnection = socketConnection;
         Events = new EventsWrapper(socketConnection, this);

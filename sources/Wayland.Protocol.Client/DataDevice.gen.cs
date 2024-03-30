@@ -8,7 +8,7 @@ public sealed class DataDevice : ProtocolObject
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public DataDevice(SocketConnection socketConnection, uint id, uint version) : base(id, version)
+    public DataDevice(SocketConnection socketConnection, uint id, uint version) : base(id, version, "wl_data_device")
     {
         _socketConnection = socketConnection;
         Events = new EventsWrapper(socketConnection, this);

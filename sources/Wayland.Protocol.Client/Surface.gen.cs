@@ -8,7 +8,7 @@ public sealed class Surface : ProtocolObject
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public Surface(SocketConnection socketConnection, uint id, uint version) : base(id, version)
+    public Surface(SocketConnection socketConnection, uint id, uint version) : base(id, version, "wl_surface")
     {
         _socketConnection = socketConnection;
         Events = new EventsWrapper(socketConnection, this);

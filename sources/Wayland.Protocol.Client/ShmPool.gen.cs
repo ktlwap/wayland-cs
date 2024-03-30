@@ -8,7 +8,7 @@ public sealed class ShmPool : ProtocolObject
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public ShmPool(SocketConnection socketConnection, uint id, uint version) : base(id, version)
+    public ShmPool(SocketConnection socketConnection, uint id, uint version) : base(id, version, "wl_shm_pool")
     {
         _socketConnection = socketConnection;
         Events = new EventsWrapper(socketConnection, this);

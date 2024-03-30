@@ -8,7 +8,7 @@ public sealed class Subcompositor : ProtocolObject
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public Subcompositor(SocketConnection socketConnection, uint id, uint version) : base(id, version)
+    public Subcompositor(SocketConnection socketConnection, uint id, uint version) : base(id, version, "wl_subcompositor")
     {
         _socketConnection = socketConnection;
         Events = new EventsWrapper(socketConnection, this);

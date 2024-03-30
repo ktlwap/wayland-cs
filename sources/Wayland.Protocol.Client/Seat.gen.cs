@@ -8,7 +8,7 @@ public sealed class Seat : ProtocolObject
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public Seat(SocketConnection socketConnection, uint id, uint version) : base(id, version)
+    public Seat(SocketConnection socketConnection, uint id, uint version) : base(id, version, "wl_seat")
     {
         _socketConnection = socketConnection;
         Events = new EventsWrapper(socketConnection, this);

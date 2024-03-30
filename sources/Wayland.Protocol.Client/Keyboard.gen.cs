@@ -8,7 +8,7 @@ public sealed class Keyboard : ProtocolObject
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public Keyboard(SocketConnection socketConnection, uint id, uint version) : base(id, version)
+    public Keyboard(SocketConnection socketConnection, uint id, uint version) : base(id, version, "wl_keyboard")
     {
         _socketConnection = socketConnection;
         Events = new EventsWrapper(socketConnection, this);

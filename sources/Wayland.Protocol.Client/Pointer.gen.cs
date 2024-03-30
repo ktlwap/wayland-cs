@@ -8,7 +8,7 @@ public sealed class Pointer : ProtocolObject
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public Pointer(SocketConnection socketConnection, uint id, uint version) : base(id, version)
+    public Pointer(SocketConnection socketConnection, uint id, uint version) : base(id, version, "wl_pointer")
     {
         _socketConnection = socketConnection;
         Events = new EventsWrapper(socketConnection, this);

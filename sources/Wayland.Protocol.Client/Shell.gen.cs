@@ -8,7 +8,7 @@ public sealed class Shell : ProtocolObject
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public Shell(SocketConnection socketConnection, uint id, uint version) : base(id, version)
+    public Shell(SocketConnection socketConnection, uint id, uint version) : base(id, version, "wl_shell")
     {
         _socketConnection = socketConnection;
         Events = new EventsWrapper(socketConnection, this);

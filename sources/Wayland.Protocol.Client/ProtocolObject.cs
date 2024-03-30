@@ -8,16 +8,18 @@ public abstract class ProtocolObject
     
     public readonly uint Id;
     public readonly uint Version;
+    public readonly string Name;
 
     static ProtocolObject()
     {
         _protocolObjects = new Dictionary<uint, ProtocolObject>();
     }
 
-    public ProtocolObject(uint id, uint version)
+    public ProtocolObject(uint id, uint version, string name)
     {
         Id = id;
         Version = version;
+        Name = name;
         
         _protocolObjects.Add(id, this);
     }

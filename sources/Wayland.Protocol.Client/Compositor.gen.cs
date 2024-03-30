@@ -8,7 +8,7 @@ public sealed class Compositor : ProtocolObject
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public Compositor(SocketConnection socketConnection, uint id, uint version) : base(id, version)
+    public Compositor(SocketConnection socketConnection, uint id, uint version) : base(id, version, "wl_compositor")
     {
         _socketConnection = socketConnection;
         Events = new EventsWrapper(socketConnection, this);

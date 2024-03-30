@@ -8,7 +8,7 @@ public sealed class Output : ProtocolObject
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public Output(SocketConnection socketConnection, uint id, uint version) : base(id, version)
+    public Output(SocketConnection socketConnection, uint id, uint version) : base(id, version, "wl_output")
     {
         _socketConnection = socketConnection;
         Events = new EventsWrapper(socketConnection, this);

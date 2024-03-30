@@ -8,7 +8,7 @@ public sealed class DataSource : ProtocolObject
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public DataSource(SocketConnection socketConnection, uint id, uint version) : base(id, version)
+    public DataSource(SocketConnection socketConnection, uint id, uint version) : base(id, version, "wl_data_source")
     {
         _socketConnection = socketConnection;
         Events = new EventsWrapper(socketConnection, this);

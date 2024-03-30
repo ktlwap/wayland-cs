@@ -8,7 +8,7 @@ public sealed class Region : ProtocolObject
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public Region(SocketConnection socketConnection, uint id, uint version) : base(id, version)
+    public Region(SocketConnection socketConnection, uint id, uint version) : base(id, version, "wl_region")
     {
         _socketConnection = socketConnection;
         Events = new EventsWrapper(socketConnection, this);

@@ -8,7 +8,7 @@ public sealed class Registry : ProtocolObject
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public Registry(SocketConnection socketConnection, uint id, uint version) : base(id, version)
+    public Registry(SocketConnection socketConnection, uint id, uint version) : base(id, version, "wl_registry")
     {
         _socketConnection = socketConnection;
         Events = new EventsWrapper(socketConnection, this);

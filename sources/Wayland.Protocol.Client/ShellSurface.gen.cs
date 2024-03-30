@@ -8,7 +8,7 @@ public sealed class ShellSurface : ProtocolObject
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public ShellSurface(SocketConnection socketConnection, uint id, uint version) : base(id, version)
+    public ShellSurface(SocketConnection socketConnection, uint id, uint version) : base(id, version, "wl_shell_surface")
     {
         _socketConnection = socketConnection;
         Events = new EventsWrapper(socketConnection, this);

@@ -8,7 +8,7 @@ public sealed class Display : ProtocolObject
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public Display(SocketConnection socketConnection, uint id, uint version) : base(id, version)
+    public Display(SocketConnection socketConnection, uint id, uint version) : base(id, version, "wl_display")
     {
         _socketConnection = socketConnection;
         Events = new EventsWrapper(socketConnection, this);
