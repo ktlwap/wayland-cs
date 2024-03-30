@@ -25,9 +25,17 @@ public class MessageReader
         length |= ReadByte() << 16;
         length |= ReadByte() << 24;
 
-        byte[] result = new byte[length - 1];
-        Buffer.BlockCopy(_data, _index, result, 0, length);
-        _index += 4 - _data.Length % 4;
+        byte[] result;
+        if (length > 0)
+        {
+            result = new byte[length - 1];
+            Buffer.BlockCopy(_data, _index, result, 0, length);
+            _index += 4 - _data.Length % 4;
+        }
+        else
+        {
+            result = [];
+        }
 
 #if DEBUG
         if (_index % 4 != 0)
@@ -73,10 +81,13 @@ public class MessageReader
         return result;
     }
     
-    public string ReadString()
+    public string? ReadString()
     {
         byte[] data = ReadByteArray();
-        return Encoding.UTF8.GetString(data, 0, data.Length - 1);;
+        if (data.Length > 0)
+            return Encoding.UTF8.GetString(data, 0, data.Length - 1);
+        else
+            return null;
     }
 
     public Fd ReadFd()
