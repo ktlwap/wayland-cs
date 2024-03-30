@@ -7,10 +7,10 @@ public sealed class Output : ProtocolObject
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public Output(uint id, uint version) : base(id, version)
+    public Output(SocketConnection socketConnection, uint id, uint version) : base(id, version)
     {
-        Events = new EventsWrapper(this);
-        Requests = new RequestsWrapper(this);
+        Events = new EventsWrapper(socketConnection, this);
+        Requests = new RequestsWrapper(socketConnection, this);
     }
 
     private enum EventOpCode : ushort
@@ -28,7 +28,7 @@ public sealed class Output : ProtocolObject
         Release = 0,
     }
 
-    public class EventsWrapper(ProtocolObject protocolObject)
+    public class EventsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
         public Action<int, int, int, int, int, string, string, int>? Geometry { get; set; }
         public Action<uint, int, int, int>? Mode { get; set; }
@@ -37,7 +37,7 @@ public sealed class Output : ProtocolObject
         public Action<string>? Name { get; set; }
         public Action<string>? Description { get; set; }
         
-        internal void HandleEvent(SocketConnection socketConnection)
+        internal void HandleEvent()
         {
             ushort length = socketConnection.ReadUInt16();
             ushort opCode = socketConnection.ReadUInt16();
@@ -45,27 +45,27 @@ public sealed class Output : ProtocolObject
             switch (opCode)
             {
                 case (ushort) EventOpCode.Geometry:
-                    HandleGeometryEvent(socketConnection, length);
+                    HandleGeometryEvent(length);
                     return;
                 case (ushort) EventOpCode.Mode:
-                    HandleModeEvent(socketConnection, length);
+                    HandleModeEvent(length);
                     return;
                 case (ushort) EventOpCode.Done:
-                    HandleDoneEvent(socketConnection, length);
+                    HandleDoneEvent(length);
                     return;
                 case (ushort) EventOpCode.Scale:
-                    HandleScaleEvent(socketConnection, length);
+                    HandleScaleEvent(length);
                     return;
                 case (ushort) EventOpCode.Name:
-                    HandleNameEvent(socketConnection, length);
+                    HandleNameEvent(length);
                     return;
                 case (ushort) EventOpCode.Description:
-                    HandleDescriptionEvent(socketConnection, length);
+                    HandleDescriptionEvent(length);
                     return;
             }
         }
         
-        private void HandleGeometryEvent(SocketConnection socketConnection, ushort length)
+        private void HandleGeometryEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -84,7 +84,7 @@ public sealed class Output : ProtocolObject
             Geometry?.Invoke(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
         }
         
-        private void HandleModeEvent(SocketConnection socketConnection, ushort length)
+        private void HandleModeEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -99,7 +99,7 @@ public sealed class Output : ProtocolObject
             Mode?.Invoke(arg0, arg1, arg2, arg3);
         }
         
-        private void HandleDoneEvent(SocketConnection socketConnection, ushort length)
+        private void HandleDoneEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -110,7 +110,7 @@ public sealed class Output : ProtocolObject
             Done?.Invoke();
         }
         
-        private void HandleScaleEvent(SocketConnection socketConnection, ushort length)
+        private void HandleScaleEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -122,7 +122,7 @@ public sealed class Output : ProtocolObject
             Scale?.Invoke(arg0);
         }
         
-        private void HandleNameEvent(SocketConnection socketConnection, ushort length)
+        private void HandleNameEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -134,7 +134,7 @@ public sealed class Output : ProtocolObject
             Name?.Invoke(arg0);
         }
         
-        private void HandleDescriptionEvent(SocketConnection socketConnection, ushort length)
+        private void HandleDescriptionEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -148,9 +148,9 @@ public sealed class Output : ProtocolObject
         
     }
 
-    public class RequestsWrapper(ProtocolObject protocolObject)
+    public class RequestsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
-        public void Release(SocketConnection socketConnection)
+        public void Release()
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);

@@ -14,6 +14,7 @@ class Program
         Protocol protocol = XmlParser.Run("wayland.xml");
         Symbolizer.Process(protocol.Interfaces);
         CodeGenerator.Generate(protocol);
+        ClientCodeGenerator.Generate(protocol);
         
         stopwatch.Stop();
 

@@ -7,10 +7,10 @@ public sealed class ShmPool : ProtocolObject
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public ShmPool(uint id, uint version) : base(id, version)
+    public ShmPool(SocketConnection socketConnection, uint id, uint version) : base(id, version)
     {
-        Events = new EventsWrapper(this);
-        Requests = new RequestsWrapper(this);
+        Events = new EventsWrapper(socketConnection, this);
+        Requests = new RequestsWrapper(socketConnection, this);
     }
 
     private enum EventOpCode : ushort
@@ -24,10 +24,10 @@ public sealed class ShmPool : ProtocolObject
         Resize = 2,
     }
 
-    public class EventsWrapper(ProtocolObject protocolObject)
+    public class EventsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
         
-        internal void HandleEvent(SocketConnection socketConnection)
+        internal void HandleEvent()
         {
             ushort length = socketConnection.ReadUInt16();
             ushort opCode = socketConnection.ReadUInt16();
@@ -39,9 +39,9 @@ public sealed class ShmPool : ProtocolObject
         
     }
 
-    public class RequestsWrapper(ProtocolObject protocolObject)
+    public class RequestsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
-        public void CreateBuffer(SocketConnection socketConnection, NewId id, int offset, int width, int height, int stride, uint format)
+        public void CreateBuffer(NewId id, int offset, int width, int height, int stride, uint format)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -61,7 +61,7 @@ public sealed class ShmPool : ProtocolObject
             socketConnection.Write(data);
         }
 
-        public void Destroy(SocketConnection socketConnection)
+        public void Destroy()
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -75,7 +75,7 @@ public sealed class ShmPool : ProtocolObject
             socketConnection.Write(data);
         }
 
-        public void Resize(SocketConnection socketConnection, int size)
+        public void Resize(int size)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);

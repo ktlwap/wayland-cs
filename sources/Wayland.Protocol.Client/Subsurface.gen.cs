@@ -7,10 +7,10 @@ public sealed class Subsurface : ProtocolObject
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public Subsurface(uint id, uint version) : base(id, version)
+    public Subsurface(SocketConnection socketConnection, uint id, uint version) : base(id, version)
     {
-        Events = new EventsWrapper(this);
-        Requests = new RequestsWrapper(this);
+        Events = new EventsWrapper(socketConnection, this);
+        Requests = new RequestsWrapper(socketConnection, this);
     }
 
     private enum EventOpCode : ushort
@@ -27,10 +27,10 @@ public sealed class Subsurface : ProtocolObject
         SetDesync = 5,
     }
 
-    public class EventsWrapper(ProtocolObject protocolObject)
+    public class EventsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
         
-        internal void HandleEvent(SocketConnection socketConnection)
+        internal void HandleEvent()
         {
             ushort length = socketConnection.ReadUInt16();
             ushort opCode = socketConnection.ReadUInt16();
@@ -42,9 +42,9 @@ public sealed class Subsurface : ProtocolObject
         
     }
 
-    public class RequestsWrapper(ProtocolObject protocolObject)
+    public class RequestsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
-        public void Destroy(SocketConnection socketConnection)
+        public void Destroy()
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -58,7 +58,7 @@ public sealed class Subsurface : ProtocolObject
             socketConnection.Write(data);
         }
 
-        public void SetPosition(SocketConnection socketConnection, int x, int y)
+        public void SetPosition(int x, int y)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -74,7 +74,7 @@ public sealed class Subsurface : ProtocolObject
             socketConnection.Write(data);
         }
 
-        public void PlaceAbove(SocketConnection socketConnection, ObjectId sibling)
+        public void PlaceAbove(ObjectId sibling)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -89,7 +89,7 @@ public sealed class Subsurface : ProtocolObject
             socketConnection.Write(data);
         }
 
-        public void PlaceBelow(SocketConnection socketConnection, ObjectId sibling)
+        public void PlaceBelow(ObjectId sibling)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -104,7 +104,7 @@ public sealed class Subsurface : ProtocolObject
             socketConnection.Write(data);
         }
 
-        public void SetSync(SocketConnection socketConnection)
+        public void SetSync()
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -118,7 +118,7 @@ public sealed class Subsurface : ProtocolObject
             socketConnection.Write(data);
         }
 
-        public void SetDesync(SocketConnection socketConnection)
+        public void SetDesync()
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);

@@ -7,10 +7,10 @@ public sealed class Callback : ProtocolObject
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public Callback(uint id, uint version) : base(id, version)
+    public Callback(SocketConnection socketConnection, uint id, uint version) : base(id, version)
     {
-        Events = new EventsWrapper(this);
-        Requests = new RequestsWrapper(this);
+        Events = new EventsWrapper(socketConnection, this);
+        Requests = new RequestsWrapper(socketConnection, this);
     }
 
     private enum EventOpCode : ushort
@@ -22,11 +22,11 @@ public sealed class Callback : ProtocolObject
     {
     }
 
-    public class EventsWrapper(ProtocolObject protocolObject)
+    public class EventsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
         public Action<uint>? Done { get; set; }
         
-        internal void HandleEvent(SocketConnection socketConnection)
+        internal void HandleEvent()
         {
             ushort length = socketConnection.ReadUInt16();
             ushort opCode = socketConnection.ReadUInt16();
@@ -34,12 +34,12 @@ public sealed class Callback : ProtocolObject
             switch (opCode)
             {
                 case (ushort) EventOpCode.Done:
-                    HandleDoneEvent(socketConnection, length);
+                    HandleDoneEvent(length);
                     return;
             }
         }
         
-        private void HandleDoneEvent(SocketConnection socketConnection, ushort length)
+        private void HandleDoneEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -53,7 +53,7 @@ public sealed class Callback : ProtocolObject
         
     }
 
-    public class RequestsWrapper(ProtocolObject protocolObject)
+    public class RequestsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
     }
 }

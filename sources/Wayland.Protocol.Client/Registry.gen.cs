@@ -7,10 +7,10 @@ public sealed class Registry : ProtocolObject
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public Registry(uint id, uint version) : base(id, version)
+    public Registry(SocketConnection socketConnection, uint id, uint version) : base(id, version)
     {
-        Events = new EventsWrapper(this);
-        Requests = new RequestsWrapper(this);
+        Events = new EventsWrapper(socketConnection, this);
+        Requests = new RequestsWrapper(socketConnection, this);
     }
 
     private enum EventOpCode : ushort
@@ -24,12 +24,12 @@ public sealed class Registry : ProtocolObject
         Bind = 0,
     }
 
-    public class EventsWrapper(ProtocolObject protocolObject)
+    public class EventsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
         public Action<uint, string, uint>? Global { get; set; }
         public Action<uint>? GlobalRemove { get; set; }
         
-        internal void HandleEvent(SocketConnection socketConnection)
+        internal void HandleEvent()
         {
             ushort length = socketConnection.ReadUInt16();
             ushort opCode = socketConnection.ReadUInt16();
@@ -37,15 +37,15 @@ public sealed class Registry : ProtocolObject
             switch (opCode)
             {
                 case (ushort) EventOpCode.Global:
-                    HandleGlobalEvent(socketConnection, length);
+                    HandleGlobalEvent(length);
                     return;
                 case (ushort) EventOpCode.GlobalRemove:
-                    HandleGlobalRemoveEvent(socketConnection, length);
+                    HandleGlobalRemoveEvent(length);
                     return;
             }
         }
         
-        private void HandleGlobalEvent(SocketConnection socketConnection, ushort length)
+        private void HandleGlobalEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -59,7 +59,7 @@ public sealed class Registry : ProtocolObject
             Global?.Invoke(arg0, arg1, arg2);
         }
         
-        private void HandleGlobalRemoveEvent(SocketConnection socketConnection, ushort length)
+        private void HandleGlobalRemoveEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -73,9 +73,9 @@ public sealed class Registry : ProtocolObject
         
     }
 
-    public class RequestsWrapper(ProtocolObject protocolObject)
+    public class RequestsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
-        public void Bind(SocketConnection socketConnection, uint name, NewId id)
+        public void Bind(uint name, NewId id)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);

@@ -7,10 +7,10 @@ public sealed class Seat : ProtocolObject
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public Seat(uint id, uint version) : base(id, version)
+    public Seat(SocketConnection socketConnection, uint id, uint version) : base(id, version)
     {
-        Events = new EventsWrapper(this);
-        Requests = new RequestsWrapper(this);
+        Events = new EventsWrapper(socketConnection, this);
+        Requests = new RequestsWrapper(socketConnection, this);
     }
 
     private enum EventOpCode : ushort
@@ -27,12 +27,12 @@ public sealed class Seat : ProtocolObject
         Release = 3,
     }
 
-    public class EventsWrapper(ProtocolObject protocolObject)
+    public class EventsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
         public Action<uint>? Capabilities { get; set; }
         public Action<string>? Name { get; set; }
         
-        internal void HandleEvent(SocketConnection socketConnection)
+        internal void HandleEvent()
         {
             ushort length = socketConnection.ReadUInt16();
             ushort opCode = socketConnection.ReadUInt16();
@@ -40,15 +40,15 @@ public sealed class Seat : ProtocolObject
             switch (opCode)
             {
                 case (ushort) EventOpCode.Capabilities:
-                    HandleCapabilitiesEvent(socketConnection, length);
+                    HandleCapabilitiesEvent(length);
                     return;
                 case (ushort) EventOpCode.Name:
-                    HandleNameEvent(socketConnection, length);
+                    HandleNameEvent(length);
                     return;
             }
         }
         
-        private void HandleCapabilitiesEvent(SocketConnection socketConnection, ushort length)
+        private void HandleCapabilitiesEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -60,7 +60,7 @@ public sealed class Seat : ProtocolObject
             Capabilities?.Invoke(arg0);
         }
         
-        private void HandleNameEvent(SocketConnection socketConnection, ushort length)
+        private void HandleNameEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -74,9 +74,9 @@ public sealed class Seat : ProtocolObject
         
     }
 
-    public class RequestsWrapper(ProtocolObject protocolObject)
+    public class RequestsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
-        public void GetPointer(SocketConnection socketConnection, NewId id)
+        public void GetPointer(NewId id)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -91,7 +91,7 @@ public sealed class Seat : ProtocolObject
             socketConnection.Write(data);
         }
 
-        public void GetKeyboard(SocketConnection socketConnection, NewId id)
+        public void GetKeyboard(NewId id)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -106,7 +106,7 @@ public sealed class Seat : ProtocolObject
             socketConnection.Write(data);
         }
 
-        public void GetTouch(SocketConnection socketConnection, NewId id)
+        public void GetTouch(NewId id)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -121,7 +121,7 @@ public sealed class Seat : ProtocolObject
             socketConnection.Write(data);
         }
 
-        public void Release(SocketConnection socketConnection)
+        public void Release()
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
