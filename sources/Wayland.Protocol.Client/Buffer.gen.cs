@@ -4,11 +4,13 @@ namespace Wayland.Protocol.Client;
 
 public sealed class Buffer : ProtocolObject
 {
+    private readonly SocketConnection _socketConnection;
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
     public Buffer(SocketConnection socketConnection, uint id, uint version) : base(id, version)
     {
+        _socketConnection = socketConnection;
         Events = new EventsWrapper(socketConnection, this);
         Requests = new RequestsWrapper(socketConnection, this);
     }
@@ -23,24 +25,24 @@ public sealed class Buffer : ProtocolObject
         Destroy = 0,
     }
 
+    internal override void HandleEvent()
+    {
+        ushort length = _socketConnection.ReadUInt16();
+        ushort opCode = _socketConnection.ReadUInt16();
+        
+        switch (opCode)
+        {
+            case (ushort) EventOpCode.Release:
+                Events.HandleReleaseEvent(length);
+                return;
+        }
+    }
+
     public class EventsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
         public Action? Release { get; set; }
         
-        internal void HandleEvent()
-        {
-            ushort length = socketConnection.ReadUInt16();
-            ushort opCode = socketConnection.ReadUInt16();
-            
-            switch (opCode)
-            {
-                case (ushort) EventOpCode.Release:
-                    HandleReleaseEvent(length);
-                    return;
-            }
-        }
-        
-        private void HandleReleaseEvent(ushort length)
+        internal void HandleReleaseEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);

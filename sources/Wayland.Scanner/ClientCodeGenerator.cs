@@ -40,11 +40,13 @@ public static class ClientCodeGenerator
         sb.Append('\n');
         sb.Append($"public sealed class {@interface.Name} : ProtocolObject\n");
         sb.Append("{\n");
+        sb.Append("    private readonly SocketConnection _socketConnection;\n");
         sb.Append("    public readonly EventsWrapper Events;\n");
         sb.Append("    public readonly RequestsWrapper Requests;\n");
         sb.Append('\n');
         sb.Append($"    public {@interface.Name}(SocketConnection socketConnection, uint id, uint version) : base(id, version)\n");
         sb.Append("    {\n");
+        sb.Append("        _socketConnection = socketConnection;\n");
         sb.Append("        Events = new EventsWrapper(socketConnection, this);\n");
         sb.Append("        Requests = new RequestsWrapper(socketConnection, this);\n");
         sb.Append("    }\n");
@@ -52,6 +54,8 @@ public static class ClientCodeGenerator
         AddEventOpCodeStub(sb, @interface.Events);
         sb.Append('\n');
         AddRequestOpCodeStub(sb, @interface.Requests);
+        sb.Append('\n');
+        AddEventHandler(sb, @interface.Events);
         sb.Append('\n');
         AddEventsWrapperStub(sb, @interface.Events);
         sb.Append('\n');
@@ -81,6 +85,27 @@ public static class ClientCodeGenerator
         sb.Append("    }\n");
     }
     
+    private static void AddEventHandler(StringBuilder sb, List<Event> events)
+    {
+        sb.Append("    internal override void HandleEvent()\n");
+        sb.Append("    {\n");
+        sb.Append("        ushort length = _socketConnection.ReadUInt16();\n");
+        sb.Append("        ushort opCode = _socketConnection.ReadUInt16();\n");
+        sb.Append("        \n");
+        sb.Append("        switch (opCode)\n");
+        sb.Append("        {\n");
+
+        foreach (Event @event in events)
+        {
+            sb.Append($"            case (ushort) EventOpCode.{@event.Name}:\n");
+            sb.Append($"                Events.Handle{@event.Name}Event(length);\n");
+            sb.Append("                return;\n");
+        }
+
+        sb.Append("        }\n");
+        sb.Append("    }\n");
+    }
+    
     private static void AddEventsWrapperStub(StringBuilder sb, List<Event> events)
     {
         sb.Append("    public class EventsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)\n");
@@ -93,31 +118,13 @@ public static class ClientCodeGenerator
             else
                 sb.Append(
                     $"        public Action? {@event.Name} {{ get; set; }}\n");
-
-        sb.Append("        \n");
-        sb.Append("        internal void HandleEvent()\n");
-        sb.Append("        {\n");
-        sb.Append("            ushort length = socketConnection.ReadUInt16();\n");
-        sb.Append("            ushort opCode = socketConnection.ReadUInt16();\n");
-        sb.Append("            \n");
-        sb.Append("            switch (opCode)\n");
-        sb.Append("            {\n");
-
-        foreach (Event @event in events)
-        {
-            sb.Append($"                case (ushort) EventOpCode.{@event.Name}:\n");
-            sb.Append($"                    Handle{@event.Name}Event(length);\n");
-            sb.Append("                    return;\n");
-        }
-
-        sb.Append("            }\n");
-        sb.Append("        }\n");
+        
         sb.Append("        \n");
 
         foreach (Event @event in events)
         {
             sb.Append(
-                $"        private void Handle{@event.Name}Event(ushort length)\n");
+                $"        internal void Handle{@event.Name}Event(ushort length)\n");
             sb.Append("        {\n");
             sb.Append("            byte[] buffer = new byte[length / 8];\n");
             sb.Append("            socketConnection.Read(buffer, 0, buffer.Length);\n");

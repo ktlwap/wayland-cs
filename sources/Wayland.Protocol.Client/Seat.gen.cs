@@ -4,11 +4,13 @@ namespace Wayland.Protocol.Client;
 
 public sealed class Seat : ProtocolObject
 {
+    private readonly SocketConnection _socketConnection;
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
     public Seat(SocketConnection socketConnection, uint id, uint version) : base(id, version)
     {
+        _socketConnection = socketConnection;
         Events = new EventsWrapper(socketConnection, this);
         Requests = new RequestsWrapper(socketConnection, this);
     }
@@ -27,28 +29,28 @@ public sealed class Seat : ProtocolObject
         Release = 3,
     }
 
+    internal override void HandleEvent()
+    {
+        ushort length = _socketConnection.ReadUInt16();
+        ushort opCode = _socketConnection.ReadUInt16();
+        
+        switch (opCode)
+        {
+            case (ushort) EventOpCode.Capabilities:
+                Events.HandleCapabilitiesEvent(length);
+                return;
+            case (ushort) EventOpCode.Name:
+                Events.HandleNameEvent(length);
+                return;
+        }
+    }
+
     public class EventsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
         public Action<uint>? Capabilities { get; set; }
         public Action<string>? Name { get; set; }
         
-        internal void HandleEvent()
-        {
-            ushort length = socketConnection.ReadUInt16();
-            ushort opCode = socketConnection.ReadUInt16();
-            
-            switch (opCode)
-            {
-                case (ushort) EventOpCode.Capabilities:
-                    HandleCapabilitiesEvent(length);
-                    return;
-                case (ushort) EventOpCode.Name:
-                    HandleNameEvent(length);
-                    return;
-            }
-        }
-        
-        private void HandleCapabilitiesEvent(ushort length)
+        internal void HandleCapabilitiesEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -60,7 +62,7 @@ public sealed class Seat : ProtocolObject
             Capabilities?.Invoke(arg0);
         }
         
-        private void HandleNameEvent(ushort length)
+        internal void HandleNameEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);

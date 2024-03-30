@@ -4,11 +4,13 @@ namespace Wayland.Protocol.Client;
 
 public sealed class Display : ProtocolObject
 {
+    private readonly SocketConnection _socketConnection;
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
     public Display(SocketConnection socketConnection, uint id, uint version) : base(id, version)
     {
+        _socketConnection = socketConnection;
         Events = new EventsWrapper(socketConnection, this);
         Requests = new RequestsWrapper(socketConnection, this);
     }
@@ -25,28 +27,28 @@ public sealed class Display : ProtocolObject
         GetRegistry = 1,
     }
 
+    internal override void HandleEvent()
+    {
+        ushort length = _socketConnection.ReadUInt16();
+        ushort opCode = _socketConnection.ReadUInt16();
+        
+        switch (opCode)
+        {
+            case (ushort) EventOpCode.Error:
+                Events.HandleErrorEvent(length);
+                return;
+            case (ushort) EventOpCode.DeleteId:
+                Events.HandleDeleteIdEvent(length);
+                return;
+        }
+    }
+
     public class EventsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
         public Action<ObjectId, uint, string>? Error { get; set; }
         public Action<uint>? DeleteId { get; set; }
         
-        internal void HandleEvent()
-        {
-            ushort length = socketConnection.ReadUInt16();
-            ushort opCode = socketConnection.ReadUInt16();
-            
-            switch (opCode)
-            {
-                case (ushort) EventOpCode.Error:
-                    HandleErrorEvent(length);
-                    return;
-                case (ushort) EventOpCode.DeleteId:
-                    HandleDeleteIdEvent(length);
-                    return;
-            }
-        }
-        
-        private void HandleErrorEvent(ushort length)
+        internal void HandleErrorEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -60,7 +62,7 @@ public sealed class Display : ProtocolObject
             Error?.Invoke(arg0, arg1, arg2);
         }
         
-        private void HandleDeleteIdEvent(ushort length)
+        internal void HandleDeleteIdEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);

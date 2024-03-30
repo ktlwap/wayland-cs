@@ -4,11 +4,13 @@ namespace Wayland.Protocol.Client;
 
 public sealed class Registry : ProtocolObject
 {
+    private readonly SocketConnection _socketConnection;
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
     public Registry(SocketConnection socketConnection, uint id, uint version) : base(id, version)
     {
+        _socketConnection = socketConnection;
         Events = new EventsWrapper(socketConnection, this);
         Requests = new RequestsWrapper(socketConnection, this);
     }
@@ -24,28 +26,28 @@ public sealed class Registry : ProtocolObject
         Bind = 0,
     }
 
+    internal override void HandleEvent()
+    {
+        ushort length = _socketConnection.ReadUInt16();
+        ushort opCode = _socketConnection.ReadUInt16();
+        
+        switch (opCode)
+        {
+            case (ushort) EventOpCode.Global:
+                Events.HandleGlobalEvent(length);
+                return;
+            case (ushort) EventOpCode.GlobalRemove:
+                Events.HandleGlobalRemoveEvent(length);
+                return;
+        }
+    }
+
     public class EventsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
         public Action<uint, string, uint>? Global { get; set; }
         public Action<uint>? GlobalRemove { get; set; }
         
-        internal void HandleEvent()
-        {
-            ushort length = socketConnection.ReadUInt16();
-            ushort opCode = socketConnection.ReadUInt16();
-            
-            switch (opCode)
-            {
-                case (ushort) EventOpCode.Global:
-                    HandleGlobalEvent(length);
-                    return;
-                case (ushort) EventOpCode.GlobalRemove:
-                    HandleGlobalRemoveEvent(length);
-                    return;
-            }
-        }
-        
-        private void HandleGlobalEvent(ushort length)
+        internal void HandleGlobalEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -59,7 +61,7 @@ public sealed class Registry : ProtocolObject
             Global?.Invoke(arg0, arg1, arg2);
         }
         
-        private void HandleGlobalRemoveEvent(ushort length)
+        internal void HandleGlobalRemoveEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);

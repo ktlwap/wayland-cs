@@ -4,11 +4,13 @@ namespace Wayland.Protocol.Client;
 
 public sealed class ShellSurface : ProtocolObject
 {
+    private readonly SocketConnection _socketConnection;
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
     public ShellSurface(SocketConnection socketConnection, uint id, uint version) : base(id, version)
     {
+        _socketConnection = socketConnection;
         Events = new EventsWrapper(socketConnection, this);
         Requests = new RequestsWrapper(socketConnection, this);
     }
@@ -34,32 +36,32 @@ public sealed class ShellSurface : ProtocolObject
         SetClass = 9,
     }
 
+    internal override void HandleEvent()
+    {
+        ushort length = _socketConnection.ReadUInt16();
+        ushort opCode = _socketConnection.ReadUInt16();
+        
+        switch (opCode)
+        {
+            case (ushort) EventOpCode.Ping:
+                Events.HandlePingEvent(length);
+                return;
+            case (ushort) EventOpCode.Configure:
+                Events.HandleConfigureEvent(length);
+                return;
+            case (ushort) EventOpCode.PopupDone:
+                Events.HandlePopupDoneEvent(length);
+                return;
+        }
+    }
+
     public class EventsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
         public Action<uint>? Ping { get; set; }
         public Action<uint, int, int>? Configure { get; set; }
         public Action? PopupDone { get; set; }
         
-        internal void HandleEvent()
-        {
-            ushort length = socketConnection.ReadUInt16();
-            ushort opCode = socketConnection.ReadUInt16();
-            
-            switch (opCode)
-            {
-                case (ushort) EventOpCode.Ping:
-                    HandlePingEvent(length);
-                    return;
-                case (ushort) EventOpCode.Configure:
-                    HandleConfigureEvent(length);
-                    return;
-                case (ushort) EventOpCode.PopupDone:
-                    HandlePopupDoneEvent(length);
-                    return;
-            }
-        }
-        
-        private void HandlePingEvent(ushort length)
+        internal void HandlePingEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -71,7 +73,7 @@ public sealed class ShellSurface : ProtocolObject
             Ping?.Invoke(arg0);
         }
         
-        private void HandleConfigureEvent(ushort length)
+        internal void HandleConfigureEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -85,7 +87,7 @@ public sealed class ShellSurface : ProtocolObject
             Configure?.Invoke(arg0, arg1, arg2);
         }
         
-        private void HandlePopupDoneEvent(ushort length)
+        internal void HandlePopupDoneEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);

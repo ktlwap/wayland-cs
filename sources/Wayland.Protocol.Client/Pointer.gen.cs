@@ -4,11 +4,13 @@ namespace Wayland.Protocol.Client;
 
 public sealed class Pointer : ProtocolObject
 {
+    private readonly SocketConnection _socketConnection;
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
     public Pointer(SocketConnection socketConnection, uint id, uint version) : base(id, version)
     {
+        _socketConnection = socketConnection;
         Events = new EventsWrapper(socketConnection, this);
         Requests = new RequestsWrapper(socketConnection, this);
     }
@@ -34,6 +36,49 @@ public sealed class Pointer : ProtocolObject
         Release = 1,
     }
 
+    internal override void HandleEvent()
+    {
+        ushort length = _socketConnection.ReadUInt16();
+        ushort opCode = _socketConnection.ReadUInt16();
+        
+        switch (opCode)
+        {
+            case (ushort) EventOpCode.Enter:
+                Events.HandleEnterEvent(length);
+                return;
+            case (ushort) EventOpCode.Leave:
+                Events.HandleLeaveEvent(length);
+                return;
+            case (ushort) EventOpCode.Motion:
+                Events.HandleMotionEvent(length);
+                return;
+            case (ushort) EventOpCode.Button:
+                Events.HandleButtonEvent(length);
+                return;
+            case (ushort) EventOpCode.Axis:
+                Events.HandleAxisEvent(length);
+                return;
+            case (ushort) EventOpCode.Frame:
+                Events.HandleFrameEvent(length);
+                return;
+            case (ushort) EventOpCode.AxisSource:
+                Events.HandleAxisSourceEvent(length);
+                return;
+            case (ushort) EventOpCode.AxisStop:
+                Events.HandleAxisStopEvent(length);
+                return;
+            case (ushort) EventOpCode.AxisDiscrete:
+                Events.HandleAxisDiscreteEvent(length);
+                return;
+            case (ushort) EventOpCode.AxisValue120:
+                Events.HandleAxisValue120Event(length);
+                return;
+            case (ushort) EventOpCode.AxisRelativeDirection:
+                Events.HandleAxisRelativeDirectionEvent(length);
+                return;
+        }
+    }
+
     public class EventsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
         public Action<uint, ObjectId, Fixed, Fixed>? Enter { get; set; }
@@ -48,50 +93,7 @@ public sealed class Pointer : ProtocolObject
         public Action<uint, int>? AxisValue120 { get; set; }
         public Action<uint, uint>? AxisRelativeDirection { get; set; }
         
-        internal void HandleEvent()
-        {
-            ushort length = socketConnection.ReadUInt16();
-            ushort opCode = socketConnection.ReadUInt16();
-            
-            switch (opCode)
-            {
-                case (ushort) EventOpCode.Enter:
-                    HandleEnterEvent(length);
-                    return;
-                case (ushort) EventOpCode.Leave:
-                    HandleLeaveEvent(length);
-                    return;
-                case (ushort) EventOpCode.Motion:
-                    HandleMotionEvent(length);
-                    return;
-                case (ushort) EventOpCode.Button:
-                    HandleButtonEvent(length);
-                    return;
-                case (ushort) EventOpCode.Axis:
-                    HandleAxisEvent(length);
-                    return;
-                case (ushort) EventOpCode.Frame:
-                    HandleFrameEvent(length);
-                    return;
-                case (ushort) EventOpCode.AxisSource:
-                    HandleAxisSourceEvent(length);
-                    return;
-                case (ushort) EventOpCode.AxisStop:
-                    HandleAxisStopEvent(length);
-                    return;
-                case (ushort) EventOpCode.AxisDiscrete:
-                    HandleAxisDiscreteEvent(length);
-                    return;
-                case (ushort) EventOpCode.AxisValue120:
-                    HandleAxisValue120Event(length);
-                    return;
-                case (ushort) EventOpCode.AxisRelativeDirection:
-                    HandleAxisRelativeDirectionEvent(length);
-                    return;
-            }
-        }
-        
-        private void HandleEnterEvent(ushort length)
+        internal void HandleEnterEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -106,7 +108,7 @@ public sealed class Pointer : ProtocolObject
             Enter?.Invoke(arg0, arg1, arg2, arg3);
         }
         
-        private void HandleLeaveEvent(ushort length)
+        internal void HandleLeaveEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -119,7 +121,7 @@ public sealed class Pointer : ProtocolObject
             Leave?.Invoke(arg0, arg1);
         }
         
-        private void HandleMotionEvent(ushort length)
+        internal void HandleMotionEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -133,7 +135,7 @@ public sealed class Pointer : ProtocolObject
             Motion?.Invoke(arg0, arg1, arg2);
         }
         
-        private void HandleButtonEvent(ushort length)
+        internal void HandleButtonEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -148,7 +150,7 @@ public sealed class Pointer : ProtocolObject
             Button?.Invoke(arg0, arg1, arg2, arg3);
         }
         
-        private void HandleAxisEvent(ushort length)
+        internal void HandleAxisEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -162,7 +164,7 @@ public sealed class Pointer : ProtocolObject
             Axis?.Invoke(arg0, arg1, arg2);
         }
         
-        private void HandleFrameEvent(ushort length)
+        internal void HandleFrameEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -173,7 +175,7 @@ public sealed class Pointer : ProtocolObject
             Frame?.Invoke();
         }
         
-        private void HandleAxisSourceEvent(ushort length)
+        internal void HandleAxisSourceEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -185,7 +187,7 @@ public sealed class Pointer : ProtocolObject
             AxisSource?.Invoke(arg0);
         }
         
-        private void HandleAxisStopEvent(ushort length)
+        internal void HandleAxisStopEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -198,7 +200,7 @@ public sealed class Pointer : ProtocolObject
             AxisStop?.Invoke(arg0, arg1);
         }
         
-        private void HandleAxisDiscreteEvent(ushort length)
+        internal void HandleAxisDiscreteEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -211,7 +213,7 @@ public sealed class Pointer : ProtocolObject
             AxisDiscrete?.Invoke(arg0, arg1);
         }
         
-        private void HandleAxisValue120Event(ushort length)
+        internal void HandleAxisValue120Event(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -224,7 +226,7 @@ public sealed class Pointer : ProtocolObject
             AxisValue120?.Invoke(arg0, arg1);
         }
         
-        private void HandleAxisRelativeDirectionEvent(ushort length)
+        internal void HandleAxisRelativeDirectionEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
