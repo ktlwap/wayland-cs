@@ -7,10 +7,10 @@ public sealed class DataDeviceManager : ProtocolObject
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public DataDeviceManager(uint id, uint version) : base(id, version)
+    public DataDeviceManager(SocketConnection socketConnection, uint id, uint version) : base(id, version)
     {
-        Events = new EventsWrapper(this);
-        Requests = new RequestsWrapper(this);
+        Events = new EventsWrapper(socketConnection, this);
+        Requests = new RequestsWrapper(socketConnection, this);
     }
 
     private enum EventOpCode : ushort
@@ -23,10 +23,10 @@ public sealed class DataDeviceManager : ProtocolObject
         GetDataDevice = 1,
     }
 
-    public class EventsWrapper(ProtocolObject protocolObject)
+    public class EventsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
         
-        internal void HandleEvent(SocketConnection socketConnection)
+        internal void HandleEvent()
         {
             ushort length = socketConnection.ReadUInt16();
             ushort opCode = socketConnection.ReadUInt16();
@@ -38,9 +38,9 @@ public sealed class DataDeviceManager : ProtocolObject
         
     }
 
-    public class RequestsWrapper(ProtocolObject protocolObject)
+    public class RequestsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
-        public void CreateDataSource(SocketConnection socketConnection, NewId id)
+        public void CreateDataSource(NewId id)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -55,7 +55,7 @@ public sealed class DataDeviceManager : ProtocolObject
             socketConnection.Write(data);
         }
 
-        public void GetDataDevice(SocketConnection socketConnection, NewId id, ObjectId seat)
+        public void GetDataDevice(NewId id, ObjectId seat)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);

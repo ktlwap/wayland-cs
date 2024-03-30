@@ -7,10 +7,10 @@ public sealed class Display : ProtocolObject
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public Display(uint id, uint version) : base(id, version)
+    public Display(SocketConnection socketConnection, uint id, uint version) : base(id, version)
     {
-        Events = new EventsWrapper(this);
-        Requests = new RequestsWrapper(this);
+        Events = new EventsWrapper(socketConnection, this);
+        Requests = new RequestsWrapper(socketConnection, this);
     }
 
     private enum EventOpCode : ushort
@@ -25,12 +25,12 @@ public sealed class Display : ProtocolObject
         GetRegistry = 1,
     }
 
-    public class EventsWrapper(ProtocolObject protocolObject)
+    public class EventsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
         public Action<ObjectId, uint, string>? Error { get; set; }
         public Action<uint>? DeleteId { get; set; }
         
-        internal void HandleEvent(SocketConnection socketConnection)
+        internal void HandleEvent()
         {
             ushort length = socketConnection.ReadUInt16();
             ushort opCode = socketConnection.ReadUInt16();
@@ -38,15 +38,15 @@ public sealed class Display : ProtocolObject
             switch (opCode)
             {
                 case (ushort) EventOpCode.Error:
-                    HandleErrorEvent(socketConnection, length);
+                    HandleErrorEvent(length);
                     return;
                 case (ushort) EventOpCode.DeleteId:
-                    HandleDeleteIdEvent(socketConnection, length);
+                    HandleDeleteIdEvent(length);
                     return;
             }
         }
         
-        private void HandleErrorEvent(SocketConnection socketConnection, ushort length)
+        private void HandleErrorEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -60,7 +60,7 @@ public sealed class Display : ProtocolObject
             Error?.Invoke(arg0, arg1, arg2);
         }
         
-        private void HandleDeleteIdEvent(SocketConnection socketConnection, ushort length)
+        private void HandleDeleteIdEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -74,9 +74,9 @@ public sealed class Display : ProtocolObject
         
     }
 
-    public class RequestsWrapper(ProtocolObject protocolObject)
+    public class RequestsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
-        public void Sync(SocketConnection socketConnection, NewId callback)
+        public void Sync(NewId callback)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -91,7 +91,7 @@ public sealed class Display : ProtocolObject
             socketConnection.Write(data);
         }
 
-        public void GetRegistry(SocketConnection socketConnection, NewId registry)
+        public void GetRegistry(NewId registry)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);

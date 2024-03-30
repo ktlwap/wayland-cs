@@ -7,10 +7,10 @@ public sealed class DataSource : ProtocolObject
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public DataSource(uint id, uint version) : base(id, version)
+    public DataSource(SocketConnection socketConnection, uint id, uint version) : base(id, version)
     {
-        Events = new EventsWrapper(this);
-        Requests = new RequestsWrapper(this);
+        Events = new EventsWrapper(socketConnection, this);
+        Requests = new RequestsWrapper(socketConnection, this);
     }
 
     private enum EventOpCode : ushort
@@ -30,7 +30,7 @@ public sealed class DataSource : ProtocolObject
         SetActions = 2,
     }
 
-    public class EventsWrapper(ProtocolObject protocolObject)
+    public class EventsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
         public Action<string>? Target { get; set; }
         public Action<string, Fd>? Send { get; set; }
@@ -39,7 +39,7 @@ public sealed class DataSource : ProtocolObject
         public Action? DndFinished { get; set; }
         public Action<uint>? Action { get; set; }
         
-        internal void HandleEvent(SocketConnection socketConnection)
+        internal void HandleEvent()
         {
             ushort length = socketConnection.ReadUInt16();
             ushort opCode = socketConnection.ReadUInt16();
@@ -47,27 +47,27 @@ public sealed class DataSource : ProtocolObject
             switch (opCode)
             {
                 case (ushort) EventOpCode.Target:
-                    HandleTargetEvent(socketConnection, length);
+                    HandleTargetEvent(length);
                     return;
                 case (ushort) EventOpCode.Send:
-                    HandleSendEvent(socketConnection, length);
+                    HandleSendEvent(length);
                     return;
                 case (ushort) EventOpCode.Cancelled:
-                    HandleCancelledEvent(socketConnection, length);
+                    HandleCancelledEvent(length);
                     return;
                 case (ushort) EventOpCode.DndDropPerformed:
-                    HandleDndDropPerformedEvent(socketConnection, length);
+                    HandleDndDropPerformedEvent(length);
                     return;
                 case (ushort) EventOpCode.DndFinished:
-                    HandleDndFinishedEvent(socketConnection, length);
+                    HandleDndFinishedEvent(length);
                     return;
                 case (ushort) EventOpCode.Action:
-                    HandleActionEvent(socketConnection, length);
+                    HandleActionEvent(length);
                     return;
             }
         }
         
-        private void HandleTargetEvent(SocketConnection socketConnection, ushort length)
+        private void HandleTargetEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -79,7 +79,7 @@ public sealed class DataSource : ProtocolObject
             Target?.Invoke(arg0);
         }
         
-        private void HandleSendEvent(SocketConnection socketConnection, ushort length)
+        private void HandleSendEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -92,7 +92,7 @@ public sealed class DataSource : ProtocolObject
             Send?.Invoke(arg0, arg1);
         }
         
-        private void HandleCancelledEvent(SocketConnection socketConnection, ushort length)
+        private void HandleCancelledEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -103,7 +103,7 @@ public sealed class DataSource : ProtocolObject
             Cancelled?.Invoke();
         }
         
-        private void HandleDndDropPerformedEvent(SocketConnection socketConnection, ushort length)
+        private void HandleDndDropPerformedEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -114,7 +114,7 @@ public sealed class DataSource : ProtocolObject
             DndDropPerformed?.Invoke();
         }
         
-        private void HandleDndFinishedEvent(SocketConnection socketConnection, ushort length)
+        private void HandleDndFinishedEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -125,7 +125,7 @@ public sealed class DataSource : ProtocolObject
             DndFinished?.Invoke();
         }
         
-        private void HandleActionEvent(SocketConnection socketConnection, ushort length)
+        private void HandleActionEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -139,9 +139,9 @@ public sealed class DataSource : ProtocolObject
         
     }
 
-    public class RequestsWrapper(ProtocolObject protocolObject)
+    public class RequestsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
-        public void Offer(SocketConnection socketConnection, string mimeType)
+        public void Offer(string mimeType)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -156,7 +156,7 @@ public sealed class DataSource : ProtocolObject
             socketConnection.Write(data);
         }
 
-        public void Destroy(SocketConnection socketConnection)
+        public void Destroy()
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -170,7 +170,7 @@ public sealed class DataSource : ProtocolObject
             socketConnection.Write(data);
         }
 
-        public void SetActions(SocketConnection socketConnection, uint dndActions)
+        public void SetActions(uint dndActions)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);

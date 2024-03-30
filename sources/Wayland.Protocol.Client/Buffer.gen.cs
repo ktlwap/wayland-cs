@@ -7,10 +7,10 @@ public sealed class Buffer : ProtocolObject
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public Buffer(uint id, uint version) : base(id, version)
+    public Buffer(SocketConnection socketConnection, uint id, uint version) : base(id, version)
     {
-        Events = new EventsWrapper(this);
-        Requests = new RequestsWrapper(this);
+        Events = new EventsWrapper(socketConnection, this);
+        Requests = new RequestsWrapper(socketConnection, this);
     }
 
     private enum EventOpCode : ushort
@@ -23,11 +23,11 @@ public sealed class Buffer : ProtocolObject
         Destroy = 0,
     }
 
-    public class EventsWrapper(ProtocolObject protocolObject)
+    public class EventsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
         public Action? Release { get; set; }
         
-        internal void HandleEvent(SocketConnection socketConnection)
+        internal void HandleEvent()
         {
             ushort length = socketConnection.ReadUInt16();
             ushort opCode = socketConnection.ReadUInt16();
@@ -35,12 +35,12 @@ public sealed class Buffer : ProtocolObject
             switch (opCode)
             {
                 case (ushort) EventOpCode.Release:
-                    HandleReleaseEvent(socketConnection, length);
+                    HandleReleaseEvent(length);
                     return;
             }
         }
         
-        private void HandleReleaseEvent(SocketConnection socketConnection, ushort length)
+        private void HandleReleaseEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -53,9 +53,9 @@ public sealed class Buffer : ProtocolObject
         
     }
 
-    public class RequestsWrapper(ProtocolObject protocolObject)
+    public class RequestsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
-        public void Destroy(SocketConnection socketConnection)
+        public void Destroy()
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);

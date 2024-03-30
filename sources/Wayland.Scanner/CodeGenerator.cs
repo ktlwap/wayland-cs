@@ -10,7 +10,7 @@ public static class CodeGenerator
 
     public static void Generate(Protocol protocol)
     {
-        GenerateForClient(protocol);
+        //GenerateForClient(protocol);
         GenerateForServer(protocol);
     }
     

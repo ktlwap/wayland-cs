@@ -7,10 +7,10 @@ public sealed class Compositor : ProtocolObject
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public Compositor(uint id, uint version) : base(id, version)
+    public Compositor(SocketConnection socketConnection, uint id, uint version) : base(id, version)
     {
-        Events = new EventsWrapper(this);
-        Requests = new RequestsWrapper(this);
+        Events = new EventsWrapper(socketConnection, this);
+        Requests = new RequestsWrapper(socketConnection, this);
     }
 
     private enum EventOpCode : ushort
@@ -23,10 +23,10 @@ public sealed class Compositor : ProtocolObject
         CreateRegion = 1,
     }
 
-    public class EventsWrapper(ProtocolObject protocolObject)
+    public class EventsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
         
-        internal void HandleEvent(SocketConnection socketConnection)
+        internal void HandleEvent()
         {
             ushort length = socketConnection.ReadUInt16();
             ushort opCode = socketConnection.ReadUInt16();
@@ -38,9 +38,9 @@ public sealed class Compositor : ProtocolObject
         
     }
 
-    public class RequestsWrapper(ProtocolObject protocolObject)
+    public class RequestsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
-        public void CreateSurface(SocketConnection socketConnection, NewId id)
+        public void CreateSurface(NewId id)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -55,7 +55,7 @@ public sealed class Compositor : ProtocolObject
             socketConnection.Write(data);
         }
 
-        public void CreateRegion(SocketConnection socketConnection, NewId id)
+        public void CreateRegion(NewId id)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);

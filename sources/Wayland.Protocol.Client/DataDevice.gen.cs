@@ -7,10 +7,10 @@ public sealed class DataDevice : ProtocolObject
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public DataDevice(uint id, uint version) : base(id, version)
+    public DataDevice(SocketConnection socketConnection, uint id, uint version) : base(id, version)
     {
-        Events = new EventsWrapper(this);
-        Requests = new RequestsWrapper(this);
+        Events = new EventsWrapper(socketConnection, this);
+        Requests = new RequestsWrapper(socketConnection, this);
     }
 
     private enum EventOpCode : ushort
@@ -30,7 +30,7 @@ public sealed class DataDevice : ProtocolObject
         Release = 2,
     }
 
-    public class EventsWrapper(ProtocolObject protocolObject)
+    public class EventsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
         public Action<NewId>? DataOffer { get; set; }
         public Action<uint, ObjectId, Fixed, Fixed, ObjectId>? Enter { get; set; }
@@ -39,7 +39,7 @@ public sealed class DataDevice : ProtocolObject
         public Action? Drop { get; set; }
         public Action<ObjectId>? Selection { get; set; }
         
-        internal void HandleEvent(SocketConnection socketConnection)
+        internal void HandleEvent()
         {
             ushort length = socketConnection.ReadUInt16();
             ushort opCode = socketConnection.ReadUInt16();
@@ -47,27 +47,27 @@ public sealed class DataDevice : ProtocolObject
             switch (opCode)
             {
                 case (ushort) EventOpCode.DataOffer:
-                    HandleDataOfferEvent(socketConnection, length);
+                    HandleDataOfferEvent(length);
                     return;
                 case (ushort) EventOpCode.Enter:
-                    HandleEnterEvent(socketConnection, length);
+                    HandleEnterEvent(length);
                     return;
                 case (ushort) EventOpCode.Leave:
-                    HandleLeaveEvent(socketConnection, length);
+                    HandleLeaveEvent(length);
                     return;
                 case (ushort) EventOpCode.Motion:
-                    HandleMotionEvent(socketConnection, length);
+                    HandleMotionEvent(length);
                     return;
                 case (ushort) EventOpCode.Drop:
-                    HandleDropEvent(socketConnection, length);
+                    HandleDropEvent(length);
                     return;
                 case (ushort) EventOpCode.Selection:
-                    HandleSelectionEvent(socketConnection, length);
+                    HandleSelectionEvent(length);
                     return;
             }
         }
         
-        private void HandleDataOfferEvent(SocketConnection socketConnection, ushort length)
+        private void HandleDataOfferEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -79,7 +79,7 @@ public sealed class DataDevice : ProtocolObject
             DataOffer?.Invoke(arg0);
         }
         
-        private void HandleEnterEvent(SocketConnection socketConnection, ushort length)
+        private void HandleEnterEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -95,7 +95,7 @@ public sealed class DataDevice : ProtocolObject
             Enter?.Invoke(arg0, arg1, arg2, arg3, arg4);
         }
         
-        private void HandleLeaveEvent(SocketConnection socketConnection, ushort length)
+        private void HandleLeaveEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -106,7 +106,7 @@ public sealed class DataDevice : ProtocolObject
             Leave?.Invoke();
         }
         
-        private void HandleMotionEvent(SocketConnection socketConnection, ushort length)
+        private void HandleMotionEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -120,7 +120,7 @@ public sealed class DataDevice : ProtocolObject
             Motion?.Invoke(arg0, arg1, arg2);
         }
         
-        private void HandleDropEvent(SocketConnection socketConnection, ushort length)
+        private void HandleDropEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -131,7 +131,7 @@ public sealed class DataDevice : ProtocolObject
             Drop?.Invoke();
         }
         
-        private void HandleSelectionEvent(SocketConnection socketConnection, ushort length)
+        private void HandleSelectionEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -145,9 +145,9 @@ public sealed class DataDevice : ProtocolObject
         
     }
 
-    public class RequestsWrapper(ProtocolObject protocolObject)
+    public class RequestsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
-        public void StartDrag(SocketConnection socketConnection, ObjectId source, ObjectId origin, ObjectId icon, uint serial)
+        public void StartDrag(ObjectId source, ObjectId origin, ObjectId icon, uint serial)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -165,7 +165,7 @@ public sealed class DataDevice : ProtocolObject
             socketConnection.Write(data);
         }
 
-        public void SetSelection(SocketConnection socketConnection, ObjectId source, uint serial)
+        public void SetSelection(ObjectId source, uint serial)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -181,7 +181,7 @@ public sealed class DataDevice : ProtocolObject
             socketConnection.Write(data);
         }
 
-        public void Release(SocketConnection socketConnection)
+        public void Release()
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);

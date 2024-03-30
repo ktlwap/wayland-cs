@@ -7,10 +7,10 @@ public sealed class Subcompositor : ProtocolObject
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public Subcompositor(uint id, uint version) : base(id, version)
+    public Subcompositor(SocketConnection socketConnection, uint id, uint version) : base(id, version)
     {
-        Events = new EventsWrapper(this);
-        Requests = new RequestsWrapper(this);
+        Events = new EventsWrapper(socketConnection, this);
+        Requests = new RequestsWrapper(socketConnection, this);
     }
 
     private enum EventOpCode : ushort
@@ -23,10 +23,10 @@ public sealed class Subcompositor : ProtocolObject
         GetSubsurface = 1,
     }
 
-    public class EventsWrapper(ProtocolObject protocolObject)
+    public class EventsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
         
-        internal void HandleEvent(SocketConnection socketConnection)
+        internal void HandleEvent()
         {
             ushort length = socketConnection.ReadUInt16();
             ushort opCode = socketConnection.ReadUInt16();
@@ -38,9 +38,9 @@ public sealed class Subcompositor : ProtocolObject
         
     }
 
-    public class RequestsWrapper(ProtocolObject protocolObject)
+    public class RequestsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
-        public void Destroy(SocketConnection socketConnection)
+        public void Destroy()
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -54,7 +54,7 @@ public sealed class Subcompositor : ProtocolObject
             socketConnection.Write(data);
         }
 
-        public void GetSubsurface(SocketConnection socketConnection, NewId id, ObjectId surface, ObjectId parent)
+        public void GetSubsurface(NewId id, ObjectId surface, ObjectId parent)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);

@@ -7,10 +7,10 @@ public sealed class ShellSurface : ProtocolObject
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public ShellSurface(uint id, uint version) : base(id, version)
+    public ShellSurface(SocketConnection socketConnection, uint id, uint version) : base(id, version)
     {
-        Events = new EventsWrapper(this);
-        Requests = new RequestsWrapper(this);
+        Events = new EventsWrapper(socketConnection, this);
+        Requests = new RequestsWrapper(socketConnection, this);
     }
 
     private enum EventOpCode : ushort
@@ -34,13 +34,13 @@ public sealed class ShellSurface : ProtocolObject
         SetClass = 9,
     }
 
-    public class EventsWrapper(ProtocolObject protocolObject)
+    public class EventsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
         public Action<uint>? Ping { get; set; }
         public Action<uint, int, int>? Configure { get; set; }
         public Action? PopupDone { get; set; }
         
-        internal void HandleEvent(SocketConnection socketConnection)
+        internal void HandleEvent()
         {
             ushort length = socketConnection.ReadUInt16();
             ushort opCode = socketConnection.ReadUInt16();
@@ -48,18 +48,18 @@ public sealed class ShellSurface : ProtocolObject
             switch (opCode)
             {
                 case (ushort) EventOpCode.Ping:
-                    HandlePingEvent(socketConnection, length);
+                    HandlePingEvent(length);
                     return;
                 case (ushort) EventOpCode.Configure:
-                    HandleConfigureEvent(socketConnection, length);
+                    HandleConfigureEvent(length);
                     return;
                 case (ushort) EventOpCode.PopupDone:
-                    HandlePopupDoneEvent(socketConnection, length);
+                    HandlePopupDoneEvent(length);
                     return;
             }
         }
         
-        private void HandlePingEvent(SocketConnection socketConnection, ushort length)
+        private void HandlePingEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -71,7 +71,7 @@ public sealed class ShellSurface : ProtocolObject
             Ping?.Invoke(arg0);
         }
         
-        private void HandleConfigureEvent(SocketConnection socketConnection, ushort length)
+        private void HandleConfigureEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -85,7 +85,7 @@ public sealed class ShellSurface : ProtocolObject
             Configure?.Invoke(arg0, arg1, arg2);
         }
         
-        private void HandlePopupDoneEvent(SocketConnection socketConnection, ushort length)
+        private void HandlePopupDoneEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -98,9 +98,9 @@ public sealed class ShellSurface : ProtocolObject
         
     }
 
-    public class RequestsWrapper(ProtocolObject protocolObject)
+    public class RequestsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
-        public void Pong(SocketConnection socketConnection, uint serial)
+        public void Pong(uint serial)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -115,7 +115,7 @@ public sealed class ShellSurface : ProtocolObject
             socketConnection.Write(data);
         }
 
-        public void Move(SocketConnection socketConnection, ObjectId seat, uint serial)
+        public void Move(ObjectId seat, uint serial)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -131,7 +131,7 @@ public sealed class ShellSurface : ProtocolObject
             socketConnection.Write(data);
         }
 
-        public void Resize(SocketConnection socketConnection, ObjectId seat, uint serial, uint edges)
+        public void Resize(ObjectId seat, uint serial, uint edges)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -148,7 +148,7 @@ public sealed class ShellSurface : ProtocolObject
             socketConnection.Write(data);
         }
 
-        public void SetToplevel(SocketConnection socketConnection)
+        public void SetToplevel()
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -162,7 +162,7 @@ public sealed class ShellSurface : ProtocolObject
             socketConnection.Write(data);
         }
 
-        public void SetTransient(SocketConnection socketConnection, ObjectId parent, int x, int y, uint flags)
+        public void SetTransient(ObjectId parent, int x, int y, uint flags)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -180,7 +180,7 @@ public sealed class ShellSurface : ProtocolObject
             socketConnection.Write(data);
         }
 
-        public void SetFullscreen(SocketConnection socketConnection, uint method, uint framerate, ObjectId output)
+        public void SetFullscreen(uint method, uint framerate, ObjectId output)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -197,7 +197,7 @@ public sealed class ShellSurface : ProtocolObject
             socketConnection.Write(data);
         }
 
-        public void SetPopup(SocketConnection socketConnection, ObjectId seat, uint serial, ObjectId parent, int x, int y, uint flags)
+        public void SetPopup(ObjectId seat, uint serial, ObjectId parent, int x, int y, uint flags)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -217,7 +217,7 @@ public sealed class ShellSurface : ProtocolObject
             socketConnection.Write(data);
         }
 
-        public void SetMaximized(SocketConnection socketConnection, ObjectId output)
+        public void SetMaximized(ObjectId output)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -232,7 +232,7 @@ public sealed class ShellSurface : ProtocolObject
             socketConnection.Write(data);
         }
 
-        public void SetTitle(SocketConnection socketConnection, string title)
+        public void SetTitle(string title)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -247,7 +247,7 @@ public sealed class ShellSurface : ProtocolObject
             socketConnection.Write(data);
         }
 
-        public void SetClass(SocketConnection socketConnection, string @class)
+        public void SetClass(string @class)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);

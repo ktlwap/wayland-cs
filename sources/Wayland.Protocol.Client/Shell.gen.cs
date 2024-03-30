@@ -7,10 +7,10 @@ public sealed class Shell : ProtocolObject
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public Shell(uint id, uint version) : base(id, version)
+    public Shell(SocketConnection socketConnection, uint id, uint version) : base(id, version)
     {
-        Events = new EventsWrapper(this);
-        Requests = new RequestsWrapper(this);
+        Events = new EventsWrapper(socketConnection, this);
+        Requests = new RequestsWrapper(socketConnection, this);
     }
 
     private enum EventOpCode : ushort
@@ -22,10 +22,10 @@ public sealed class Shell : ProtocolObject
         GetShellSurface = 0,
     }
 
-    public class EventsWrapper(ProtocolObject protocolObject)
+    public class EventsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
         
-        internal void HandleEvent(SocketConnection socketConnection)
+        internal void HandleEvent()
         {
             ushort length = socketConnection.ReadUInt16();
             ushort opCode = socketConnection.ReadUInt16();
@@ -37,9 +37,9 @@ public sealed class Shell : ProtocolObject
         
     }
 
-    public class RequestsWrapper(ProtocolObject protocolObject)
+    public class RequestsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
-        public void GetShellSurface(SocketConnection socketConnection, NewId id, ObjectId surface)
+        public void GetShellSurface(NewId id, ObjectId surface)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);

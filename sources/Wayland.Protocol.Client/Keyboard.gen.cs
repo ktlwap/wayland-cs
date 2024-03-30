@@ -7,10 +7,10 @@ public sealed class Keyboard : ProtocolObject
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public Keyboard(uint id, uint version) : base(id, version)
+    public Keyboard(SocketConnection socketConnection, uint id, uint version) : base(id, version)
     {
-        Events = new EventsWrapper(this);
-        Requests = new RequestsWrapper(this);
+        Events = new EventsWrapper(socketConnection, this);
+        Requests = new RequestsWrapper(socketConnection, this);
     }
 
     private enum EventOpCode : ushort
@@ -28,7 +28,7 @@ public sealed class Keyboard : ProtocolObject
         Release = 0,
     }
 
-    public class EventsWrapper(ProtocolObject protocolObject)
+    public class EventsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
         public Action<uint, Fd, uint>? Keymap { get; set; }
         public Action<uint, ObjectId, byte[]>? Enter { get; set; }
@@ -37,7 +37,7 @@ public sealed class Keyboard : ProtocolObject
         public Action<uint, uint, uint, uint, uint>? Modifiers { get; set; }
         public Action<int, int>? RepeatInfo { get; set; }
         
-        internal void HandleEvent(SocketConnection socketConnection)
+        internal void HandleEvent()
         {
             ushort length = socketConnection.ReadUInt16();
             ushort opCode = socketConnection.ReadUInt16();
@@ -45,27 +45,27 @@ public sealed class Keyboard : ProtocolObject
             switch (opCode)
             {
                 case (ushort) EventOpCode.Keymap:
-                    HandleKeymapEvent(socketConnection, length);
+                    HandleKeymapEvent(length);
                     return;
                 case (ushort) EventOpCode.Enter:
-                    HandleEnterEvent(socketConnection, length);
+                    HandleEnterEvent(length);
                     return;
                 case (ushort) EventOpCode.Leave:
-                    HandleLeaveEvent(socketConnection, length);
+                    HandleLeaveEvent(length);
                     return;
                 case (ushort) EventOpCode.Key:
-                    HandleKeyEvent(socketConnection, length);
+                    HandleKeyEvent(length);
                     return;
                 case (ushort) EventOpCode.Modifiers:
-                    HandleModifiersEvent(socketConnection, length);
+                    HandleModifiersEvent(length);
                     return;
                 case (ushort) EventOpCode.RepeatInfo:
-                    HandleRepeatInfoEvent(socketConnection, length);
+                    HandleRepeatInfoEvent(length);
                     return;
             }
         }
         
-        private void HandleKeymapEvent(SocketConnection socketConnection, ushort length)
+        private void HandleKeymapEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -79,7 +79,7 @@ public sealed class Keyboard : ProtocolObject
             Keymap?.Invoke(arg0, arg1, arg2);
         }
         
-        private void HandleEnterEvent(SocketConnection socketConnection, ushort length)
+        private void HandleEnterEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -93,7 +93,7 @@ public sealed class Keyboard : ProtocolObject
             Enter?.Invoke(arg0, arg1, arg2);
         }
         
-        private void HandleLeaveEvent(SocketConnection socketConnection, ushort length)
+        private void HandleLeaveEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -106,7 +106,7 @@ public sealed class Keyboard : ProtocolObject
             Leave?.Invoke(arg0, arg1);
         }
         
-        private void HandleKeyEvent(SocketConnection socketConnection, ushort length)
+        private void HandleKeyEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -121,7 +121,7 @@ public sealed class Keyboard : ProtocolObject
             Key?.Invoke(arg0, arg1, arg2, arg3);
         }
         
-        private void HandleModifiersEvent(SocketConnection socketConnection, ushort length)
+        private void HandleModifiersEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -137,7 +137,7 @@ public sealed class Keyboard : ProtocolObject
             Modifiers?.Invoke(arg0, arg1, arg2, arg3, arg4);
         }
         
-        private void HandleRepeatInfoEvent(SocketConnection socketConnection, ushort length)
+        private void HandleRepeatInfoEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -152,9 +152,9 @@ public sealed class Keyboard : ProtocolObject
         
     }
 
-    public class RequestsWrapper(ProtocolObject protocolObject)
+    public class RequestsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
-        public void Release(SocketConnection socketConnection)
+        public void Release()
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);

@@ -7,10 +7,10 @@ public sealed class Pointer : ProtocolObject
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public Pointer(uint id, uint version) : base(id, version)
+    public Pointer(SocketConnection socketConnection, uint id, uint version) : base(id, version)
     {
-        Events = new EventsWrapper(this);
-        Requests = new RequestsWrapper(this);
+        Events = new EventsWrapper(socketConnection, this);
+        Requests = new RequestsWrapper(socketConnection, this);
     }
 
     private enum EventOpCode : ushort
@@ -34,7 +34,7 @@ public sealed class Pointer : ProtocolObject
         Release = 1,
     }
 
-    public class EventsWrapper(ProtocolObject protocolObject)
+    public class EventsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
         public Action<uint, ObjectId, Fixed, Fixed>? Enter { get; set; }
         public Action<uint, ObjectId>? Leave { get; set; }
@@ -48,7 +48,7 @@ public sealed class Pointer : ProtocolObject
         public Action<uint, int>? AxisValue120 { get; set; }
         public Action<uint, uint>? AxisRelativeDirection { get; set; }
         
-        internal void HandleEvent(SocketConnection socketConnection)
+        internal void HandleEvent()
         {
             ushort length = socketConnection.ReadUInt16();
             ushort opCode = socketConnection.ReadUInt16();
@@ -56,42 +56,42 @@ public sealed class Pointer : ProtocolObject
             switch (opCode)
             {
                 case (ushort) EventOpCode.Enter:
-                    HandleEnterEvent(socketConnection, length);
+                    HandleEnterEvent(length);
                     return;
                 case (ushort) EventOpCode.Leave:
-                    HandleLeaveEvent(socketConnection, length);
+                    HandleLeaveEvent(length);
                     return;
                 case (ushort) EventOpCode.Motion:
-                    HandleMotionEvent(socketConnection, length);
+                    HandleMotionEvent(length);
                     return;
                 case (ushort) EventOpCode.Button:
-                    HandleButtonEvent(socketConnection, length);
+                    HandleButtonEvent(length);
                     return;
                 case (ushort) EventOpCode.Axis:
-                    HandleAxisEvent(socketConnection, length);
+                    HandleAxisEvent(length);
                     return;
                 case (ushort) EventOpCode.Frame:
-                    HandleFrameEvent(socketConnection, length);
+                    HandleFrameEvent(length);
                     return;
                 case (ushort) EventOpCode.AxisSource:
-                    HandleAxisSourceEvent(socketConnection, length);
+                    HandleAxisSourceEvent(length);
                     return;
                 case (ushort) EventOpCode.AxisStop:
-                    HandleAxisStopEvent(socketConnection, length);
+                    HandleAxisStopEvent(length);
                     return;
                 case (ushort) EventOpCode.AxisDiscrete:
-                    HandleAxisDiscreteEvent(socketConnection, length);
+                    HandleAxisDiscreteEvent(length);
                     return;
                 case (ushort) EventOpCode.AxisValue120:
-                    HandleAxisValue120Event(socketConnection, length);
+                    HandleAxisValue120Event(length);
                     return;
                 case (ushort) EventOpCode.AxisRelativeDirection:
-                    HandleAxisRelativeDirectionEvent(socketConnection, length);
+                    HandleAxisRelativeDirectionEvent(length);
                     return;
             }
         }
         
-        private void HandleEnterEvent(SocketConnection socketConnection, ushort length)
+        private void HandleEnterEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -106,7 +106,7 @@ public sealed class Pointer : ProtocolObject
             Enter?.Invoke(arg0, arg1, arg2, arg3);
         }
         
-        private void HandleLeaveEvent(SocketConnection socketConnection, ushort length)
+        private void HandleLeaveEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -119,7 +119,7 @@ public sealed class Pointer : ProtocolObject
             Leave?.Invoke(arg0, arg1);
         }
         
-        private void HandleMotionEvent(SocketConnection socketConnection, ushort length)
+        private void HandleMotionEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -133,7 +133,7 @@ public sealed class Pointer : ProtocolObject
             Motion?.Invoke(arg0, arg1, arg2);
         }
         
-        private void HandleButtonEvent(SocketConnection socketConnection, ushort length)
+        private void HandleButtonEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -148,7 +148,7 @@ public sealed class Pointer : ProtocolObject
             Button?.Invoke(arg0, arg1, arg2, arg3);
         }
         
-        private void HandleAxisEvent(SocketConnection socketConnection, ushort length)
+        private void HandleAxisEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -162,7 +162,7 @@ public sealed class Pointer : ProtocolObject
             Axis?.Invoke(arg0, arg1, arg2);
         }
         
-        private void HandleFrameEvent(SocketConnection socketConnection, ushort length)
+        private void HandleFrameEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -173,7 +173,7 @@ public sealed class Pointer : ProtocolObject
             Frame?.Invoke();
         }
         
-        private void HandleAxisSourceEvent(SocketConnection socketConnection, ushort length)
+        private void HandleAxisSourceEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -185,7 +185,7 @@ public sealed class Pointer : ProtocolObject
             AxisSource?.Invoke(arg0);
         }
         
-        private void HandleAxisStopEvent(SocketConnection socketConnection, ushort length)
+        private void HandleAxisStopEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -198,7 +198,7 @@ public sealed class Pointer : ProtocolObject
             AxisStop?.Invoke(arg0, arg1);
         }
         
-        private void HandleAxisDiscreteEvent(SocketConnection socketConnection, ushort length)
+        private void HandleAxisDiscreteEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -211,7 +211,7 @@ public sealed class Pointer : ProtocolObject
             AxisDiscrete?.Invoke(arg0, arg1);
         }
         
-        private void HandleAxisValue120Event(SocketConnection socketConnection, ushort length)
+        private void HandleAxisValue120Event(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -224,7 +224,7 @@ public sealed class Pointer : ProtocolObject
             AxisValue120?.Invoke(arg0, arg1);
         }
         
-        private void HandleAxisRelativeDirectionEvent(SocketConnection socketConnection, ushort length)
+        private void HandleAxisRelativeDirectionEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -239,9 +239,9 @@ public sealed class Pointer : ProtocolObject
         
     }
 
-    public class RequestsWrapper(ProtocolObject protocolObject)
+    public class RequestsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
-        public void SetCursor(SocketConnection socketConnection, uint serial, ObjectId surface, int hotspotX, int hotspotY)
+        public void SetCursor(uint serial, ObjectId surface, int hotspotX, int hotspotY)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -259,7 +259,7 @@ public sealed class Pointer : ProtocolObject
             socketConnection.Write(data);
         }
 
-        public void Release(SocketConnection socketConnection)
+        public void Release()
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);

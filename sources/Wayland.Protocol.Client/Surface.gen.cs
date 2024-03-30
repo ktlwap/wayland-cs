@@ -7,10 +7,10 @@ public sealed class Surface : ProtocolObject
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public Surface(uint id, uint version) : base(id, version)
+    public Surface(SocketConnection socketConnection, uint id, uint version) : base(id, version)
     {
-        Events = new EventsWrapper(this);
-        Requests = new RequestsWrapper(this);
+        Events = new EventsWrapper(socketConnection, this);
+        Requests = new RequestsWrapper(socketConnection, this);
     }
 
     private enum EventOpCode : ushort
@@ -36,14 +36,14 @@ public sealed class Surface : ProtocolObject
         Offset = 10,
     }
 
-    public class EventsWrapper(ProtocolObject protocolObject)
+    public class EventsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
         public Action<ObjectId>? Enter { get; set; }
         public Action<ObjectId>? Leave { get; set; }
         public Action<int>? PreferredBufferScale { get; set; }
         public Action<uint>? PreferredBufferTransform { get; set; }
         
-        internal void HandleEvent(SocketConnection socketConnection)
+        internal void HandleEvent()
         {
             ushort length = socketConnection.ReadUInt16();
             ushort opCode = socketConnection.ReadUInt16();
@@ -51,21 +51,21 @@ public sealed class Surface : ProtocolObject
             switch (opCode)
             {
                 case (ushort) EventOpCode.Enter:
-                    HandleEnterEvent(socketConnection, length);
+                    HandleEnterEvent(length);
                     return;
                 case (ushort) EventOpCode.Leave:
-                    HandleLeaveEvent(socketConnection, length);
+                    HandleLeaveEvent(length);
                     return;
                 case (ushort) EventOpCode.PreferredBufferScale:
-                    HandlePreferredBufferScaleEvent(socketConnection, length);
+                    HandlePreferredBufferScaleEvent(length);
                     return;
                 case (ushort) EventOpCode.PreferredBufferTransform:
-                    HandlePreferredBufferTransformEvent(socketConnection, length);
+                    HandlePreferredBufferTransformEvent(length);
                     return;
             }
         }
         
-        private void HandleEnterEvent(SocketConnection socketConnection, ushort length)
+        private void HandleEnterEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -77,7 +77,7 @@ public sealed class Surface : ProtocolObject
             Enter?.Invoke(arg0);
         }
         
-        private void HandleLeaveEvent(SocketConnection socketConnection, ushort length)
+        private void HandleLeaveEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -89,7 +89,7 @@ public sealed class Surface : ProtocolObject
             Leave?.Invoke(arg0);
         }
         
-        private void HandlePreferredBufferScaleEvent(SocketConnection socketConnection, ushort length)
+        private void HandlePreferredBufferScaleEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -101,7 +101,7 @@ public sealed class Surface : ProtocolObject
             PreferredBufferScale?.Invoke(arg0);
         }
         
-        private void HandlePreferredBufferTransformEvent(SocketConnection socketConnection, ushort length)
+        private void HandlePreferredBufferTransformEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -115,9 +115,9 @@ public sealed class Surface : ProtocolObject
         
     }
 
-    public class RequestsWrapper(ProtocolObject protocolObject)
+    public class RequestsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
-        public void Destroy(SocketConnection socketConnection)
+        public void Destroy()
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -131,7 +131,7 @@ public sealed class Surface : ProtocolObject
             socketConnection.Write(data);
         }
 
-        public void Attach(SocketConnection socketConnection, ObjectId buffer, int x, int y)
+        public void Attach(ObjectId buffer, int x, int y)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -148,7 +148,7 @@ public sealed class Surface : ProtocolObject
             socketConnection.Write(data);
         }
 
-        public void Damage(SocketConnection socketConnection, int x, int y, int width, int height)
+        public void Damage(int x, int y, int width, int height)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -166,7 +166,7 @@ public sealed class Surface : ProtocolObject
             socketConnection.Write(data);
         }
 
-        public void Frame(SocketConnection socketConnection, NewId callback)
+        public void Frame(NewId callback)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -181,7 +181,7 @@ public sealed class Surface : ProtocolObject
             socketConnection.Write(data);
         }
 
-        public void SetOpaqueRegion(SocketConnection socketConnection, ObjectId region)
+        public void SetOpaqueRegion(ObjectId region)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -196,7 +196,7 @@ public sealed class Surface : ProtocolObject
             socketConnection.Write(data);
         }
 
-        public void SetInputRegion(SocketConnection socketConnection, ObjectId region)
+        public void SetInputRegion(ObjectId region)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -211,7 +211,7 @@ public sealed class Surface : ProtocolObject
             socketConnection.Write(data);
         }
 
-        public void Commit(SocketConnection socketConnection)
+        public void Commit()
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -225,7 +225,7 @@ public sealed class Surface : ProtocolObject
             socketConnection.Write(data);
         }
 
-        public void SetBufferTransform(SocketConnection socketConnection, int transform)
+        public void SetBufferTransform(int transform)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -240,7 +240,7 @@ public sealed class Surface : ProtocolObject
             socketConnection.Write(data);
         }
 
-        public void SetBufferScale(SocketConnection socketConnection, int scale)
+        public void SetBufferScale(int scale)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -255,7 +255,7 @@ public sealed class Surface : ProtocolObject
             socketConnection.Write(data);
         }
 
-        public void DamageBuffer(SocketConnection socketConnection, int x, int y, int width, int height)
+        public void DamageBuffer(int x, int y, int width, int height)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -273,7 +273,7 @@ public sealed class Surface : ProtocolObject
             socketConnection.Write(data);
         }
 
-        public void Offset(SocketConnection socketConnection, int x, int y)
+        public void Offset(int x, int y)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);

@@ -7,10 +7,10 @@ public sealed class Touch : ProtocolObject
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public Touch(uint id, uint version) : base(id, version)
+    public Touch(SocketConnection socketConnection, uint id, uint version) : base(id, version)
     {
-        Events = new EventsWrapper(this);
-        Requests = new RequestsWrapper(this);
+        Events = new EventsWrapper(socketConnection, this);
+        Requests = new RequestsWrapper(socketConnection, this);
     }
 
     private enum EventOpCode : ushort
@@ -29,7 +29,7 @@ public sealed class Touch : ProtocolObject
         Release = 0,
     }
 
-    public class EventsWrapper(ProtocolObject protocolObject)
+    public class EventsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
         public Action<uint, uint, ObjectId, int, Fixed, Fixed>? Down { get; set; }
         public Action<uint, uint, int>? Up { get; set; }
@@ -39,7 +39,7 @@ public sealed class Touch : ProtocolObject
         public Action<int, Fixed, Fixed>? Shape { get; set; }
         public Action<int, Fixed>? Orientation { get; set; }
         
-        internal void HandleEvent(SocketConnection socketConnection)
+        internal void HandleEvent()
         {
             ushort length = socketConnection.ReadUInt16();
             ushort opCode = socketConnection.ReadUInt16();
@@ -47,30 +47,30 @@ public sealed class Touch : ProtocolObject
             switch (opCode)
             {
                 case (ushort) EventOpCode.Down:
-                    HandleDownEvent(socketConnection, length);
+                    HandleDownEvent(length);
                     return;
                 case (ushort) EventOpCode.Up:
-                    HandleUpEvent(socketConnection, length);
+                    HandleUpEvent(length);
                     return;
                 case (ushort) EventOpCode.Motion:
-                    HandleMotionEvent(socketConnection, length);
+                    HandleMotionEvent(length);
                     return;
                 case (ushort) EventOpCode.Frame:
-                    HandleFrameEvent(socketConnection, length);
+                    HandleFrameEvent(length);
                     return;
                 case (ushort) EventOpCode.Cancel:
-                    HandleCancelEvent(socketConnection, length);
+                    HandleCancelEvent(length);
                     return;
                 case (ushort) EventOpCode.Shape:
-                    HandleShapeEvent(socketConnection, length);
+                    HandleShapeEvent(length);
                     return;
                 case (ushort) EventOpCode.Orientation:
-                    HandleOrientationEvent(socketConnection, length);
+                    HandleOrientationEvent(length);
                     return;
             }
         }
         
-        private void HandleDownEvent(SocketConnection socketConnection, ushort length)
+        private void HandleDownEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -87,7 +87,7 @@ public sealed class Touch : ProtocolObject
             Down?.Invoke(arg0, arg1, arg2, arg3, arg4, arg5);
         }
         
-        private void HandleUpEvent(SocketConnection socketConnection, ushort length)
+        private void HandleUpEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -101,7 +101,7 @@ public sealed class Touch : ProtocolObject
             Up?.Invoke(arg0, arg1, arg2);
         }
         
-        private void HandleMotionEvent(SocketConnection socketConnection, ushort length)
+        private void HandleMotionEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -116,7 +116,7 @@ public sealed class Touch : ProtocolObject
             Motion?.Invoke(arg0, arg1, arg2, arg3);
         }
         
-        private void HandleFrameEvent(SocketConnection socketConnection, ushort length)
+        private void HandleFrameEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -127,7 +127,7 @@ public sealed class Touch : ProtocolObject
             Frame?.Invoke();
         }
         
-        private void HandleCancelEvent(SocketConnection socketConnection, ushort length)
+        private void HandleCancelEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -138,7 +138,7 @@ public sealed class Touch : ProtocolObject
             Cancel?.Invoke();
         }
         
-        private void HandleShapeEvent(SocketConnection socketConnection, ushort length)
+        private void HandleShapeEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -152,7 +152,7 @@ public sealed class Touch : ProtocolObject
             Shape?.Invoke(arg0, arg1, arg2);
         }
         
-        private void HandleOrientationEvent(SocketConnection socketConnection, ushort length)
+        private void HandleOrientationEvent(ushort length)
         {
             byte[] buffer = new byte[length / 8];
             socketConnection.Read(buffer, 0, buffer.Length);
@@ -167,9 +167,9 @@ public sealed class Touch : ProtocolObject
         
     }
 
-    public class RequestsWrapper(ProtocolObject protocolObject)
+    public class RequestsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
-        public void Release(SocketConnection socketConnection)
+        public void Release()
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
