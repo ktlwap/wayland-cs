@@ -219,9 +219,9 @@ public static class ClientCodeGenerator
 
             sb.Append('\n');
             sb.Append("            byte[] data = writer.ToArray();\n");
-            sb.Append("            int length = data.Length - 8;\n");
-            sb.Append("            data[5] = (byte)(length >> 8);\n");
+            sb.Append("            int length = data.Length;\n");
             sb.Append("            data[6] = (byte)(byte.MaxValue & length);\n");
+            sb.Append("            data[7] = (byte)(length >> 8);\n");
             sb.Append('\n');
             sb.Append("            socketConnection.Write(data);\n");
             sb.Append("        }\n");

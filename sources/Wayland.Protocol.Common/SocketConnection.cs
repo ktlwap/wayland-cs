@@ -67,6 +67,11 @@ public sealed class SocketConnection : IDisposable
     {
         return _binaryReader.Read(buffer, index, count);
     }
+
+    public bool IsDataAvailable()
+    {
+        return _networkStream.DataAvailable;
+    }
     
     public void Dispose()
     {

@@ -13,9 +13,12 @@ class Program
         using Connection connection = new Connection();
         Console.WriteLine("Connection established.");
 
+        NewId displayId = ProtocolObject.AllocateId();
+        connection.Bind(Display.Name, displayId.Value, 1);
+        
         NewId registryId = ProtocolObject.AllocateId();
-        connection.Display.Requests.GetRegistry(ProtocolObject.AllocateId());
         connection.Bind(Registry.Name, registryId.Value, 1);
+        connection.Display.Requests.GetRegistry(registryId);
 
         connection.Registry!.Events.Global += (uint name, string @interface, uint version) =>
         {
@@ -23,14 +26,16 @@ class Program
             connection.Bind(@interface, registryId.Value, version);
         };
         
-        connection.Display.Requests.Sync(ProtocolObject.AllocateId());
-        
+        NewId callbackId = ProtocolObject.AllocateId();
+        connection.Bind(Callback.Name, callbackId.Value, 1);
+        connection.Display.Requests.Sync(callbackId);
+
         connection.Callback!.Events.Done += (uint callbackData) =>
         {
             Console.WriteLine($"Request done: {callbackData}. Closing connection.");
             _isDone = true;
         };
-
+        
         while (!_isDone)
             connection.EventQueue.Dispatch();
     }

@@ -44,9 +44,9 @@ public sealed class Touch : ProtocolObject
             writer.Write(y.Value);
 
             byte[] data = writer.ToArray();
-            int length = data.Length - 8;
-            data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue & length);
+            int length = data.Length;
+            data[6] = (byte)(length >> 8);
+            data[7] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }
@@ -61,9 +61,9 @@ public sealed class Touch : ProtocolObject
             writer.Write(id);
 
             byte[] data = writer.ToArray();
-            int length = data.Length - 8;
-            data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue & length);
+            int length = data.Length;
+            data[6] = (byte)(length >> 8);
+            data[7] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }
@@ -79,9 +79,9 @@ public sealed class Touch : ProtocolObject
             writer.Write(y.Value);
 
             byte[] data = writer.ToArray();
-            int length = data.Length - 8;
-            data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue & length);
+            int length = data.Length;
+            data[6] = (byte)(length >> 8);
+            data[7] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }
@@ -93,9 +93,9 @@ public sealed class Touch : ProtocolObject
             writer.Write((int) EventOpCode.Frame);
 
             byte[] data = writer.ToArray();
-            int length = data.Length - 8;
-            data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue & length);
+            int length = data.Length;
+            data[6] = (byte)(length >> 8);
+            data[7] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }
@@ -107,9 +107,9 @@ public sealed class Touch : ProtocolObject
             writer.Write((int) EventOpCode.Cancel);
 
             byte[] data = writer.ToArray();
-            int length = data.Length - 8;
-            data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue & length);
+            int length = data.Length;
+            data[6] = (byte)(length >> 8);
+            data[7] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }
@@ -124,9 +124,9 @@ public sealed class Touch : ProtocolObject
             writer.Write(minor.Value);
 
             byte[] data = writer.ToArray();
-            int length = data.Length - 8;
-            data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue & length);
+            int length = data.Length;
+            data[6] = (byte)(length >> 8);
+            data[7] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }
@@ -140,9 +140,9 @@ public sealed class Touch : ProtocolObject
             writer.Write(orientation.Value);
 
             byte[] data = writer.ToArray();
-            int length = data.Length - 8;
-            data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue & length);
+            int length = data.Length;
+            data[6] = (byte)(length >> 8);
+            data[7] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }

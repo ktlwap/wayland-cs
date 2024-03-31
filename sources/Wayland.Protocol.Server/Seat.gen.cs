@@ -37,9 +37,9 @@ public sealed class Seat : ProtocolObject
             writer.Write(capabilities);
 
             byte[] data = writer.ToArray();
-            int length = data.Length - 8;
-            data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue & length);
+            int length = data.Length;
+            data[6] = (byte)(length >> 8);
+            data[7] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }
@@ -52,9 +52,9 @@ public sealed class Seat : ProtocolObject
             writer.Write(name);
 
             byte[] data = writer.ToArray();
-            int length = data.Length - 8;
-            data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue & length);
+            int length = data.Length;
+            data[6] = (byte)(length >> 8);
+            data[7] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }

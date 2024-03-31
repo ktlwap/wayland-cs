@@ -85,9 +85,9 @@ public sealed class Display : ProtocolObject
             writer.Write(callback.Value);
 
             byte[] data = writer.ToArray();
-            int length = data.Length - 8;
-            data[5] = (byte)(length >> 8);
+            int length = data.Length;
             data[6] = (byte)(byte.MaxValue & length);
+            data[7] = (byte)(length >> 8);
 
             socketConnection.Write(data);
         }

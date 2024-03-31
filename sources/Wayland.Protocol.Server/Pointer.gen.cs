@@ -47,9 +47,9 @@ public sealed class Pointer : ProtocolObject
             writer.Write(surfaceY.Value);
 
             byte[] data = writer.ToArray();
-            int length = data.Length - 8;
-            data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue & length);
+            int length = data.Length;
+            data[6] = (byte)(length >> 8);
+            data[7] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }
@@ -63,9 +63,9 @@ public sealed class Pointer : ProtocolObject
             writer.Write(surface.Value);
 
             byte[] data = writer.ToArray();
-            int length = data.Length - 8;
-            data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue & length);
+            int length = data.Length;
+            data[6] = (byte)(length >> 8);
+            data[7] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }
@@ -80,9 +80,9 @@ public sealed class Pointer : ProtocolObject
             writer.Write(surfaceY.Value);
 
             byte[] data = writer.ToArray();
-            int length = data.Length - 8;
-            data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue & length);
+            int length = data.Length;
+            data[6] = (byte)(length >> 8);
+            data[7] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }
@@ -98,9 +98,9 @@ public sealed class Pointer : ProtocolObject
             writer.Write(state);
 
             byte[] data = writer.ToArray();
-            int length = data.Length - 8;
-            data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue & length);
+            int length = data.Length;
+            data[6] = (byte)(length >> 8);
+            data[7] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }
@@ -115,9 +115,9 @@ public sealed class Pointer : ProtocolObject
             writer.Write(value.Value);
 
             byte[] data = writer.ToArray();
-            int length = data.Length - 8;
-            data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue & length);
+            int length = data.Length;
+            data[6] = (byte)(length >> 8);
+            data[7] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }
@@ -129,9 +129,9 @@ public sealed class Pointer : ProtocolObject
             writer.Write((int) EventOpCode.Frame);
 
             byte[] data = writer.ToArray();
-            int length = data.Length - 8;
-            data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue & length);
+            int length = data.Length;
+            data[6] = (byte)(length >> 8);
+            data[7] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }
@@ -144,9 +144,9 @@ public sealed class Pointer : ProtocolObject
             writer.Write(axisSource);
 
             byte[] data = writer.ToArray();
-            int length = data.Length - 8;
-            data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue & length);
+            int length = data.Length;
+            data[6] = (byte)(length >> 8);
+            data[7] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }
@@ -160,9 +160,9 @@ public sealed class Pointer : ProtocolObject
             writer.Write(axis);
 
             byte[] data = writer.ToArray();
-            int length = data.Length - 8;
-            data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue & length);
+            int length = data.Length;
+            data[6] = (byte)(length >> 8);
+            data[7] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }
@@ -176,9 +176,9 @@ public sealed class Pointer : ProtocolObject
             writer.Write(discrete);
 
             byte[] data = writer.ToArray();
-            int length = data.Length - 8;
-            data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue & length);
+            int length = data.Length;
+            data[6] = (byte)(length >> 8);
+            data[7] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }
@@ -192,9 +192,9 @@ public sealed class Pointer : ProtocolObject
             writer.Write(value120);
 
             byte[] data = writer.ToArray();
-            int length = data.Length - 8;
-            data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue & length);
+            int length = data.Length;
+            data[6] = (byte)(length >> 8);
+            data[7] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }
@@ -208,9 +208,9 @@ public sealed class Pointer : ProtocolObject
             writer.Write(direction);
 
             byte[] data = writer.ToArray();
-            int length = data.Length - 8;
-            data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue & length);
+            int length = data.Length;
+            data[6] = (byte)(length >> 8);
+            data[7] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }

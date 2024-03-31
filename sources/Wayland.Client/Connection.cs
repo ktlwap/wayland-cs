@@ -1,4 +1,3 @@
-using Wayland.Protocol.Client;
 using Wayland.Protocol.Common;
 
 namespace Wayland.Client;
@@ -15,7 +14,6 @@ public sealed partial class Connection : IDisposable
     {
         _socketConnection = new SocketConnection(FindWaylandUnixSocketPath(name));
         
-        Display = new Display(_socketConnection, ProtocolObject.AllocateId().Value, 1);
         EventQueue = new EventQueue(_socketConnection);
     }
     

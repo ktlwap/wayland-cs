@@ -40,9 +40,9 @@ public sealed class DataSource : ProtocolObject
             writer.Write(mimeType);
 
             byte[] data = writer.ToArray();
-            int length = data.Length - 8;
-            data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue & length);
+            int length = data.Length;
+            data[6] = (byte)(length >> 8);
+            data[7] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }
@@ -56,9 +56,9 @@ public sealed class DataSource : ProtocolObject
             writer.Write(fd.Value);
 
             byte[] data = writer.ToArray();
-            int length = data.Length - 8;
-            data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue & length);
+            int length = data.Length;
+            data[6] = (byte)(length >> 8);
+            data[7] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }
@@ -70,9 +70,9 @@ public sealed class DataSource : ProtocolObject
             writer.Write((int) EventOpCode.Cancelled);
 
             byte[] data = writer.ToArray();
-            int length = data.Length - 8;
-            data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue & length);
+            int length = data.Length;
+            data[6] = (byte)(length >> 8);
+            data[7] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }
@@ -84,9 +84,9 @@ public sealed class DataSource : ProtocolObject
             writer.Write((int) EventOpCode.DndDropPerformed);
 
             byte[] data = writer.ToArray();
-            int length = data.Length - 8;
-            data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue & length);
+            int length = data.Length;
+            data[6] = (byte)(length >> 8);
+            data[7] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }
@@ -98,9 +98,9 @@ public sealed class DataSource : ProtocolObject
             writer.Write((int) EventOpCode.DndFinished);
 
             byte[] data = writer.ToArray();
-            int length = data.Length - 8;
-            data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue & length);
+            int length = data.Length;
+            data[6] = (byte)(length >> 8);
+            data[7] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }
@@ -113,9 +113,9 @@ public sealed class DataSource : ProtocolObject
             writer.Write(dndAction);
 
             byte[] data = writer.ToArray();
-            int length = data.Length - 8;
-            data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue & length);
+            int length = data.Length;
+            data[6] = (byte)(length >> 8);
+            data[7] = (byte)(byte.MaxValue & length);
 
             socketConnection.Write(data);
         }

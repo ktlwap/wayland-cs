@@ -12,12 +12,15 @@ public sealed class EventQueue
         _socketConnection = socketConnection;
     }
 
-    public void Dispatch()
+    public bool Dispatch()
     {
+        if (!_socketConnection.IsDataAvailable())
+            return false;
+        
         byte[] header = new byte[8];
         int number = _socketConnection.Read(header, 0, header.Length);
         if (number < 1)
-            return;
+            return false;
 
         uint objectId = 0;
         objectId |= (uint)(header[0] << 0);
@@ -28,12 +31,14 @@ public sealed class EventQueue
         ushort opCode = 0;
         opCode |= (ushort)(header[4] << 0);
         opCode |= (ushort)(header[5] << 8);
-        
+
         ushort length = 0;
         length |= (ushort)(header[6] << 0);
         length |= (ushort)(header[7] << 8);
 
         ProtocolObject protocolObject = ProtocolObject.GetObject(objectId);
         protocolObject.HandleEvent((ushort)(length - 8), opCode);
+
+        return true;
     }
 }
