@@ -13,7 +13,7 @@ public sealed class SocketConnection : IDisposable
         if (_socket < 0)
             throw new IOException("Failed to create UNIX socket.");
         
-        if (Syscall.connect(_socket, new SockaddrUn(path, false)) != 0)
+        if (Syscall.connect(_socket, new SockaddrUn(path)) != 0)
             throw new IOException($"Failed to connect to UNIX socket. Reason: {Syscall.GetLastError()}");
         
         _pollFds = new Pollfd[]
@@ -26,9 +26,16 @@ public sealed class SocketConnection : IDisposable
         };
     }
 
-    private void Read(int timeout)
+    private int Read(int timeout)
     {
         int result = Syscall.poll(_pollFds, timeout);
+
+        if (result > 0)
+        {
+            
+        }
+
+        return 0;
     }
 
     public void Write(byte[] data)
