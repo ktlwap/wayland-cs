@@ -8,6 +8,17 @@ public static class CodeGenerator
     private const string ClientFilePath = "../../../../Wayland.Protocol.Client/";
     private const string ServerFilePath = "../../../../Wayland.Protocol.Server/";
 
+    public static void DeleteOldFiles()
+    {
+        string[] filenames = Directory.GetFiles(ServerFilePath);
+        if (!filenames.Any(f => f.EndsWith("Wayland.Protocol.Server.csproj")))
+            throw new Exception("Output directory is not correct. Please set it to the correct path.");
+        
+        foreach (string filename in filenames)
+            if (filename.EndsWith(".gen.cs"))
+                File.Delete(filename);
+    }
+    
     public static void Generate(Protocol protocol)
     {
         //GenerateForClient(protocol);
@@ -20,10 +31,6 @@ public static class CodeGenerator
         if (!filenames.Any(f => f.EndsWith("Wayland.Protocol.Client.csproj")))
             throw new Exception("Output directory is not correct. Please set it to the correct path.");
         
-        foreach (string filename in filenames)
-            if (filename.EndsWith(".gen.cs"))
-                File.Delete(filename);
-
         foreach (Interface @interface in protocol.Interfaces)
         {
             if (@interface.Name is "Shm" or "DataOffer")
@@ -42,10 +49,6 @@ public static class CodeGenerator
         string[] filenames = Directory.GetFiles(ServerFilePath);
         if (!filenames.Any(f => f.EndsWith("Wayland.Protocol.Server.csproj")))
             throw new Exception("Output directory is not correct. Please set it to the correct path.");
-        
-        foreach (string filename in filenames)
-            if (filename.EndsWith(".gen.cs"))
-                File.Delete(filename);
 
         foreach (Interface @interface in protocol.Interfaces)
         {
