@@ -4,13 +4,13 @@ namespace Wayland.Protocol.Client;
 
 public sealed class Registry : ProtocolObject
 {
-    private readonly SocketConnection _socketConnection;
+    public new const string Name = "wl_registry";
+
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public Registry(SocketConnection socketConnection, uint id, uint version) : base(id, version)
+    public Registry(SocketConnection socketConnection, uint id, uint version) : base(id, version, Name)
     {
-        _socketConnection = socketConnection;
         Events = new EventsWrapper(socketConnection, this);
         Requests = new RequestsWrapper(socketConnection, this);
     }
@@ -26,11 +26,8 @@ public sealed class Registry : ProtocolObject
         Bind = 0,
     }
 
-    internal override void HandleEvent()
+    internal override void HandleEvent(ushort length, ushort opCode)
     {
-        ushort length = _socketConnection.ReadUInt16();
-        ushort opCode = _socketConnection.ReadUInt16();
-        
         switch (opCode)
         {
             case (ushort) EventOpCode.Global:
@@ -49,7 +46,7 @@ public sealed class Registry : ProtocolObject
         
         internal void HandleGlobalEvent(ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -63,7 +60,7 @@ public sealed class Registry : ProtocolObject
         
         internal void HandleGlobalRemoveEvent(ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -86,9 +83,9 @@ public sealed class Registry : ProtocolObject
             writer.Write(id.Value);
 
             byte[] data = writer.ToArray();
-            int length = data.Length - 8;
-            data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue << 8 & length);
+            int length = data.Length;
+            data[6] = (byte)(byte.MaxValue & length);
+            data[7] = (byte)(length >> 8);
 
             socketConnection.Write(data);
         }

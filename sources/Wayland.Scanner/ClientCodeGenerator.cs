@@ -40,13 +40,13 @@ public static class ClientCodeGenerator
         sb.Append('\n');
         sb.Append($"public sealed class {@interface.Name} : ProtocolObject\n");
         sb.Append("{\n");
-        sb.Append("    private readonly SocketConnection _socketConnection;\n");
+        sb.Append($"    public new const string Name = \"{@interface.OriginalName}\";\n");
+        sb.Append('\n');
         sb.Append("    public readonly EventsWrapper Events;\n");
         sb.Append("    public readonly RequestsWrapper Requests;\n");
         sb.Append('\n');
-        sb.Append($"    public {@interface.Name}(SocketConnection socketConnection, uint id, uint version) : base(id, version)\n");
+        sb.Append($"    public {@interface.Name}(SocketConnection socketConnection, uint id, uint version) : base(id, version, Name)\n");
         sb.Append("    {\n");
-        sb.Append("        _socketConnection = socketConnection;\n");
         sb.Append("        Events = new EventsWrapper(socketConnection, this);\n");
         sb.Append("        Requests = new RequestsWrapper(socketConnection, this);\n");
         sb.Append("    }\n");
@@ -87,11 +87,8 @@ public static class ClientCodeGenerator
     
     private static void AddEventHandler(StringBuilder sb, List<Event> events)
     {
-        sb.Append("    internal override void HandleEvent()\n");
+        sb.Append("    internal override void HandleEvent(ushort length, ushort opCode)\n");
         sb.Append("    {\n");
-        sb.Append("        ushort length = _socketConnection.ReadUInt16();\n");
-        sb.Append("        ushort opCode = _socketConnection.ReadUInt16();\n");
-        sb.Append("        \n");
         sb.Append("        switch (opCode)\n");
         sb.Append("        {\n");
 
@@ -126,7 +123,7 @@ public static class ClientCodeGenerator
             sb.Append(
                 $"        internal void Handle{@event.Name}Event(ushort length)\n");
             sb.Append("        {\n");
-            sb.Append("            byte[] buffer = new byte[length / 8];\n");
+            sb.Append("            byte[] buffer = new byte[length];\n");
             sb.Append("            socketConnection.Read(buffer, 0, buffer.Length);\n");
             sb.Append('\n');
             sb.Append("            MessageReader reader = new MessageReader(buffer);\n");
@@ -220,9 +217,9 @@ public static class ClientCodeGenerator
 
             sb.Append('\n');
             sb.Append("            byte[] data = writer.ToArray();\n");
-            sb.Append("            int length = data.Length - 8;\n");
-            sb.Append("            data[5] = (byte)(length >> 8);\n");
-            sb.Append("            data[6] = (byte)(byte.MaxValue << 8 & length);\n");
+            sb.Append("            int length = data.Length;\n");
+            sb.Append("            data[6] = (byte)(byte.MaxValue & length);\n");
+            sb.Append("            data[7] = (byte)(length >> 8);\n");
             sb.Append('\n');
             sb.Append("            socketConnection.Write(data);\n");
             sb.Append("        }\n");

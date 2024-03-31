@@ -2,15 +2,19 @@ using Wayland.Protocol.Common;
 
 namespace Wayland.Client;
 
-public sealed class Connection : IDisposable
+public sealed partial class Connection : IDisposable
 {
     private SocketConnection _socketConnection;
     
-    public Connection() : this(null) { }
+    public EventQueue EventQueue { get; }
     
+    public Connection() : this(null) { }
+
     public Connection(string? name)
     {
         _socketConnection = new SocketConnection(FindWaylandUnixSocketPath(name));
+        
+        EventQueue = new EventQueue(_socketConnection);
     }
     
     public void Dispose()

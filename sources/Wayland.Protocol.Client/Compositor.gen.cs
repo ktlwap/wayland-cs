@@ -4,13 +4,13 @@ namespace Wayland.Protocol.Client;
 
 public sealed class Compositor : ProtocolObject
 {
-    private readonly SocketConnection _socketConnection;
+    public new const string Name = "wl_compositor";
+
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public Compositor(SocketConnection socketConnection, uint id, uint version) : base(id, version)
+    public Compositor(SocketConnection socketConnection, uint id, uint version) : base(id, version, Name)
     {
-        _socketConnection = socketConnection;
         Events = new EventsWrapper(socketConnection, this);
         Requests = new RequestsWrapper(socketConnection, this);
     }
@@ -25,11 +25,8 @@ public sealed class Compositor : ProtocolObject
         CreateRegion = 1,
     }
 
-    internal override void HandleEvent()
+    internal override void HandleEvent(ushort length, ushort opCode)
     {
-        ushort length = _socketConnection.ReadUInt16();
-        ushort opCode = _socketConnection.ReadUInt16();
-        
         switch (opCode)
         {
         }
@@ -50,9 +47,9 @@ public sealed class Compositor : ProtocolObject
             writer.Write(id.Value);
 
             byte[] data = writer.ToArray();
-            int length = data.Length - 8;
-            data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue << 8 & length);
+            int length = data.Length;
+            data[6] = (byte)(byte.MaxValue & length);
+            data[7] = (byte)(length >> 8);
 
             socketConnection.Write(data);
         }
@@ -65,9 +62,9 @@ public sealed class Compositor : ProtocolObject
             writer.Write(id.Value);
 
             byte[] data = writer.ToArray();
-            int length = data.Length - 8;
-            data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue << 8 & length);
+            int length = data.Length;
+            data[6] = (byte)(byte.MaxValue & length);
+            data[7] = (byte)(length >> 8);
 
             socketConnection.Write(data);
         }

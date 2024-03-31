@@ -4,13 +4,13 @@ namespace Wayland.Protocol.Client;
 
 public sealed class Output : ProtocolObject
 {
-    private readonly SocketConnection _socketConnection;
+    public new const string Name = "wl_output";
+
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public Output(SocketConnection socketConnection, uint id, uint version) : base(id, version)
+    public Output(SocketConnection socketConnection, uint id, uint version) : base(id, version, Name)
     {
-        _socketConnection = socketConnection;
         Events = new EventsWrapper(socketConnection, this);
         Requests = new RequestsWrapper(socketConnection, this);
     }
@@ -30,11 +30,8 @@ public sealed class Output : ProtocolObject
         Release = 0,
     }
 
-    internal override void HandleEvent()
+    internal override void HandleEvent(ushort length, ushort opCode)
     {
-        ushort length = _socketConnection.ReadUInt16();
-        ushort opCode = _socketConnection.ReadUInt16();
-        
         switch (opCode)
         {
             case (ushort) EventOpCode.Geometry:
@@ -69,7 +66,7 @@ public sealed class Output : ProtocolObject
         
         internal void HandleGeometryEvent(ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -88,7 +85,7 @@ public sealed class Output : ProtocolObject
         
         internal void HandleModeEvent(ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -103,7 +100,7 @@ public sealed class Output : ProtocolObject
         
         internal void HandleDoneEvent(ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -114,7 +111,7 @@ public sealed class Output : ProtocolObject
         
         internal void HandleScaleEvent(ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -126,7 +123,7 @@ public sealed class Output : ProtocolObject
         
         internal void HandleNameEvent(ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -138,7 +135,7 @@ public sealed class Output : ProtocolObject
         
         internal void HandleDescriptionEvent(ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -159,9 +156,9 @@ public sealed class Output : ProtocolObject
             writer.Write((int) RequestOpCode.Release);
 
             byte[] data = writer.ToArray();
-            int length = data.Length - 8;
-            data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue << 8 & length);
+            int length = data.Length;
+            data[6] = (byte)(byte.MaxValue & length);
+            data[7] = (byte)(length >> 8);
 
             socketConnection.Write(data);
         }

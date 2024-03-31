@@ -4,13 +4,13 @@ namespace Wayland.Protocol.Client;
 
 public sealed class Callback : ProtocolObject
 {
-    private readonly SocketConnection _socketConnection;
+    public new const string Name = "wl_callback";
+
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public Callback(SocketConnection socketConnection, uint id, uint version) : base(id, version)
+    public Callback(SocketConnection socketConnection, uint id, uint version) : base(id, version, Name)
     {
-        _socketConnection = socketConnection;
         Events = new EventsWrapper(socketConnection, this);
         Requests = new RequestsWrapper(socketConnection, this);
     }
@@ -24,11 +24,8 @@ public sealed class Callback : ProtocolObject
     {
     }
 
-    internal override void HandleEvent()
+    internal override void HandleEvent(ushort length, ushort opCode)
     {
-        ushort length = _socketConnection.ReadUInt16();
-        ushort opCode = _socketConnection.ReadUInt16();
-        
         switch (opCode)
         {
             case (ushort) EventOpCode.Done:
@@ -43,7 +40,7 @@ public sealed class Callback : ProtocolObject
         
         internal void HandleDoneEvent(ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);

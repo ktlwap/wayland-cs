@@ -20,14 +20,24 @@ public class MessageReader
     public byte[] ReadByteArray()
     {
         int length = 0;
-        length &= ReadByte() << 24;
-        length &= ReadByte() << 16;
-        length &= ReadByte() << 8;
-        length &= ReadByte() << 0;
+        length |= ReadByte() << 0;
+        length |= ReadByte() << 8;
+        length |= ReadByte() << 16;
+        length |= ReadByte() << 24;
 
-        byte[] result = new byte[length - 1];
-        Buffer.BlockCopy(_data, _index, result, 0, length);
-        _index += 4 - _data.Length % 4;
+        byte[] result;
+        if (length > 0)
+        {
+            result = new byte[length];
+            Buffer.BlockCopy(_data, _index, result, 0, length);
+            _index += result.Length;
+            if (_index % 4 != 0)
+                _index += 4 - _index % 4;
+        }
+        else
+        {
+            result = [];
+        }
 
 #if DEBUG
         if (_index % 4 != 0)
@@ -39,41 +49,47 @@ public class MessageReader
 
     public short ReadShort()
     {
-        return (short)(ReadByte() << 8 | ReadByte());
+        short result = 0;
+        result |= (short)(ReadByte() << 0);
+        result |= (short)(ReadByte() << 8);
+        return result;
     }
     
     public ushort ReadUShort()
     {
-        return (ushort)(ReadByte() << 8 | ReadByte());
+        ushort result = 0;
+        result |= (ushort)(ReadByte() << 0);
+        result |= (ushort)(ReadByte() << 8);
+        return result;
     }
     
     public int ReadInt()
     {
-        return ReadByte() << 8 | ReadByte();
+        int result = 0;
+        result |= ReadByte() << 0;
+        result |= ReadByte() << 8;
+        result |= ReadByte() << 16;
+        result |= ReadByte() << 24;
+        return result;
     }
     
     public uint ReadUInt()
     {
-        return (uint)(ReadByte() << 8 | ReadByte());
+        uint result = 0;
+        result |= (uint)(ReadByte() << 0);
+        result |= (uint)(ReadByte() << 8);
+        result |= (uint)(ReadByte() << 16);
+        result |= (uint)(ReadByte() << 24);
+        return result;
     }
     
-    public string ReadString()
+    public string? ReadString()
     {
-        int length = 0;
-        length &= ReadByte() << 24;
-        length &= ReadByte() << 16;
-        length &= ReadByte() << 8;
-        length &= ReadByte() << 0;
-        
-        string result = Encoding.UTF8.GetString(_data, _index, length - 1);
-        _index += 4 - _data.Length % 4;
-
-#if DEBUG
-        if (_index % 4 != 0)
-            throw new Exception("Index is not aligned to 4 bytes.");
-#endif
-        
-        return result;
+        byte[] data = ReadByteArray();
+        if (data.Length > 0)
+            return Encoding.UTF8.GetString(data, 0, data.Length);
+        else
+            return null;
     }
 
     public Fd ReadFd()

@@ -185,7 +185,7 @@ public static class CodeGenerator
             sb.Append(
                 $"        private void Handle{@event.Name}Event(SocketConnection socketConnection, ushort length)\n");
             sb.Append("        {\n");
-            sb.Append("            byte[] buffer = new byte[length / 8];\n");
+            sb.Append("            byte[] buffer = new byte[length];\n");
             sb.Append("            socketConnection.Read(buffer, 0, buffer.Length);\n");
             sb.Append('\n');
             sb.Append("            MessageReader reader = new MessageReader(buffer);\n");
@@ -268,7 +268,7 @@ public static class CodeGenerator
             sb.Append(
                 $"        private void Handle{request.Name}Event(SocketConnection socketConnection, ushort length)\n");
             sb.Append("        {\n");
-            sb.Append("            byte[] buffer = new byte[length / 8];\n");
+            sb.Append("            byte[] buffer = new byte[length];\n");
             sb.Append("            socketConnection.Read(buffer, 0, buffer.Length);\n");
             sb.Append('\n');
             sb.Append("            MessageReader reader = new MessageReader(buffer);\n");
@@ -359,9 +359,9 @@ public static class CodeGenerator
 
         sb.Append('\n');
         sb.Append("            byte[] data = writer.ToArray();\n");
-        sb.Append("            int length = data.Length - 8;\n");
-        sb.Append("            data[5] = (byte)(length >> 8);\n");
-        sb.Append("            data[6] = (byte)(byte.MaxValue << 8 & length);\n");
+        sb.Append("            int length = data.Length;\n");
+        sb.Append("            data[6] = (byte)(length >> 8);\n");
+        sb.Append("            data[7] = (byte)(byte.MaxValue & length);\n");
         sb.Append('\n');
         sb.Append("            socketConnection.Write(data);\n");
         sb.Append("        }\n");

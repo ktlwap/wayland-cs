@@ -17,6 +17,7 @@ public static class Symbolizer
     {
         foreach (Interface @interface in interfaces)
         {
+            @interface.OriginalName = @interface.Name;
             @interface.Name = ProcessSymbol(@interface.Name, true);
 
             foreach (Event @event in @interface.Events)

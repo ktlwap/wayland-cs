@@ -4,13 +4,13 @@ namespace Wayland.Protocol.Client;
 
 public sealed class DataDevice : ProtocolObject
 {
-    private readonly SocketConnection _socketConnection;
+    public new const string Name = "wl_data_device";
+
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public DataDevice(SocketConnection socketConnection, uint id, uint version) : base(id, version)
+    public DataDevice(SocketConnection socketConnection, uint id, uint version) : base(id, version, Name)
     {
-        _socketConnection = socketConnection;
         Events = new EventsWrapper(socketConnection, this);
         Requests = new RequestsWrapper(socketConnection, this);
     }
@@ -32,11 +32,8 @@ public sealed class DataDevice : ProtocolObject
         Release = 2,
     }
 
-    internal override void HandleEvent()
+    internal override void HandleEvent(ushort length, ushort opCode)
     {
-        ushort length = _socketConnection.ReadUInt16();
-        ushort opCode = _socketConnection.ReadUInt16();
-        
         switch (opCode)
         {
             case (ushort) EventOpCode.DataOffer:
@@ -71,7 +68,7 @@ public sealed class DataDevice : ProtocolObject
         
         internal void HandleDataOfferEvent(ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -83,7 +80,7 @@ public sealed class DataDevice : ProtocolObject
         
         internal void HandleEnterEvent(ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -99,7 +96,7 @@ public sealed class DataDevice : ProtocolObject
         
         internal void HandleLeaveEvent(ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -110,7 +107,7 @@ public sealed class DataDevice : ProtocolObject
         
         internal void HandleMotionEvent(ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -124,7 +121,7 @@ public sealed class DataDevice : ProtocolObject
         
         internal void HandleDropEvent(ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -135,7 +132,7 @@ public sealed class DataDevice : ProtocolObject
         
         internal void HandleSelectionEvent(ushort length)
         {
-            byte[] buffer = new byte[length / 8];
+            byte[] buffer = new byte[length];
             socketConnection.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
@@ -160,9 +157,9 @@ public sealed class DataDevice : ProtocolObject
             writer.Write(serial);
 
             byte[] data = writer.ToArray();
-            int length = data.Length - 8;
-            data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue << 8 & length);
+            int length = data.Length;
+            data[6] = (byte)(byte.MaxValue & length);
+            data[7] = (byte)(length >> 8);
 
             socketConnection.Write(data);
         }
@@ -176,9 +173,9 @@ public sealed class DataDevice : ProtocolObject
             writer.Write(serial);
 
             byte[] data = writer.ToArray();
-            int length = data.Length - 8;
-            data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue << 8 & length);
+            int length = data.Length;
+            data[6] = (byte)(byte.MaxValue & length);
+            data[7] = (byte)(length >> 8);
 
             socketConnection.Write(data);
         }
@@ -190,9 +187,9 @@ public sealed class DataDevice : ProtocolObject
             writer.Write((int) RequestOpCode.Release);
 
             byte[] data = writer.ToArray();
-            int length = data.Length - 8;
-            data[5] = (byte)(length >> 8);
-            data[6] = (byte)(byte.MaxValue << 8 & length);
+            int length = data.Length;
+            data[6] = (byte)(byte.MaxValue & length);
+            data[7] = (byte)(length >> 8);
 
             socketConnection.Write(data);
         }

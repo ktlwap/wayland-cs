@@ -21,4 +21,6 @@ public class Interface
 
     [XmlElement("enum")]
     public List<Enum> Enums { get; set; }
+    
+    public string OriginalName { get; set; }
 }
