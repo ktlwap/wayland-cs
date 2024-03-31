@@ -1,83 +1,49 @@
-using System.Net.Sockets;
+using Mono.Unix.Native;
 
 namespace Wayland.Protocol.Common;
 
 public sealed class SocketConnection : IDisposable
 {
-    private readonly Socket _socket;
-    private readonly NetworkStream _networkStream;
-    private readonly BinaryReader _binaryReader;
-    private readonly BinaryWriter _binaryWriter;
+    private readonly int _socket;
+    private readonly Pollfd[] _pollFds;
+    
+    public SocketConnection(string path)
+    {
+        // https://github.com/Ash39/Wayland-CSharp/blob/main/Wayland/WaylandSocket.cs
+        _socket = Syscall.socket(UnixAddressFamily.AF_UNIX, UnixSocketType.SOCK_STREAM, 0);
+        if (_socket < 0)
+            throw new IOException("Failed to UNIX socket.");
+        
+        if (Syscall.connect(_socket, new SockaddrUn(path, false)) != 0)
+            throw new IOException("Failed to connect to UNIX socket.");
+        
+        _pollFds = new Pollfd[]
+        {
+            new Pollfd
+            {
+                events = PollEvents.POLLIN,
+                fd = _socket
+            }
+        };
+    }
 
-    public SocketConnection(string unixSocketPath)
+    private void Read(int timeout)
     {
-        _socket = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified);
-        _socket.Connect(new UnixDomainSocketEndPoint(unixSocketPath));
-        _networkStream = new NetworkStream(_socket);
-        _binaryReader = new BinaryReader(_networkStream);
-        _binaryWriter = new BinaryWriter(_networkStream);
-    }
-    
-    public void Write(byte value)
-    {
-        _binaryWriter.Write(value);
-    }
-    
-    public void Write(short value)
-    {
-        _binaryWriter.Write(value);
-    }
-    
-    public void Write(ushort value)
-    {
-        _binaryWriter.Write(value);
-    }
-    
-    public void Write(int value)
-    {
-        _binaryWriter.Write(value);
-    }
-    
-    public void Write(uint value)
-    {
-        _binaryWriter.Write(value);
+        var pol = Syscall.poll(_pollFds, timeout);
     }
 
     public void Write(byte[] data)
     {
-        _binaryWriter.Write(data);
-    }
-
-    public ushort ReadUInt16()
-    {
-        return _binaryReader.ReadUInt16();
-    }
-
-    public int ReadInt32()
-    {
-        return _binaryReader.ReadInt32();
-    }
-
-    public uint ReadUInt32()
-    {
-        return _binaryReader.ReadUInt32();
+        //_binaryWriter.Write(data);
     }
     
     public int Read(byte[] buffer, int index, int count)
     {
-        return _binaryReader.Read(buffer, index, count);
-    }
-
-    public bool IsDataAvailable()
-    {
-        return _networkStream.DataAvailable;
+        //return _binaryReader.Read(buffer, index, count);
     }
     
     public void Dispose()
     {
-        _socket.Dispose();
-        _networkStream.Dispose();
-        _binaryReader.Dispose();
-        _binaryWriter.Dispose();
+        Syscall.close(_socket);
     }
 }
