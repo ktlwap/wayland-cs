@@ -28,9 +28,11 @@ public class MessageReader
         byte[] result;
         if (length > 0)
         {
-            result = new byte[length - 1];
+            result = new byte[length];
             Buffer.BlockCopy(_data, _index, result, 0, length);
-            _index += 4 - _data.Length % 4;
+            _index += result.Length;
+            if (_index % 4 != 0)
+                _index += 4 - _index % 4;
         }
         else
         {
@@ -85,7 +87,7 @@ public class MessageReader
     {
         byte[] data = ReadByteArray();
         if (data.Length > 0)
-            return Encoding.UTF8.GetString(data, 0, data.Length - 1);
+            return Encoding.UTF8.GetString(data, 0, data.Length);
         else
             return null;
     }

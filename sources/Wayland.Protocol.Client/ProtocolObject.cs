@@ -28,7 +28,7 @@ public abstract class ProtocolObject
     
     public static NewId AllocateId()
     {
-        return new NewId((uint) _protocolObjects.Count);
+        return new NewId((uint) _protocolObjects.Count + 1);
     }
     
     public static ProtocolObject GetObject(uint id)

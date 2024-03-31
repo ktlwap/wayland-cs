@@ -15,7 +15,9 @@ public sealed class EventQueue
     public void Dispatch()
     {
         byte[] header = new byte[8];
-        _socketConnection.Read(header, 0, header.Length);
+        int number = _socketConnection.Read(header, 0, header.Length);
+        if (number < 1)
+            return;
 
         uint objectId = 0;
         objectId |= (uint)(header[0] << 0);
