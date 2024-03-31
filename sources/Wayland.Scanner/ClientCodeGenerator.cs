@@ -42,13 +42,11 @@ public static class ClientCodeGenerator
         sb.Append("{\n");
         sb.Append($"    public new const string Name = \"{@interface.OriginalName}\";\n");
         sb.Append('\n');
-        sb.Append("    private readonly SocketConnection _socketConnection;\n");
         sb.Append("    public readonly EventsWrapper Events;\n");
         sb.Append("    public readonly RequestsWrapper Requests;\n");
         sb.Append('\n');
         sb.Append($"    public {@interface.Name}(SocketConnection socketConnection, uint id, uint version) : base(id, version, Name)\n");
         sb.Append("    {\n");
-        sb.Append("        _socketConnection = socketConnection;\n");
         sb.Append("        Events = new EventsWrapper(socketConnection, this);\n");
         sb.Append("        Requests = new RequestsWrapper(socketConnection, this);\n");
         sb.Append("    }\n");
