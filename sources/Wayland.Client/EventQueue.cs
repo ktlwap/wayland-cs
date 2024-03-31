@@ -26,7 +26,7 @@ public sealed class EventQueue
         objectId |= (uint)(header[0] << 0);
         objectId |= (uint)(header[1] << 8);
         objectId |= (uint)(header[2] << 16);
-        objectId |= (uint)(header[3] << 25);
+        objectId |= (uint)(header[3] << 24);
 
         ushort opCode = 0;
         opCode |= (ushort)(header[4] << 0);
