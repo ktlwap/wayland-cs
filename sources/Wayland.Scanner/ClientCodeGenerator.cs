@@ -7,8 +7,8 @@ public static class ClientCodeGenerator
 {
     private const string ClientFilePath = "../../../../Wayland.Protocol.Client/";
     private const string ClientNamespace = "Wayland.Protocol.Client";
-    
-    public static void Generate(Protocol protocol)
+
+    public static void DeleteOldFiles()
     {
         string[] filenames = Directory.GetFiles(ClientFilePath);
         if (!filenames.Any(f => f.EndsWith("Wayland.Protocol.Client.csproj")))
@@ -16,7 +16,14 @@ public static class ClientCodeGenerator
         
         foreach (string filename in filenames)
             if (filename.EndsWith(".gen.cs"))
-                File.Delete(filename);
+                File.Delete(filename);   
+    }
+    
+    public static void Generate(Protocol protocol)
+    {
+        string[] filenames = Directory.GetFiles(ClientFilePath);
+        if (!filenames.Any(f => f.EndsWith("Wayland.Protocol.Client.csproj")))
+            throw new Exception("Output directory is not correct. Please set it to the correct path.");
 
         foreach (Interface @interface in protocol.Interfaces)
         {
