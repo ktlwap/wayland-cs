@@ -11,10 +11,10 @@ public sealed class SocketConnection : IDisposable
     {
         _socket = Syscall.socket(UnixAddressFamily.AF_UNIX, UnixSocketType.SOCK_STREAM, 0);
         if (_socket < 0)
-            throw new IOException("Failed to UNIX socket.");
+            throw new IOException("Failed to create UNIX socket.");
         
         if (Syscall.connect(_socket, new SockaddrUn(path, false)) != 0)
-            throw new IOException("Failed to connect to UNIX socket.");
+            throw new IOException($"Failed to connect to UNIX socket. Reason: {Syscall.GetLastError()}");
         
         _pollFds = new Pollfd[]
         {
@@ -28,17 +28,17 @@ public sealed class SocketConnection : IDisposable
 
     private void Read(int timeout)
     {
-        var pol = Syscall.poll(_pollFds, timeout);
+        int result = Syscall.poll(_pollFds, timeout);
     }
 
     public void Write(byte[] data)
     {
-        //_binaryWriter.Write(data);
+        throw new NotImplementedException();
     }
     
     public int Read(byte[] buffer, int index, int count)
     {
-        //return _binaryReader.Read(buffer, index, count);
+        throw new NotImplementedException();
     }
     
     public void Dispose()
