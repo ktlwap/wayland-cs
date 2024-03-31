@@ -9,7 +9,6 @@ public sealed class SocketConnection : IDisposable
     
     public SocketConnection(string path)
     {
-        // https://github.com/Ash39/Wayland-CSharp/blob/main/Wayland/WaylandSocket.cs
         _socket = Syscall.socket(UnixAddressFamily.AF_UNIX, UnixSocketType.SOCK_STREAM, 0);
         if (_socket < 0)
             throw new IOException("Failed to UNIX socket.");
