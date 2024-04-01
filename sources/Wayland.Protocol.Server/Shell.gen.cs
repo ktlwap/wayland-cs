@@ -30,23 +30,23 @@ public sealed class Shell : ProtocolObject
     {
         public Action<NewId, ObjectId>? GetShellSurface { get; set; }
         
-        internal void HandleEvent(SocketConnection socketConnection)
+        internal void HandleEvent(Socket socket)
         {
-            ushort length = socketConnection.ReadUInt16();
-            ushort opCode = socketConnection.ReadUInt16();
+            ushort length = socket.ReadUInt16();
+            ushort opCode = socket.ReadUInt16();
             
             switch (opCode)
             {
                 case (ushort) RequestOpCode.GetShellSurface:
-                    HandleGetShellSurfaceEvent(socketConnection, length);
+                    HandleGetShellSurfaceEvent(socket, length);
                     return;
             }
         }
         
-        private void HandleGetShellSurfaceEvent(SocketConnection socketConnection, ushort length)
+        private void HandleGetShellSurfaceEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 

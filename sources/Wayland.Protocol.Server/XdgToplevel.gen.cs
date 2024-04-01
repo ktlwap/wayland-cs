@@ -41,7 +41,7 @@ public sealed class XdgToplevel : ProtocolObject
 
     public class EventsWrapper(ProtocolObject protocolObject)
     {
-        public void Configure(SocketConnection socketConnection, int width, int height, byte[] states)
+        public void Configure(Socket socket, int width, int height, byte[] states)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -55,10 +55,10 @@ public sealed class XdgToplevel : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
-        public void Close(SocketConnection socketConnection)
+        public void Close(Socket socket)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -69,10 +69,10 @@ public sealed class XdgToplevel : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
-        public void ConfigureBounds(SocketConnection socketConnection, int width, int height)
+        public void ConfigureBounds(Socket socket, int width, int height)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -85,10 +85,10 @@ public sealed class XdgToplevel : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
-        public void WmCapabilities(SocketConnection socketConnection, byte[] capabilities)
+        public void WmCapabilities(Socket socket, byte[] capabilities)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -100,7 +100,7 @@ public sealed class XdgToplevel : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
     }
@@ -122,62 +122,62 @@ public sealed class XdgToplevel : ProtocolObject
         public Action? UnsetFullscreen { get; set; }
         public Action? SetMinimized { get; set; }
         
-        internal void HandleEvent(SocketConnection socketConnection)
+        internal void HandleEvent(Socket socket)
         {
-            ushort length = socketConnection.ReadUInt16();
-            ushort opCode = socketConnection.ReadUInt16();
+            ushort length = socket.ReadUInt16();
+            ushort opCode = socket.ReadUInt16();
             
             switch (opCode)
             {
                 case (ushort) RequestOpCode.Destroy:
-                    HandleDestroyEvent(socketConnection, length);
+                    HandleDestroyEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.SetParent:
-                    HandleSetParentEvent(socketConnection, length);
+                    HandleSetParentEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.SetTitle:
-                    HandleSetTitleEvent(socketConnection, length);
+                    HandleSetTitleEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.SetAppId:
-                    HandleSetAppIdEvent(socketConnection, length);
+                    HandleSetAppIdEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.ShowWindowMenu:
-                    HandleShowWindowMenuEvent(socketConnection, length);
+                    HandleShowWindowMenuEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.Move:
-                    HandleMoveEvent(socketConnection, length);
+                    HandleMoveEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.Resize:
-                    HandleResizeEvent(socketConnection, length);
+                    HandleResizeEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.SetMaxSize:
-                    HandleSetMaxSizeEvent(socketConnection, length);
+                    HandleSetMaxSizeEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.SetMinSize:
-                    HandleSetMinSizeEvent(socketConnection, length);
+                    HandleSetMinSizeEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.SetMaximized:
-                    HandleSetMaximizedEvent(socketConnection, length);
+                    HandleSetMaximizedEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.UnsetMaximized:
-                    HandleUnsetMaximizedEvent(socketConnection, length);
+                    HandleUnsetMaximizedEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.SetFullscreen:
-                    HandleSetFullscreenEvent(socketConnection, length);
+                    HandleSetFullscreenEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.UnsetFullscreen:
-                    HandleUnsetFullscreenEvent(socketConnection, length);
+                    HandleUnsetFullscreenEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.SetMinimized:
-                    HandleSetMinimizedEvent(socketConnection, length);
+                    HandleSetMinimizedEvent(socket, length);
                     return;
             }
         }
         
-        private void HandleDestroyEvent(SocketConnection socketConnection, ushort length)
+        private void HandleDestroyEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -185,10 +185,10 @@ public sealed class XdgToplevel : ProtocolObject
             Destroy?.Invoke();
         }
         
-        private void HandleSetParentEvent(SocketConnection socketConnection, ushort length)
+        private void HandleSetParentEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -197,10 +197,10 @@ public sealed class XdgToplevel : ProtocolObject
             SetParent?.Invoke(arg0);
         }
         
-        private void HandleSetTitleEvent(SocketConnection socketConnection, ushort length)
+        private void HandleSetTitleEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -209,10 +209,10 @@ public sealed class XdgToplevel : ProtocolObject
             SetTitle?.Invoke(arg0);
         }
         
-        private void HandleSetAppIdEvent(SocketConnection socketConnection, ushort length)
+        private void HandleSetAppIdEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -221,10 +221,10 @@ public sealed class XdgToplevel : ProtocolObject
             SetAppId?.Invoke(arg0);
         }
         
-        private void HandleShowWindowMenuEvent(SocketConnection socketConnection, ushort length)
+        private void HandleShowWindowMenuEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -236,10 +236,10 @@ public sealed class XdgToplevel : ProtocolObject
             ShowWindowMenu?.Invoke(arg0, arg1, arg2, arg3);
         }
         
-        private void HandleMoveEvent(SocketConnection socketConnection, ushort length)
+        private void HandleMoveEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -249,10 +249,10 @@ public sealed class XdgToplevel : ProtocolObject
             Move?.Invoke(arg0, arg1);
         }
         
-        private void HandleResizeEvent(SocketConnection socketConnection, ushort length)
+        private void HandleResizeEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -263,10 +263,10 @@ public sealed class XdgToplevel : ProtocolObject
             Resize?.Invoke(arg0, arg1, arg2);
         }
         
-        private void HandleSetMaxSizeEvent(SocketConnection socketConnection, ushort length)
+        private void HandleSetMaxSizeEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -276,10 +276,10 @@ public sealed class XdgToplevel : ProtocolObject
             SetMaxSize?.Invoke(arg0, arg1);
         }
         
-        private void HandleSetMinSizeEvent(SocketConnection socketConnection, ushort length)
+        private void HandleSetMinSizeEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -289,10 +289,10 @@ public sealed class XdgToplevel : ProtocolObject
             SetMinSize?.Invoke(arg0, arg1);
         }
         
-        private void HandleSetMaximizedEvent(SocketConnection socketConnection, ushort length)
+        private void HandleSetMaximizedEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -300,10 +300,10 @@ public sealed class XdgToplevel : ProtocolObject
             SetMaximized?.Invoke();
         }
         
-        private void HandleUnsetMaximizedEvent(SocketConnection socketConnection, ushort length)
+        private void HandleUnsetMaximizedEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -311,10 +311,10 @@ public sealed class XdgToplevel : ProtocolObject
             UnsetMaximized?.Invoke();
         }
         
-        private void HandleSetFullscreenEvent(SocketConnection socketConnection, ushort length)
+        private void HandleSetFullscreenEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -323,10 +323,10 @@ public sealed class XdgToplevel : ProtocolObject
             SetFullscreen?.Invoke(arg0);
         }
         
-        private void HandleUnsetFullscreenEvent(SocketConnection socketConnection, ushort length)
+        private void HandleUnsetFullscreenEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -334,10 +334,10 @@ public sealed class XdgToplevel : ProtocolObject
             UnsetFullscreen?.Invoke();
         }
         
-        private void HandleSetMinimizedEvent(SocketConnection socketConnection, ushort length)
+        private void HandleSetMinimizedEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 

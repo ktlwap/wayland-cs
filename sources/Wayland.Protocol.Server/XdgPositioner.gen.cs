@@ -48,50 +48,50 @@ public sealed class XdgPositioner : ProtocolObject
         public Action<int, int>? SetParentSize { get; set; }
         public Action<uint>? SetParentConfigure { get; set; }
         
-        internal void HandleEvent(SocketConnection socketConnection)
+        internal void HandleEvent(Socket socket)
         {
-            ushort length = socketConnection.ReadUInt16();
-            ushort opCode = socketConnection.ReadUInt16();
+            ushort length = socket.ReadUInt16();
+            ushort opCode = socket.ReadUInt16();
             
             switch (opCode)
             {
                 case (ushort) RequestOpCode.Destroy:
-                    HandleDestroyEvent(socketConnection, length);
+                    HandleDestroyEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.SetSize:
-                    HandleSetSizeEvent(socketConnection, length);
+                    HandleSetSizeEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.SetAnchorRect:
-                    HandleSetAnchorRectEvent(socketConnection, length);
+                    HandleSetAnchorRectEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.SetAnchor:
-                    HandleSetAnchorEvent(socketConnection, length);
+                    HandleSetAnchorEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.SetGravity:
-                    HandleSetGravityEvent(socketConnection, length);
+                    HandleSetGravityEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.SetConstraintAdjustment:
-                    HandleSetConstraintAdjustmentEvent(socketConnection, length);
+                    HandleSetConstraintAdjustmentEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.SetOffset:
-                    HandleSetOffsetEvent(socketConnection, length);
+                    HandleSetOffsetEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.SetReactive:
-                    HandleSetReactiveEvent(socketConnection, length);
+                    HandleSetReactiveEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.SetParentSize:
-                    HandleSetParentSizeEvent(socketConnection, length);
+                    HandleSetParentSizeEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.SetParentConfigure:
-                    HandleSetParentConfigureEvent(socketConnection, length);
+                    HandleSetParentConfigureEvent(socket, length);
                     return;
             }
         }
         
-        private void HandleDestroyEvent(SocketConnection socketConnection, ushort length)
+        private void HandleDestroyEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -99,10 +99,10 @@ public sealed class XdgPositioner : ProtocolObject
             Destroy?.Invoke();
         }
         
-        private void HandleSetSizeEvent(SocketConnection socketConnection, ushort length)
+        private void HandleSetSizeEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -112,10 +112,10 @@ public sealed class XdgPositioner : ProtocolObject
             SetSize?.Invoke(arg0, arg1);
         }
         
-        private void HandleSetAnchorRectEvent(SocketConnection socketConnection, ushort length)
+        private void HandleSetAnchorRectEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -127,10 +127,10 @@ public sealed class XdgPositioner : ProtocolObject
             SetAnchorRect?.Invoke(arg0, arg1, arg2, arg3);
         }
         
-        private void HandleSetAnchorEvent(SocketConnection socketConnection, ushort length)
+        private void HandleSetAnchorEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -139,10 +139,10 @@ public sealed class XdgPositioner : ProtocolObject
             SetAnchor?.Invoke(arg0);
         }
         
-        private void HandleSetGravityEvent(SocketConnection socketConnection, ushort length)
+        private void HandleSetGravityEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -151,10 +151,10 @@ public sealed class XdgPositioner : ProtocolObject
             SetGravity?.Invoke(arg0);
         }
         
-        private void HandleSetConstraintAdjustmentEvent(SocketConnection socketConnection, ushort length)
+        private void HandleSetConstraintAdjustmentEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -163,10 +163,10 @@ public sealed class XdgPositioner : ProtocolObject
             SetConstraintAdjustment?.Invoke(arg0);
         }
         
-        private void HandleSetOffsetEvent(SocketConnection socketConnection, ushort length)
+        private void HandleSetOffsetEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -176,10 +176,10 @@ public sealed class XdgPositioner : ProtocolObject
             SetOffset?.Invoke(arg0, arg1);
         }
         
-        private void HandleSetReactiveEvent(SocketConnection socketConnection, ushort length)
+        private void HandleSetReactiveEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -187,10 +187,10 @@ public sealed class XdgPositioner : ProtocolObject
             SetReactive?.Invoke();
         }
         
-        private void HandleSetParentSizeEvent(SocketConnection socketConnection, ushort length)
+        private void HandleSetParentSizeEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -200,10 +200,10 @@ public sealed class XdgPositioner : ProtocolObject
             SetParentSize?.Invoke(arg0, arg1);
         }
         
-        private void HandleSetParentConfigureEvent(SocketConnection socketConnection, ushort length)
+        private void HandleSetParentConfigureEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 

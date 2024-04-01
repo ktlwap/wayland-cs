@@ -30,7 +30,7 @@ public sealed class Keyboard : ProtocolObject
 
     public class EventsWrapper(ProtocolObject protocolObject)
     {
-        public void Keymap(SocketConnection socketConnection, uint format, Fd fd, uint size)
+        public void Keymap(Socket socket, uint format, Fd fd, uint size)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -44,10 +44,10 @@ public sealed class Keyboard : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
-        public void Enter(SocketConnection socketConnection, uint serial, ObjectId surface, byte[] keys)
+        public void Enter(Socket socket, uint serial, ObjectId surface, byte[] keys)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -61,10 +61,10 @@ public sealed class Keyboard : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
-        public void Leave(SocketConnection socketConnection, uint serial, ObjectId surface)
+        public void Leave(Socket socket, uint serial, ObjectId surface)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -77,10 +77,10 @@ public sealed class Keyboard : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
-        public void Key(SocketConnection socketConnection, uint serial, uint time, uint key, uint state)
+        public void Key(Socket socket, uint serial, uint time, uint key, uint state)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -95,10 +95,10 @@ public sealed class Keyboard : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
-        public void Modifiers(SocketConnection socketConnection, uint serial, uint modsDepressed, uint modsLatched, uint modsLocked, uint group)
+        public void Modifiers(Socket socket, uint serial, uint modsDepressed, uint modsLatched, uint modsLocked, uint group)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -114,10 +114,10 @@ public sealed class Keyboard : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
-        public void RepeatInfo(SocketConnection socketConnection, int rate, int delay)
+        public void RepeatInfo(Socket socket, int rate, int delay)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -130,7 +130,7 @@ public sealed class Keyboard : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
     }
@@ -139,23 +139,23 @@ public sealed class Keyboard : ProtocolObject
     {
         public Action? Release { get; set; }
         
-        internal void HandleEvent(SocketConnection socketConnection)
+        internal void HandleEvent(Socket socket)
         {
-            ushort length = socketConnection.ReadUInt16();
-            ushort opCode = socketConnection.ReadUInt16();
+            ushort length = socket.ReadUInt16();
+            ushort opCode = socket.ReadUInt16();
             
             switch (opCode)
             {
                 case (ushort) RequestOpCode.Release:
-                    HandleReleaseEvent(socketConnection, length);
+                    HandleReleaseEvent(socket, length);
                     return;
             }
         }
         
-        private void HandleReleaseEvent(SocketConnection socketConnection, ushort length)
+        private void HandleReleaseEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 

@@ -24,7 +24,7 @@ public sealed class Callback : ProtocolObject
 
     public class EventsWrapper(ProtocolObject protocolObject)
     {
-        public void Done(SocketConnection socketConnection, uint callbackData)
+        public void Done(Socket socket, uint callbackData)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -36,7 +36,7 @@ public sealed class Callback : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
     }
@@ -44,10 +44,10 @@ public sealed class Callback : ProtocolObject
     public class RequestsWrapper(ProtocolObject protocolObject)
     {
         
-        internal void HandleEvent(SocketConnection socketConnection)
+        internal void HandleEvent(Socket socket)
         {
-            ushort length = socketConnection.ReadUInt16();
-            ushort opCode = socketConnection.ReadUInt16();
+            ushort length = socket.ReadUInt16();
+            ushort opCode = socket.ReadUInt16();
             
             switch (opCode)
             {

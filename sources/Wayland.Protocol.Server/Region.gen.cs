@@ -34,29 +34,29 @@ public sealed class Region : ProtocolObject
         public Action<int, int, int, int>? Add { get; set; }
         public Action<int, int, int, int>? Subtract { get; set; }
         
-        internal void HandleEvent(SocketConnection socketConnection)
+        internal void HandleEvent(Socket socket)
         {
-            ushort length = socketConnection.ReadUInt16();
-            ushort opCode = socketConnection.ReadUInt16();
+            ushort length = socket.ReadUInt16();
+            ushort opCode = socket.ReadUInt16();
             
             switch (opCode)
             {
                 case (ushort) RequestOpCode.Destroy:
-                    HandleDestroyEvent(socketConnection, length);
+                    HandleDestroyEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.Add:
-                    HandleAddEvent(socketConnection, length);
+                    HandleAddEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.Subtract:
-                    HandleSubtractEvent(socketConnection, length);
+                    HandleSubtractEvent(socket, length);
                     return;
             }
         }
         
-        private void HandleDestroyEvent(SocketConnection socketConnection, ushort length)
+        private void HandleDestroyEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -64,10 +64,10 @@ public sealed class Region : ProtocolObject
             Destroy?.Invoke();
         }
         
-        private void HandleAddEvent(SocketConnection socketConnection, ushort length)
+        private void HandleAddEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -79,10 +79,10 @@ public sealed class Region : ProtocolObject
             Add?.Invoke(arg0, arg1, arg2, arg3);
         }
         
-        private void HandleSubtractEvent(SocketConnection socketConnection, ushort length)
+        private void HandleSubtractEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 

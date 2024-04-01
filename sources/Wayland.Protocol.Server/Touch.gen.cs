@@ -31,7 +31,7 @@ public sealed class Touch : ProtocolObject
 
     public class EventsWrapper(ProtocolObject protocolObject)
     {
-        public void Down(SocketConnection socketConnection, uint serial, uint time, ObjectId surface, int id, Fixed x, Fixed y)
+        public void Down(Socket socket, uint serial, uint time, ObjectId surface, int id, Fixed x, Fixed y)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -48,10 +48,10 @@ public sealed class Touch : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
-        public void Up(SocketConnection socketConnection, uint serial, uint time, int id)
+        public void Up(Socket socket, uint serial, uint time, int id)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -65,10 +65,10 @@ public sealed class Touch : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
-        public void Motion(SocketConnection socketConnection, uint time, int id, Fixed x, Fixed y)
+        public void Motion(Socket socket, uint time, int id, Fixed x, Fixed y)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -83,10 +83,10 @@ public sealed class Touch : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
-        public void Frame(SocketConnection socketConnection)
+        public void Frame(Socket socket)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -97,10 +97,10 @@ public sealed class Touch : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
-        public void Cancel(SocketConnection socketConnection)
+        public void Cancel(Socket socket)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -111,10 +111,10 @@ public sealed class Touch : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
-        public void Shape(SocketConnection socketConnection, int id, Fixed major, Fixed minor)
+        public void Shape(Socket socket, int id, Fixed major, Fixed minor)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -128,10 +128,10 @@ public sealed class Touch : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
-        public void Orientation(SocketConnection socketConnection, int id, Fixed orientation)
+        public void Orientation(Socket socket, int id, Fixed orientation)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -144,7 +144,7 @@ public sealed class Touch : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
     }
@@ -153,23 +153,23 @@ public sealed class Touch : ProtocolObject
     {
         public Action? Release { get; set; }
         
-        internal void HandleEvent(SocketConnection socketConnection)
+        internal void HandleEvent(Socket socket)
         {
-            ushort length = socketConnection.ReadUInt16();
-            ushort opCode = socketConnection.ReadUInt16();
+            ushort length = socket.ReadUInt16();
+            ushort opCode = socket.ReadUInt16();
             
             switch (opCode)
             {
                 case (ushort) RequestOpCode.Release:
-                    HandleReleaseEvent(socketConnection, length);
+                    HandleReleaseEvent(socket, length);
                     return;
             }
         }
         
-        private void HandleReleaseEvent(SocketConnection socketConnection, ushort length)
+        private void HandleReleaseEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 

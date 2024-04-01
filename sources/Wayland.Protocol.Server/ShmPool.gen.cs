@@ -34,29 +34,29 @@ public sealed class ShmPool : ProtocolObject
         public Action? Destroy { get; set; }
         public Action<int>? Resize { get; set; }
         
-        internal void HandleEvent(SocketConnection socketConnection)
+        internal void HandleEvent(Socket socket)
         {
-            ushort length = socketConnection.ReadUInt16();
-            ushort opCode = socketConnection.ReadUInt16();
+            ushort length = socket.ReadUInt16();
+            ushort opCode = socket.ReadUInt16();
             
             switch (opCode)
             {
                 case (ushort) RequestOpCode.CreateBuffer:
-                    HandleCreateBufferEvent(socketConnection, length);
+                    HandleCreateBufferEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.Destroy:
-                    HandleDestroyEvent(socketConnection, length);
+                    HandleDestroyEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.Resize:
-                    HandleResizeEvent(socketConnection, length);
+                    HandleResizeEvent(socket, length);
                     return;
             }
         }
         
-        private void HandleCreateBufferEvent(SocketConnection socketConnection, ushort length)
+        private void HandleCreateBufferEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -70,10 +70,10 @@ public sealed class ShmPool : ProtocolObject
             CreateBuffer?.Invoke(arg0, arg1, arg2, arg3, arg4, arg5);
         }
         
-        private void HandleDestroyEvent(SocketConnection socketConnection, ushort length)
+        private void HandleDestroyEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -81,10 +81,10 @@ public sealed class ShmPool : ProtocolObject
             Destroy?.Invoke();
         }
         
-        private void HandleResizeEvent(SocketConnection socketConnection, ushort length)
+        private void HandleResizeEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 

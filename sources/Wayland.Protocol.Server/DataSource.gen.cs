@@ -32,7 +32,7 @@ public sealed class DataSource : ProtocolObject
 
     public class EventsWrapper(ProtocolObject protocolObject)
     {
-        public void Target(SocketConnection socketConnection, string mimeType)
+        public void Target(Socket socket, string mimeType)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -44,10 +44,10 @@ public sealed class DataSource : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
-        public void Send(SocketConnection socketConnection, string mimeType, Fd fd)
+        public void Send(Socket socket, string mimeType, Fd fd)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -60,10 +60,10 @@ public sealed class DataSource : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
-        public void Cancelled(SocketConnection socketConnection)
+        public void Cancelled(Socket socket)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -74,10 +74,10 @@ public sealed class DataSource : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
-        public void DndDropPerformed(SocketConnection socketConnection)
+        public void DndDropPerformed(Socket socket)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -88,10 +88,10 @@ public sealed class DataSource : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
-        public void DndFinished(SocketConnection socketConnection)
+        public void DndFinished(Socket socket)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -102,10 +102,10 @@ public sealed class DataSource : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
-        public void Action(SocketConnection socketConnection, uint dndAction)
+        public void Action(Socket socket, uint dndAction)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -117,7 +117,7 @@ public sealed class DataSource : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
     }
@@ -128,29 +128,29 @@ public sealed class DataSource : ProtocolObject
         public Action? Destroy { get; set; }
         public Action<uint>? SetActions { get; set; }
         
-        internal void HandleEvent(SocketConnection socketConnection)
+        internal void HandleEvent(Socket socket)
         {
-            ushort length = socketConnection.ReadUInt16();
-            ushort opCode = socketConnection.ReadUInt16();
+            ushort length = socket.ReadUInt16();
+            ushort opCode = socket.ReadUInt16();
             
             switch (opCode)
             {
                 case (ushort) RequestOpCode.Offer:
-                    HandleOfferEvent(socketConnection, length);
+                    HandleOfferEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.Destroy:
-                    HandleDestroyEvent(socketConnection, length);
+                    HandleDestroyEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.SetActions:
-                    HandleSetActionsEvent(socketConnection, length);
+                    HandleSetActionsEvent(socket, length);
                     return;
             }
         }
         
-        private void HandleOfferEvent(SocketConnection socketConnection, ushort length)
+        private void HandleOfferEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -159,10 +159,10 @@ public sealed class DataSource : ProtocolObject
             Offer?.Invoke(arg0);
         }
         
-        private void HandleDestroyEvent(SocketConnection socketConnection, ushort length)
+        private void HandleDestroyEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -170,10 +170,10 @@ public sealed class DataSource : ProtocolObject
             Destroy?.Invoke();
         }
         
-        private void HandleSetActionsEvent(SocketConnection socketConnection, ushort length)
+        private void HandleSetActionsEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 

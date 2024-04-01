@@ -4,24 +4,16 @@ using Mono.Unix.Native;
 
 namespace Wayland.Protocol.Common;
 
-public sealed class SocketConnection : IDisposable
+public class Socket : IDisposable
 {
-    private readonly int _socket;
-    private readonly RingBuffer _readBuffer;
-    private readonly RingBuffer _writeBuffer;
-    private readonly Pollfd[] _pollfds;
+    private int _socket;
+    private RingBuffer _readBuffer;
+    private RingBuffer _writeBuffer;
+    private Pollfd[] _pollfds;
     
-    public bool IsDataAvailable => _readBuffer.AvailableBytesCount > 0;
-    
-    public SocketConnection(string path)
+    private Socket(int socket)
     {
-        _socket = Syscall.socket(UnixAddressFamily.AF_UNIX, UnixSocketType.SOCK_STREAM, 0);
-        if (_socket < 0)
-            throw new IOException("Failed to create UNIX socket.");
-        
-        if (Syscall.connect(_socket, new SockaddrUn(path)) != 0)
-            throw new IOException($"Failed to connect to UNIX socket. Reason: {Syscall.GetLastError()}");
-
+        _socket = socket;
         _readBuffer = new RingBuffer(2048 * 8);
         _writeBuffer = new RingBuffer(2048 * 8);
         
@@ -35,7 +27,7 @@ public sealed class SocketConnection : IDisposable
         };
     }
 
-    private long InternalRead(int timeout)
+    private long InternalReadFromSocket(int timeout)
     {
         if (Syscall.poll(_pollfds, timeout) > 0 && !HasFirstPollFd(PollEvents.POLLHUP))
         {
@@ -76,7 +68,7 @@ public sealed class SocketConnection : IDisposable
         return 0;
     }
 
-    private void InternalWrite()
+    private void InternalWriteToSocket()
     {
         lock (_writeBuffer)
         {
@@ -128,17 +120,37 @@ public sealed class SocketConnection : IDisposable
     
     public int Read(byte[] data, int index = 0, int count = 0)
     {
+        if (!_readBuffer.DataAvailable)
+            InternalReadFromSocket(-1);
+        
         return _readBuffer.Read(data, index, count);
     }
 
-    public void Flush(int timeout)
+    public void Flush(int timeout = -1)
     {
-        InternalRead(timeout);
-        InternalWrite();
+        InternalWriteToSocket();
     }
     
     public void Dispose()
     {
         Syscall.close(_socket);
+    }
+
+    /// <summary>
+    /// Connect to a UNIX socket.
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    /// <exception cref="IOException"></exception>
+    public static Socket Connect(string path)
+    {
+        int socket = Syscall.socket(UnixAddressFamily.AF_UNIX, UnixSocketType.SOCK_STREAM, 0);
+        if (socket < 0)
+            throw new IOException("Failed to create UNIX socket.");
+        
+        if (Syscall.connect(socket, new SockaddrUn(path)) != 0)
+            throw new IOException($"Failed to connect to UNIX socket. Reason: {Syscall.GetLastError()}");
+
+        return new Socket(socket);
     }
 }

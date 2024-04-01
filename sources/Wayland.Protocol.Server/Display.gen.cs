@@ -27,7 +27,7 @@ public sealed class Display : ProtocolObject
 
     public class EventsWrapper(ProtocolObject protocolObject)
     {
-        public void Error(SocketConnection socketConnection, ObjectId objectId, uint code, string message)
+        public void Error(Socket socket, ObjectId objectId, uint code, string message)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -41,10 +41,10 @@ public sealed class Display : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
-        public void DeleteId(SocketConnection socketConnection, uint id)
+        public void DeleteId(Socket socket, uint id)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -56,7 +56,7 @@ public sealed class Display : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
     }
@@ -66,26 +66,26 @@ public sealed class Display : ProtocolObject
         public Action<NewId>? Sync { get; set; }
         public Action<NewId>? GetRegistry { get; set; }
         
-        internal void HandleEvent(SocketConnection socketConnection)
+        internal void HandleEvent(Socket socket)
         {
-            ushort length = socketConnection.ReadUInt16();
-            ushort opCode = socketConnection.ReadUInt16();
+            ushort length = socket.ReadUInt16();
+            ushort opCode = socket.ReadUInt16();
             
             switch (opCode)
             {
                 case (ushort) RequestOpCode.Sync:
-                    HandleSyncEvent(socketConnection, length);
+                    HandleSyncEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.GetRegistry:
-                    HandleGetRegistryEvent(socketConnection, length);
+                    HandleGetRegistryEvent(socket, length);
                     return;
             }
         }
         
-        private void HandleSyncEvent(SocketConnection socketConnection, ushort length)
+        private void HandleSyncEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -94,10 +94,10 @@ public sealed class Display : ProtocolObject
             Sync?.Invoke(arg0);
         }
         
-        private void HandleGetRegistryEvent(SocketConnection socketConnection, ushort length)
+        private void HandleGetRegistryEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 

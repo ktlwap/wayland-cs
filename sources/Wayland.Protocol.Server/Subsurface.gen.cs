@@ -40,38 +40,38 @@ public sealed class Subsurface : ProtocolObject
         public Action? SetSync { get; set; }
         public Action? SetDesync { get; set; }
         
-        internal void HandleEvent(SocketConnection socketConnection)
+        internal void HandleEvent(Socket socket)
         {
-            ushort length = socketConnection.ReadUInt16();
-            ushort opCode = socketConnection.ReadUInt16();
+            ushort length = socket.ReadUInt16();
+            ushort opCode = socket.ReadUInt16();
             
             switch (opCode)
             {
                 case (ushort) RequestOpCode.Destroy:
-                    HandleDestroyEvent(socketConnection, length);
+                    HandleDestroyEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.SetPosition:
-                    HandleSetPositionEvent(socketConnection, length);
+                    HandleSetPositionEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.PlaceAbove:
-                    HandlePlaceAboveEvent(socketConnection, length);
+                    HandlePlaceAboveEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.PlaceBelow:
-                    HandlePlaceBelowEvent(socketConnection, length);
+                    HandlePlaceBelowEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.SetSync:
-                    HandleSetSyncEvent(socketConnection, length);
+                    HandleSetSyncEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.SetDesync:
-                    HandleSetDesyncEvent(socketConnection, length);
+                    HandleSetDesyncEvent(socket, length);
                     return;
             }
         }
         
-        private void HandleDestroyEvent(SocketConnection socketConnection, ushort length)
+        private void HandleDestroyEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -79,10 +79,10 @@ public sealed class Subsurface : ProtocolObject
             Destroy?.Invoke();
         }
         
-        private void HandleSetPositionEvent(SocketConnection socketConnection, ushort length)
+        private void HandleSetPositionEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -92,10 +92,10 @@ public sealed class Subsurface : ProtocolObject
             SetPosition?.Invoke(arg0, arg1);
         }
         
-        private void HandlePlaceAboveEvent(SocketConnection socketConnection, ushort length)
+        private void HandlePlaceAboveEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -104,10 +104,10 @@ public sealed class Subsurface : ProtocolObject
             PlaceAbove?.Invoke(arg0);
         }
         
-        private void HandlePlaceBelowEvent(SocketConnection socketConnection, ushort length)
+        private void HandlePlaceBelowEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -116,10 +116,10 @@ public sealed class Subsurface : ProtocolObject
             PlaceBelow?.Invoke(arg0);
         }
         
-        private void HandleSetSyncEvent(SocketConnection socketConnection, ushort length)
+        private void HandleSetSyncEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -127,10 +127,10 @@ public sealed class Subsurface : ProtocolObject
             SetSync?.Invoke();
         }
         
-        private void HandleSetDesyncEvent(SocketConnection socketConnection, ushort length)
+        private void HandleSetDesyncEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 

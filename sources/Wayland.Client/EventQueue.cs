@@ -5,20 +5,17 @@ namespace Wayland.Client;
 
 public sealed class EventQueue
 {
-    private SocketConnection _socketConnection;
+    private Socket Socket { get; }
     
-    internal EventQueue(SocketConnection socketConnection)
+    internal EventQueue(Socket socket)
     {
-        _socketConnection = socketConnection;
+        Socket = socket;
     }
 
     public bool Dispatch()
     {
-        if (!_socketConnection.IsDataAvailable)
-            return false;
-        
         byte[] header = new byte[8];
-        int number = _socketConnection.Read(header, 0, header.Length);
+        int number = Socket.Read(header, 0, header.Length);
         if (number < 1)
             return false;
 

@@ -32,26 +32,26 @@ public sealed class Compositor : ProtocolObject
         public Action<NewId>? CreateSurface { get; set; }
         public Action<NewId>? CreateRegion { get; set; }
         
-        internal void HandleEvent(SocketConnection socketConnection)
+        internal void HandleEvent(Socket socket)
         {
-            ushort length = socketConnection.ReadUInt16();
-            ushort opCode = socketConnection.ReadUInt16();
+            ushort length = socket.ReadUInt16();
+            ushort opCode = socket.ReadUInt16();
             
             switch (opCode)
             {
                 case (ushort) RequestOpCode.CreateSurface:
-                    HandleCreateSurfaceEvent(socketConnection, length);
+                    HandleCreateSurfaceEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.CreateRegion:
-                    HandleCreateRegionEvent(socketConnection, length);
+                    HandleCreateRegionEvent(socket, length);
                     return;
             }
         }
         
-        private void HandleCreateSurfaceEvent(SocketConnection socketConnection, ushort length)
+        private void HandleCreateSurfaceEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -60,10 +60,10 @@ public sealed class Compositor : ProtocolObject
             CreateSurface?.Invoke(arg0);
         }
         
-        private void HandleCreateRegionEvent(SocketConnection socketConnection, ushort length)
+        private void HandleCreateRegionEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 

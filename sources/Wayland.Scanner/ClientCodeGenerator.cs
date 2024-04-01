@@ -52,10 +52,10 @@ public static class ClientCodeGenerator
         sb.Append("    public readonly EventsWrapper Events;\n");
         sb.Append("    public readonly RequestsWrapper Requests;\n");
         sb.Append('\n');
-        sb.Append($"    public {@interface.Name}(SocketConnection socketConnection, uint id, uint version) : base(id, version, Name)\n");
+        sb.Append($"    public {@interface.Name}(Socket socket, uint id, uint version) : base(id, version, Name)\n");
         sb.Append("    {\n");
-        sb.Append("        Events = new EventsWrapper(socketConnection, this);\n");
-        sb.Append("        Requests = new RequestsWrapper(socketConnection, this);\n");
+        sb.Append("        Events = new EventsWrapper(socket, this);\n");
+        sb.Append("        Requests = new RequestsWrapper(socket, this);\n");
         sb.Append("    }\n");
         sb.Append('\n');
         AddEventOpCodeStub(sb, @interface.Events);
@@ -112,7 +112,7 @@ public static class ClientCodeGenerator
     
     private static void AddEventsWrapperStub(StringBuilder sb, List<Event> events)
     {
-        sb.Append("    public class EventsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)\n");
+        sb.Append("    public class EventsWrapper(Socket socket, ProtocolObject protocolObject)\n");
         sb.Append("    {\n");
 
         foreach (Event @event in events)
@@ -131,7 +131,7 @@ public static class ClientCodeGenerator
                 $"        internal void Handle{@event.Name}Event(ushort length)\n");
             sb.Append("        {\n");
             sb.Append("            byte[] buffer = new byte[length];\n");
-            sb.Append("            socketConnection.Read(buffer, 0, buffer.Length);\n");
+            sb.Append("            socket.Read(buffer, 0, buffer.Length);\n");
             sb.Append('\n');
             sb.Append("            MessageReader reader = new MessageReader(buffer);\n");
             sb.Append('\n');
@@ -182,7 +182,7 @@ public static class ClientCodeGenerator
     
     private static void AddRequestsWrapperStub(StringBuilder sb, List<Request> requests)
     {
-        sb.Append("    public class RequestsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)\n");
+        sb.Append("    public class RequestsWrapper(Socket socket, ProtocolObject protocolObject)\n");
         sb.Append("    {\n");
 
         foreach (Request request in requests)
@@ -228,7 +228,7 @@ public static class ClientCodeGenerator
             sb.Append("            data[6] = (byte)(byte.MaxValue & length);\n");
             sb.Append("            data[7] = (byte)(length >> 8);\n");
             sb.Append('\n');
-            sb.Append("            socketConnection.Write(data);\n");
+            sb.Append("            socket.Write(data);\n");
             sb.Append("        }\n");
             sb.Append('\n');
         }
