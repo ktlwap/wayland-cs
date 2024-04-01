@@ -14,7 +14,7 @@ public sealed class EventQueue
 
     public bool Dispatch()
     {
-        if (!_socketConnection.IsDataAvailable())
+        if (!_socketConnection.IsDataAvailable)
             return false;
         
         byte[] header = new byte[8];

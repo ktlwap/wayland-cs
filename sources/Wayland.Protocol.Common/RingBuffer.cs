@@ -62,28 +62,28 @@ public class RingBuffer
             _cursor = 0;
     }
     
-    public void Write(in Span<byte> data)
+    public void Write(byte[] data, int index, int count)
     {
         lock (_buffer)
         {
-            for (int i = 0; i < data.Length; ++i)
+            for (int i = 0; i < count; ++i)
             {
-                WriteByte(data[i]);
+                WriteByte(data[index + i]);
             }   
         }
     }
     
-    public int Read(ref Span<byte> data)
+    public int Read(byte[] data, int index, int count)
     {
         lock (_buffer)
         {
             int numberOfBytesRead = 0;
-            for (int i = 0; i < data.Length; ++i)
+            for (int i = 0; i < count; ++i)
             {
                 if (!DataAvailable)
                     break;
                 
-                data[i] = ReadByte();
+                data[index + i] = ReadByte();
                 ++numberOfBytesRead;
             }
 
