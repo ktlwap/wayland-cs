@@ -125,6 +125,16 @@ public class Socket : IDisposable
         
         return _readBuffer.Read(data, index, count);
     }
+    
+    public void ReadHeader(out uint objectId, out ushort opCode, out ushort length)
+    {
+        byte[] header = new byte[8];
+        Read(header);
+        
+        objectId = BitConverter.ToUInt32(header, 0);
+        opCode = BitConverter.ToUInt16(header, 4);
+        length = BitConverter.ToUInt16(header, 6);
+    }
 
     public void Flush(int timeout = -1)
     {
