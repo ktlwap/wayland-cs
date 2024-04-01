@@ -73,14 +73,21 @@ public class RingBuffer
         }
     }
     
-    public void Read(ref Span<byte> data)
+    public int Read(ref Span<byte> data)
     {
         lock (_buffer)
         {
+            int numberOfBytesRead = 0;
             for (int i = 0; i < data.Length; ++i)
             {
+                if (!DataAvailable)
+                    break;
+                
                 data[i] = ReadByte();
+                ++numberOfBytesRead;
             }
+
+            return numberOfBytesRead;
         }
     }
 }

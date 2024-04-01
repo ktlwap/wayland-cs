@@ -5,7 +5,8 @@ namespace Wayland.Protocol.Common;
 public sealed class SocketConnection : IDisposable
 {
     private readonly int _socket;
-    private readonly Pollfd[] _pollFds;
+    private readonly RingBuffer _readBuffer;
+    private readonly RingBuffer _writeBuffer;
     
     public SocketConnection(string path)
     {
@@ -15,35 +16,27 @@ public sealed class SocketConnection : IDisposable
         
         if (Syscall.connect(_socket, new SockaddrUn(path)) != 0)
             throw new IOException($"Failed to connect to UNIX socket. Reason: {Syscall.GetLastError()}");
-        
-        _pollFds = new Pollfd[]
-        {
-            new Pollfd
-            {
-                events = PollEvents.POLLIN,
-                fd = _socket
-            }
-        };
+
+        _readBuffer = new RingBuffer(2048 * 8);
+        _writeBuffer = new RingBuffer(2048 * 8);
     }
 
     private int Read(int timeout)
     {
-        int result = Syscall.poll(_pollFds, timeout);
-
-        if (result > 0)
-        {
-            
-        }
-
         return 0;
     }
 
-    public void Write(byte[] data)
+    public void Write(in Span<byte> data)
     {
-        throw new NotImplementedException();
+        _writeBuffer.Write(in data);
     }
     
-    public int Read(byte[] buffer, int index, int count)
+    public int Read(ref Span<byte> buffer)
+    {
+        return _readBuffer.Read(ref buffer);
+    }
+
+    public void Flush()
     {
         throw new NotImplementedException();
     }
