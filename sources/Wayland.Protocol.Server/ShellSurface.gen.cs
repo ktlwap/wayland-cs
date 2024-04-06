@@ -36,7 +36,7 @@ public sealed class ShellSurface : ProtocolObject
 
     public class EventsWrapper(ProtocolObject protocolObject)
     {
-        public void Ping(SocketConnection socketConnection, uint serial)
+        public void Ping(Socket socket, uint serial)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -48,10 +48,10 @@ public sealed class ShellSurface : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
-        public void Configure(SocketConnection socketConnection, uint edges, int width, int height)
+        public void Configure(Socket socket, uint edges, int width, int height)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -65,10 +65,10 @@ public sealed class ShellSurface : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
-        public void PopupDone(SocketConnection socketConnection)
+        public void PopupDone(Socket socket)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -79,7 +79,7 @@ public sealed class ShellSurface : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
     }
@@ -97,50 +97,50 @@ public sealed class ShellSurface : ProtocolObject
         public Action<string>? SetTitle { get; set; }
         public Action<string>? SetClass { get; set; }
         
-        internal void HandleEvent(SocketConnection socketConnection)
+        internal void HandleEvent(Socket socket)
         {
-            ushort length = socketConnection.ReadUInt16();
-            ushort opCode = socketConnection.ReadUInt16();
+            ushort length = socket.ReadUInt16();
+            ushort opCode = socket.ReadUInt16();
             
             switch (opCode)
             {
                 case (ushort) RequestOpCode.Pong:
-                    HandlePongEvent(socketConnection, length);
+                    HandlePongEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.Move:
-                    HandleMoveEvent(socketConnection, length);
+                    HandleMoveEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.Resize:
-                    HandleResizeEvent(socketConnection, length);
+                    HandleResizeEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.SetToplevel:
-                    HandleSetToplevelEvent(socketConnection, length);
+                    HandleSetToplevelEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.SetTransient:
-                    HandleSetTransientEvent(socketConnection, length);
+                    HandleSetTransientEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.SetFullscreen:
-                    HandleSetFullscreenEvent(socketConnection, length);
+                    HandleSetFullscreenEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.SetPopup:
-                    HandleSetPopupEvent(socketConnection, length);
+                    HandleSetPopupEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.SetMaximized:
-                    HandleSetMaximizedEvent(socketConnection, length);
+                    HandleSetMaximizedEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.SetTitle:
-                    HandleSetTitleEvent(socketConnection, length);
+                    HandleSetTitleEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.SetClass:
-                    HandleSetClassEvent(socketConnection, length);
+                    HandleSetClassEvent(socket, length);
                     return;
             }
         }
         
-        private void HandlePongEvent(SocketConnection socketConnection, ushort length)
+        private void HandlePongEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -149,10 +149,10 @@ public sealed class ShellSurface : ProtocolObject
             Pong?.Invoke(arg0);
         }
         
-        private void HandleMoveEvent(SocketConnection socketConnection, ushort length)
+        private void HandleMoveEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -162,10 +162,10 @@ public sealed class ShellSurface : ProtocolObject
             Move?.Invoke(arg0, arg1);
         }
         
-        private void HandleResizeEvent(SocketConnection socketConnection, ushort length)
+        private void HandleResizeEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -176,10 +176,10 @@ public sealed class ShellSurface : ProtocolObject
             Resize?.Invoke(arg0, arg1, arg2);
         }
         
-        private void HandleSetToplevelEvent(SocketConnection socketConnection, ushort length)
+        private void HandleSetToplevelEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -187,10 +187,10 @@ public sealed class ShellSurface : ProtocolObject
             SetToplevel?.Invoke();
         }
         
-        private void HandleSetTransientEvent(SocketConnection socketConnection, ushort length)
+        private void HandleSetTransientEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -202,10 +202,10 @@ public sealed class ShellSurface : ProtocolObject
             SetTransient?.Invoke(arg0, arg1, arg2, arg3);
         }
         
-        private void HandleSetFullscreenEvent(SocketConnection socketConnection, ushort length)
+        private void HandleSetFullscreenEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -216,10 +216,10 @@ public sealed class ShellSurface : ProtocolObject
             SetFullscreen?.Invoke(arg0, arg1, arg2);
         }
         
-        private void HandleSetPopupEvent(SocketConnection socketConnection, ushort length)
+        private void HandleSetPopupEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -233,10 +233,10 @@ public sealed class ShellSurface : ProtocolObject
             SetPopup?.Invoke(arg0, arg1, arg2, arg3, arg4, arg5);
         }
         
-        private void HandleSetMaximizedEvent(SocketConnection socketConnection, ushort length)
+        private void HandleSetMaximizedEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -245,10 +245,10 @@ public sealed class ShellSurface : ProtocolObject
             SetMaximized?.Invoke(arg0);
         }
         
-        private void HandleSetTitleEvent(SocketConnection socketConnection, ushort length)
+        private void HandleSetTitleEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -257,10 +257,10 @@ public sealed class ShellSurface : ProtocolObject
             SetTitle?.Invoke(arg0);
         }
         
-        private void HandleSetClassEvent(SocketConnection socketConnection, ushort length)
+        private void HandleSetClassEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 

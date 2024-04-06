@@ -9,10 +9,10 @@ public sealed class ShmPool : ProtocolObject
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public ShmPool(SocketConnection socketConnection, uint id, uint version) : base(id, version, Name)
+    public ShmPool(Socket socket, uint id, uint version) : base(id, version, Name)
     {
-        Events = new EventsWrapper(socketConnection, this);
-        Requests = new RequestsWrapper(socketConnection, this);
+        Events = new EventsWrapper(socket, this);
+        Requests = new RequestsWrapper(socket, this);
     }
 
     private enum EventOpCode : ushort
@@ -33,12 +33,12 @@ public sealed class ShmPool : ProtocolObject
         }
     }
 
-    public class EventsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
+    public class EventsWrapper(Socket socket, ProtocolObject protocolObject)
     {
         
     }
 
-    public class RequestsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
+    public class RequestsWrapper(Socket socket, ProtocolObject protocolObject)
     {
         public void CreateBuffer(NewId id, int offset, int width, int height, int stride, uint format)
         {
@@ -57,7 +57,7 @@ public sealed class ShmPool : ProtocolObject
             data[6] = (byte)(byte.MaxValue & length);
             data[7] = (byte)(length >> 8);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
         public void Destroy()
@@ -71,7 +71,7 @@ public sealed class ShmPool : ProtocolObject
             data[6] = (byte)(byte.MaxValue & length);
             data[7] = (byte)(length >> 8);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
         public void Resize(int size)
@@ -86,7 +86,7 @@ public sealed class ShmPool : ProtocolObject
             data[6] = (byte)(byte.MaxValue & length);
             data[7] = (byte)(length >> 8);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
     }

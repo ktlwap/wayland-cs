@@ -164,10 +164,10 @@ public static class CodeGenerator
                     $"        public Action? {@event.Name} {{ get; set; }}\n");
 
         sb.Append("        \n");
-        sb.Append("        internal void HandleEvent(SocketConnection socketConnection)\n");
+        sb.Append("        internal void HandleEvent(Socket socket)\n");
         sb.Append("        {\n");
-        sb.Append("            ushort length = socketConnection.ReadUInt16();\n");
-        sb.Append("            ushort opCode = socketConnection.ReadUInt16();\n");
+        sb.Append("            ushort length = socket.ReadUInt16();\n");
+        sb.Append("            ushort opCode = socket.ReadUInt16();\n");
         sb.Append("            \n");
         sb.Append("            switch (opCode)\n");
         sb.Append("            {\n");
@@ -175,7 +175,7 @@ public static class CodeGenerator
         foreach (var @event in events)
         {
             sb.Append($"                case (ushort) EventOpCode.{@event.Name}:\n");
-            sb.Append($"                    Handle{@event.Name}Event(socketConnection, length);\n");
+            sb.Append($"                    Handle{@event.Name}Event(socket, length);\n");
             sb.Append("                    return;\n");
         }
 
@@ -186,10 +186,10 @@ public static class CodeGenerator
         foreach (var @event in events)
         {
             sb.Append(
-                $"        private void Handle{@event.Name}Event(SocketConnection socketConnection, ushort length)\n");
+                $"        private void Handle{@event.Name}Event(Socket socket, ushort length)\n");
             sb.Append("        {\n");
             sb.Append("            byte[] buffer = new byte[length];\n");
-            sb.Append("            socketConnection.Read(buffer, 0, buffer.Length);\n");
+            sb.Append("            socket.Read(buffer, 0, buffer.Length);\n");
             sb.Append('\n');
             sb.Append("            MessageReader reader = new MessageReader(buffer);\n");
             sb.Append('\n');
@@ -247,10 +247,10 @@ public static class CodeGenerator
                     $"        public Action? {request.Name} {{ get; set; }}\n");
 
         sb.Append("        \n");
-        sb.Append("        internal void HandleEvent(SocketConnection socketConnection)\n");
+        sb.Append("        internal void HandleEvent(Socket socket)\n");
         sb.Append("        {\n");
-        sb.Append("            ushort length = socketConnection.ReadUInt16();\n");
-        sb.Append("            ushort opCode = socketConnection.ReadUInt16();\n");
+        sb.Append("            ushort length = socket.ReadUInt16();\n");
+        sb.Append("            ushort opCode = socket.ReadUInt16();\n");
         sb.Append("            \n");
         sb.Append("            switch (opCode)\n");
         sb.Append("            {\n");
@@ -258,7 +258,7 @@ public static class CodeGenerator
         foreach (var request in requests)
         {
             sb.Append($"                case (ushort) RequestOpCode.{request.Name}:\n");
-            sb.Append($"                    Handle{request.Name}Event(socketConnection, length);\n");
+            sb.Append($"                    Handle{request.Name}Event(socket, length);\n");
             sb.Append("                    return;\n");
         }
 
@@ -269,10 +269,10 @@ public static class CodeGenerator
         foreach (var request in requests)
         {
             sb.Append(
-                $"        private void Handle{request.Name}Event(SocketConnection socketConnection, ushort length)\n");
+                $"        private void Handle{request.Name}Event(Socket socket, ushort length)\n");
             sb.Append("        {\n");
             sb.Append("            byte[] buffer = new byte[length];\n");
-            sb.Append("            socketConnection.Read(buffer, 0, buffer.Length);\n");
+            sb.Append("            socket.Read(buffer, 0, buffer.Length);\n");
             sb.Append('\n');
             sb.Append("            MessageReader reader = new MessageReader(buffer);\n");
             sb.Append('\n');
@@ -323,9 +323,9 @@ public static class CodeGenerator
     {
         if (arguments.Count > 0)
             sb.Append(
-                $"        public void {name}(SocketConnection socketConnection, {string.Join(", ", arguments.Select(arg => arg.Type + " " + arg.Name))})\n");
+                $"        public void {name}(Socket socket, {string.Join(", ", arguments.Select(arg => arg.Type + " " + arg.Name))})\n");
         else
-            sb.Append($"        public void {name}(SocketConnection socketConnection)\n");
+            sb.Append($"        public void {name}(Socket socket)\n");
 
         sb.Append("        {\n");
         sb.Append("            MessageWriter writer = new MessageWriter();\n");
@@ -366,7 +366,7 @@ public static class CodeGenerator
         sb.Append("            data[6] = (byte)(length >> 8);\n");
         sb.Append("            data[7] = (byte)(byte.MaxValue & length);\n");
         sb.Append('\n');
-        sb.Append("            socketConnection.Write(data);\n");
+        sb.Append("            socket.Write(data);\n");
         sb.Append("        }\n");
         sb.Append('\n');
     }

@@ -9,10 +9,10 @@ public sealed class Touch : ProtocolObject
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public Touch(SocketConnection socketConnection, uint id, uint version) : base(id, version, Name)
+    public Touch(Socket socket, uint id, uint version) : base(id, version, Name)
     {
-        Events = new EventsWrapper(socketConnection, this);
-        Requests = new RequestsWrapper(socketConnection, this);
+        Events = new EventsWrapper(socket, this);
+        Requests = new RequestsWrapper(socket, this);
     }
 
     private enum EventOpCode : ushort
@@ -59,7 +59,7 @@ public sealed class Touch : ProtocolObject
         }
     }
 
-    public class EventsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
+    public class EventsWrapper(Socket socket, ProtocolObject protocolObject)
     {
         public Action<uint, uint, ObjectId, int, Fixed, Fixed>? Down { get; set; }
         public Action<uint, uint, int>? Up { get; set; }
@@ -72,7 +72,7 @@ public sealed class Touch : ProtocolObject
         internal void HandleDownEvent(ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -89,7 +89,7 @@ public sealed class Touch : ProtocolObject
         internal void HandleUpEvent(ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -103,7 +103,7 @@ public sealed class Touch : ProtocolObject
         internal void HandleMotionEvent(ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -118,7 +118,7 @@ public sealed class Touch : ProtocolObject
         internal void HandleFrameEvent(ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -129,7 +129,7 @@ public sealed class Touch : ProtocolObject
         internal void HandleCancelEvent(ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -140,7 +140,7 @@ public sealed class Touch : ProtocolObject
         internal void HandleShapeEvent(ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -154,7 +154,7 @@ public sealed class Touch : ProtocolObject
         internal void HandleOrientationEvent(ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -166,7 +166,7 @@ public sealed class Touch : ProtocolObject
         
     }
 
-    public class RequestsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
+    public class RequestsWrapper(Socket socket, ProtocolObject protocolObject)
     {
         public void Release()
         {
@@ -179,7 +179,7 @@ public sealed class Touch : ProtocolObject
             data[6] = (byte)(byte.MaxValue & length);
             data[7] = (byte)(length >> 8);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
     }

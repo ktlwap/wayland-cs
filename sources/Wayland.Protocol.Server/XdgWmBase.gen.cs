@@ -28,7 +28,7 @@ public sealed class XdgWmBase : ProtocolObject
 
     public class EventsWrapper(ProtocolObject protocolObject)
     {
-        public void Ping(SocketConnection socketConnection, uint serial)
+        public void Ping(Socket socket, uint serial)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -40,7 +40,7 @@ public sealed class XdgWmBase : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
     }
@@ -52,32 +52,32 @@ public sealed class XdgWmBase : ProtocolObject
         public Action<NewId, ObjectId>? GetXdgSurface { get; set; }
         public Action<uint>? Pong { get; set; }
         
-        internal void HandleEvent(SocketConnection socketConnection)
+        internal void HandleEvent(Socket socket)
         {
-            ushort length = socketConnection.ReadUInt16();
-            ushort opCode = socketConnection.ReadUInt16();
+            ushort length = socket.ReadUInt16();
+            ushort opCode = socket.ReadUInt16();
             
             switch (opCode)
             {
                 case (ushort) RequestOpCode.Destroy:
-                    HandleDestroyEvent(socketConnection, length);
+                    HandleDestroyEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.CreatePositioner:
-                    HandleCreatePositionerEvent(socketConnection, length);
+                    HandleCreatePositionerEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.GetXdgSurface:
-                    HandleGetXdgSurfaceEvent(socketConnection, length);
+                    HandleGetXdgSurfaceEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.Pong:
-                    HandlePongEvent(socketConnection, length);
+                    HandlePongEvent(socket, length);
                     return;
             }
         }
         
-        private void HandleDestroyEvent(SocketConnection socketConnection, ushort length)
+        private void HandleDestroyEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -85,10 +85,10 @@ public sealed class XdgWmBase : ProtocolObject
             Destroy?.Invoke();
         }
         
-        private void HandleCreatePositionerEvent(SocketConnection socketConnection, ushort length)
+        private void HandleCreatePositionerEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -97,10 +97,10 @@ public sealed class XdgWmBase : ProtocolObject
             CreatePositioner?.Invoke(arg0);
         }
         
-        private void HandleGetXdgSurfaceEvent(SocketConnection socketConnection, ushort length)
+        private void HandleGetXdgSurfaceEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -110,10 +110,10 @@ public sealed class XdgWmBase : ProtocolObject
             GetXdgSurface?.Invoke(arg0, arg1);
         }
         
-        private void HandlePongEvent(SocketConnection socketConnection, ushort length)
+        private void HandlePongEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 

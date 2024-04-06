@@ -30,61 +30,61 @@ public sealed partial class Connection
         switch (name)
         {
             case Display.Name:
-                Display = new Display(_socketConnection, id, version);
+                Display = new Display(Socket, id, version);
                 break;
             case Registry.Name:
-                Registry = new Registry(_socketConnection, id, version);
+                Registry = new Registry(Socket, id, version);
                 break;
             case Callback.Name:
-                Callback = new Callback(_socketConnection, id, version);
+                Callback = new Callback(Socket, id, version);
                 break;
             case Compositor.Name:
-                Compositor = new Compositor(_socketConnection, id, version);
+                Compositor = new Compositor(Socket, id, version);
                 break;
             case ShmPool.Name:
-                ShmPool = new ShmPool(_socketConnection, id, version);
+                ShmPool = new ShmPool(Socket, id, version);
                 break;
             case Buffer.Name:
-                Buffer = new Buffer(_socketConnection, id, version);
+                Buffer = new Buffer(Socket, id, version);
                 break;
             case DataSource.Name:
-                DataSource = new DataSource(_socketConnection, id, version);
+                DataSource = new DataSource(Socket, id, version);
                 break;
             case DataDeviceManager.Name:
-                DataDeviceManager = new DataDeviceManager(_socketConnection, id, version);
+                DataDeviceManager = new DataDeviceManager(Socket, id, version);
                 break;
             case Shell.Name:
-                Shell = new Shell(_socketConnection, id, version);
+                Shell = new Shell(Socket, id, version);
                 break;
             case ShellSurface.Name:
-                ShellSurface = new ShellSurface(_socketConnection, id, version);
+                ShellSurface = new ShellSurface(Socket, id, version);
                 break;
             case Surface.Name:
-                Surface = new Surface(_socketConnection, id, version);
+                Surface = new Surface(Socket, id, version);
                 break;
             case Seat.Name:
-                Seat = new Seat(_socketConnection, id, version);
+                Seat = new Seat(Socket, id, version);
                 break;
             case Pointer.Name:
-                Pointer = new Pointer(_socketConnection, id, version);
+                Pointer = new Pointer(Socket, id, version);
                 break;
             case Keyboard.Name:
-                Keyboard = new Keyboard(_socketConnection, id, version);
+                Keyboard = new Keyboard(Socket, id, version);
                 break;
             case Touch.Name:
-                Touch = new Touch(_socketConnection, id, version);
+                Touch = new Touch(Socket, id, version);
                 break;
             case Output.Name:
-                Output = new Output(_socketConnection, id, version);
+                Output = new Output(Socket, id, version);
                 break;
             case Region.Name:
-                Region = new Region(_socketConnection, id, version);
+                Region = new Region(Socket, id, version);
                 break;
             case Subcompositor.Name:
-                Subcompositor = new Subcompositor(_socketConnection, id, version);
+                Subcompositor = new Subcompositor(Socket, id, version);
                 break;
             case Subsurface.Name:
-                Subsurface = new Subsurface(_socketConnection, id, version);
+                Subsurface = new Subsurface(Socket, id, version);
                 break;
             default:
                 throw new NotImplementedException($"\"{name}\" is not implemented.");

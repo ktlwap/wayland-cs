@@ -4,22 +4,20 @@ namespace Wayland.Client;
 
 public sealed partial class Connection : IDisposable
 {
-    private SocketConnection _socketConnection;
-    
     public EventQueue EventQueue { get; }
+    public Socket Socket { get; }
     
     public Connection() : this(null) { }
 
     public Connection(string? name)
     {
-        _socketConnection = new SocketConnection(FindWaylandUnixSocketPath(name));
-        
-        EventQueue = new EventQueue(_socketConnection);
+        Socket = Socket.Connect(FindWaylandUnixSocketPath(name));
+        EventQueue = new EventQueue(Socket);
     }
     
     public void Dispose()
     {
-        _socketConnection.Dispose();
+        Socket.Dispose();
     }
     
     private static string FindWaylandUnixSocketPath(string? name)
@@ -44,7 +42,6 @@ public sealed partial class Connection : IDisposable
                 path = Path.Join(xdgRuntimeDir, "wayland-0");
             }
         }
-        
         
         if (!File.Exists(path))
             throw new Exception($"Socket name '{path}' not found. Wayland server not running or listening on another Socket?");

@@ -32,7 +32,7 @@ public sealed class DataDevice : ProtocolObject
 
     public class EventsWrapper(ProtocolObject protocolObject)
     {
-        public void DataOffer(SocketConnection socketConnection, NewId id)
+        public void DataOffer(Socket socket, NewId id)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -44,10 +44,10 @@ public sealed class DataDevice : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
-        public void Enter(SocketConnection socketConnection, uint serial, ObjectId surface, Fixed x, Fixed y, ObjectId id)
+        public void Enter(Socket socket, uint serial, ObjectId surface, Fixed x, Fixed y, ObjectId id)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -63,10 +63,10 @@ public sealed class DataDevice : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
-        public void Leave(SocketConnection socketConnection)
+        public void Leave(Socket socket)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -77,10 +77,10 @@ public sealed class DataDevice : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
-        public void Motion(SocketConnection socketConnection, uint time, Fixed x, Fixed y)
+        public void Motion(Socket socket, uint time, Fixed x, Fixed y)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -94,10 +94,10 @@ public sealed class DataDevice : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
-        public void Drop(SocketConnection socketConnection)
+        public void Drop(Socket socket)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -108,10 +108,10 @@ public sealed class DataDevice : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
-        public void Selection(SocketConnection socketConnection, ObjectId id)
+        public void Selection(Socket socket, ObjectId id)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -123,7 +123,7 @@ public sealed class DataDevice : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
     }
@@ -134,29 +134,29 @@ public sealed class DataDevice : ProtocolObject
         public Action<ObjectId, uint>? SetSelection { get; set; }
         public Action? Release { get; set; }
         
-        internal void HandleEvent(SocketConnection socketConnection)
+        internal void HandleEvent(Socket socket)
         {
-            ushort length = socketConnection.ReadUInt16();
-            ushort opCode = socketConnection.ReadUInt16();
+            ushort length = socket.ReadUInt16();
+            ushort opCode = socket.ReadUInt16();
             
             switch (opCode)
             {
                 case (ushort) RequestOpCode.StartDrag:
-                    HandleStartDragEvent(socketConnection, length);
+                    HandleStartDragEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.SetSelection:
-                    HandleSetSelectionEvent(socketConnection, length);
+                    HandleSetSelectionEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.Release:
-                    HandleReleaseEvent(socketConnection, length);
+                    HandleReleaseEvent(socket, length);
                     return;
             }
         }
         
-        private void HandleStartDragEvent(SocketConnection socketConnection, ushort length)
+        private void HandleStartDragEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -168,10 +168,10 @@ public sealed class DataDevice : ProtocolObject
             StartDrag?.Invoke(arg0, arg1, arg2, arg3);
         }
         
-        private void HandleSetSelectionEvent(SocketConnection socketConnection, ushort length)
+        private void HandleSetSelectionEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -181,10 +181,10 @@ public sealed class DataDevice : ProtocolObject
             SetSelection?.Invoke(arg0, arg1);
         }
         
-        private void HandleReleaseEvent(SocketConnection socketConnection, ushort length)
+        private void HandleReleaseEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 

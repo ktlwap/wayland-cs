@@ -9,10 +9,10 @@ public sealed class XdgPopup : ProtocolObject
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public XdgPopup(SocketConnection socketConnection, uint id, uint version) : base(id, version, Name)
+    public XdgPopup(Socket socket, uint id, uint version) : base(id, version, Name)
     {
-        Events = new EventsWrapper(socketConnection, this);
-        Requests = new RequestsWrapper(socketConnection, this);
+        Events = new EventsWrapper(socket, this);
+        Requests = new RequestsWrapper(socket, this);
     }
 
     private enum EventOpCode : ushort
@@ -45,7 +45,7 @@ public sealed class XdgPopup : ProtocolObject
         }
     }
 
-    public class EventsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
+    public class EventsWrapper(Socket socket, ProtocolObject protocolObject)
     {
         public Action<int, int, int, int>? Configure { get; set; }
         public Action? PopupDone { get; set; }
@@ -54,7 +54,7 @@ public sealed class XdgPopup : ProtocolObject
         internal void HandleConfigureEvent(ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -69,7 +69,7 @@ public sealed class XdgPopup : ProtocolObject
         internal void HandlePopupDoneEvent(ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -80,7 +80,7 @@ public sealed class XdgPopup : ProtocolObject
         internal void HandleRepositionedEvent(ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -91,7 +91,7 @@ public sealed class XdgPopup : ProtocolObject
         
     }
 
-    public class RequestsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
+    public class RequestsWrapper(Socket socket, ProtocolObject protocolObject)
     {
         public void Destroy()
         {
@@ -104,7 +104,7 @@ public sealed class XdgPopup : ProtocolObject
             data[6] = (byte)(byte.MaxValue & length);
             data[7] = (byte)(length >> 8);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
         public void Grab(ObjectId seat, uint serial)
@@ -120,7 +120,7 @@ public sealed class XdgPopup : ProtocolObject
             data[6] = (byte)(byte.MaxValue & length);
             data[7] = (byte)(length >> 8);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
         public void Reposition(ObjectId positioner, uint token)
@@ -136,7 +136,7 @@ public sealed class XdgPopup : ProtocolObject
             data[6] = (byte)(byte.MaxValue & length);
             data[7] = (byte)(length >> 8);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
     }

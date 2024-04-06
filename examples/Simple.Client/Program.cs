@@ -35,7 +35,8 @@ class Program
             Console.WriteLine($"Request done: {callbackData}. Closing connection.");
             _isDone = true;
         };
-        
+
+        connection.Socket.Flush();
         while (!_isDone)
             connection.EventQueue.Dispatch();
     }

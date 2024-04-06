@@ -32,26 +32,26 @@ public sealed class DataDeviceManager : ProtocolObject
         public Action<NewId>? CreateDataSource { get; set; }
         public Action<NewId, ObjectId>? GetDataDevice { get; set; }
         
-        internal void HandleEvent(SocketConnection socketConnection)
+        internal void HandleEvent(Socket socket)
         {
-            ushort length = socketConnection.ReadUInt16();
-            ushort opCode = socketConnection.ReadUInt16();
+            ushort length = socket.ReadUInt16();
+            ushort opCode = socket.ReadUInt16();
             
             switch (opCode)
             {
                 case (ushort) RequestOpCode.CreateDataSource:
-                    HandleCreateDataSourceEvent(socketConnection, length);
+                    HandleCreateDataSourceEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.GetDataDevice:
-                    HandleGetDataDeviceEvent(socketConnection, length);
+                    HandleGetDataDeviceEvent(socket, length);
                     return;
             }
         }
         
-        private void HandleCreateDataSourceEvent(SocketConnection socketConnection, ushort length)
+        private void HandleCreateDataSourceEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -60,10 +60,10 @@ public sealed class DataDeviceManager : ProtocolObject
             CreateDataSource?.Invoke(arg0);
         }
         
-        private void HandleGetDataDeviceEvent(SocketConnection socketConnection, ushort length)
+        private void HandleGetDataDeviceEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 

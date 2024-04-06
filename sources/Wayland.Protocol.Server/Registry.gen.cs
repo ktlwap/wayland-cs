@@ -26,7 +26,7 @@ public sealed class Registry : ProtocolObject
 
     public class EventsWrapper(ProtocolObject protocolObject)
     {
-        public void Global(SocketConnection socketConnection, uint name, string @interface, uint version)
+        public void Global(Socket socket, uint name, string @interface, uint version)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -40,10 +40,10 @@ public sealed class Registry : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
-        public void GlobalRemove(SocketConnection socketConnection, uint name)
+        public void GlobalRemove(Socket socket, uint name)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -55,7 +55,7 @@ public sealed class Registry : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
     }
@@ -64,23 +64,23 @@ public sealed class Registry : ProtocolObject
     {
         public Action<uint, NewId>? Bind { get; set; }
         
-        internal void HandleEvent(SocketConnection socketConnection)
+        internal void HandleEvent(Socket socket)
         {
-            ushort length = socketConnection.ReadUInt16();
-            ushort opCode = socketConnection.ReadUInt16();
+            ushort length = socket.ReadUInt16();
+            ushort opCode = socket.ReadUInt16();
             
             switch (opCode)
             {
                 case (ushort) RequestOpCode.Bind:
-                    HandleBindEvent(socketConnection, length);
+                    HandleBindEvent(socket, length);
                     return;
             }
         }
         
-        private void HandleBindEvent(SocketConnection socketConnection, ushort length)
+        private void HandleBindEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 

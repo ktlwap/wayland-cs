@@ -29,7 +29,7 @@ public sealed class XdgPopup : ProtocolObject
 
     public class EventsWrapper(ProtocolObject protocolObject)
     {
-        public void Configure(SocketConnection socketConnection, int x, int y, int width, int height)
+        public void Configure(Socket socket, int x, int y, int width, int height)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -44,10 +44,10 @@ public sealed class XdgPopup : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
-        public void PopupDone(SocketConnection socketConnection)
+        public void PopupDone(Socket socket)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -58,10 +58,10 @@ public sealed class XdgPopup : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
-        public void Repositioned(SocketConnection socketConnection, uint token)
+        public void Repositioned(Socket socket, uint token)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -73,7 +73,7 @@ public sealed class XdgPopup : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
     }
@@ -84,29 +84,29 @@ public sealed class XdgPopup : ProtocolObject
         public Action<ObjectId, uint>? Grab { get; set; }
         public Action<ObjectId, uint>? Reposition { get; set; }
         
-        internal void HandleEvent(SocketConnection socketConnection)
+        internal void HandleEvent(Socket socket)
         {
-            ushort length = socketConnection.ReadUInt16();
-            ushort opCode = socketConnection.ReadUInt16();
+            ushort length = socket.ReadUInt16();
+            ushort opCode = socket.ReadUInt16();
             
             switch (opCode)
             {
                 case (ushort) RequestOpCode.Destroy:
-                    HandleDestroyEvent(socketConnection, length);
+                    HandleDestroyEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.Grab:
-                    HandleGrabEvent(socketConnection, length);
+                    HandleGrabEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.Reposition:
-                    HandleRepositionEvent(socketConnection, length);
+                    HandleRepositionEvent(socket, length);
                     return;
             }
         }
         
-        private void HandleDestroyEvent(SocketConnection socketConnection, ushort length)
+        private void HandleDestroyEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -114,10 +114,10 @@ public sealed class XdgPopup : ProtocolObject
             Destroy?.Invoke();
         }
         
-        private void HandleGrabEvent(SocketConnection socketConnection, ushort length)
+        private void HandleGrabEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -127,10 +127,10 @@ public sealed class XdgPopup : ProtocolObject
             Grab?.Invoke(arg0, arg1);
         }
         
-        private void HandleRepositionEvent(SocketConnection socketConnection, ushort length)
+        private void HandleRepositionEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 

@@ -36,7 +36,7 @@ public sealed class Pointer : ProtocolObject
 
     public class EventsWrapper(ProtocolObject protocolObject)
     {
-        public void Enter(SocketConnection socketConnection, uint serial, ObjectId surface, Fixed surfaceX, Fixed surfaceY)
+        public void Enter(Socket socket, uint serial, ObjectId surface, Fixed surfaceX, Fixed surfaceY)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -51,10 +51,10 @@ public sealed class Pointer : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
-        public void Leave(SocketConnection socketConnection, uint serial, ObjectId surface)
+        public void Leave(Socket socket, uint serial, ObjectId surface)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -67,10 +67,10 @@ public sealed class Pointer : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
-        public void Motion(SocketConnection socketConnection, uint time, Fixed surfaceX, Fixed surfaceY)
+        public void Motion(Socket socket, uint time, Fixed surfaceX, Fixed surfaceY)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -84,10 +84,10 @@ public sealed class Pointer : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
-        public void Button(SocketConnection socketConnection, uint serial, uint time, uint button, uint state)
+        public void Button(Socket socket, uint serial, uint time, uint button, uint state)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -102,10 +102,10 @@ public sealed class Pointer : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
-        public void Axis(SocketConnection socketConnection, uint time, uint axis, Fixed value)
+        public void Axis(Socket socket, uint time, uint axis, Fixed value)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -119,10 +119,10 @@ public sealed class Pointer : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
-        public void Frame(SocketConnection socketConnection)
+        public void Frame(Socket socket)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -133,10 +133,10 @@ public sealed class Pointer : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
-        public void AxisSource(SocketConnection socketConnection, uint axisSource)
+        public void AxisSource(Socket socket, uint axisSource)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -148,10 +148,10 @@ public sealed class Pointer : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
-        public void AxisStop(SocketConnection socketConnection, uint time, uint axis)
+        public void AxisStop(Socket socket, uint time, uint axis)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -164,10 +164,10 @@ public sealed class Pointer : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
-        public void AxisDiscrete(SocketConnection socketConnection, uint axis, int discrete)
+        public void AxisDiscrete(Socket socket, uint axis, int discrete)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -180,10 +180,10 @@ public sealed class Pointer : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
-        public void AxisValue120(SocketConnection socketConnection, uint axis, int value120)
+        public void AxisValue120(Socket socket, uint axis, int value120)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -196,10 +196,10 @@ public sealed class Pointer : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
-        public void AxisRelativeDirection(SocketConnection socketConnection, uint axis, uint direction)
+        public void AxisRelativeDirection(Socket socket, uint axis, uint direction)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -212,7 +212,7 @@ public sealed class Pointer : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
     }
@@ -222,26 +222,26 @@ public sealed class Pointer : ProtocolObject
         public Action<uint, ObjectId, int, int>? SetCursor { get; set; }
         public Action? Release { get; set; }
         
-        internal void HandleEvent(SocketConnection socketConnection)
+        internal void HandleEvent(Socket socket)
         {
-            ushort length = socketConnection.ReadUInt16();
-            ushort opCode = socketConnection.ReadUInt16();
+            ushort length = socket.ReadUInt16();
+            ushort opCode = socket.ReadUInt16();
             
             switch (opCode)
             {
                 case (ushort) RequestOpCode.SetCursor:
-                    HandleSetCursorEvent(socketConnection, length);
+                    HandleSetCursorEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.Release:
-                    HandleReleaseEvent(socketConnection, length);
+                    HandleReleaseEvent(socket, length);
                     return;
             }
         }
         
-        private void HandleSetCursorEvent(SocketConnection socketConnection, ushort length)
+        private void HandleSetCursorEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -253,10 +253,10 @@ public sealed class Pointer : ProtocolObject
             SetCursor?.Invoke(arg0, arg1, arg2, arg3);
         }
         
-        private void HandleReleaseEvent(SocketConnection socketConnection, ushort length)
+        private void HandleReleaseEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 

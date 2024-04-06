@@ -29,7 +29,7 @@ public sealed class Seat : ProtocolObject
 
     public class EventsWrapper(ProtocolObject protocolObject)
     {
-        public void Capabilities(SocketConnection socketConnection, uint capabilities)
+        public void Capabilities(Socket socket, uint capabilities)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -41,10 +41,10 @@ public sealed class Seat : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
-        public void Name(SocketConnection socketConnection, string name)
+        public void Name(Socket socket, string name)
         {
             MessageWriter writer = new MessageWriter();
             writer.Write(protocolObject.Id);
@@ -56,7 +56,7 @@ public sealed class Seat : ProtocolObject
             data[6] = (byte)(length >> 8);
             data[7] = (byte)(byte.MaxValue & length);
 
-            socketConnection.Write(data);
+            socket.Write(data);
         }
 
     }
@@ -68,32 +68,32 @@ public sealed class Seat : ProtocolObject
         public Action<NewId>? GetTouch { get; set; }
         public Action? Release { get; set; }
         
-        internal void HandleEvent(SocketConnection socketConnection)
+        internal void HandleEvent(Socket socket)
         {
-            ushort length = socketConnection.ReadUInt16();
-            ushort opCode = socketConnection.ReadUInt16();
+            ushort length = socket.ReadUInt16();
+            ushort opCode = socket.ReadUInt16();
             
             switch (opCode)
             {
                 case (ushort) RequestOpCode.GetPointer:
-                    HandleGetPointerEvent(socketConnection, length);
+                    HandleGetPointerEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.GetKeyboard:
-                    HandleGetKeyboardEvent(socketConnection, length);
+                    HandleGetKeyboardEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.GetTouch:
-                    HandleGetTouchEvent(socketConnection, length);
+                    HandleGetTouchEvent(socket, length);
                     return;
                 case (ushort) RequestOpCode.Release:
-                    HandleReleaseEvent(socketConnection, length);
+                    HandleReleaseEvent(socket, length);
                     return;
             }
         }
         
-        private void HandleGetPointerEvent(SocketConnection socketConnection, ushort length)
+        private void HandleGetPointerEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -102,10 +102,10 @@ public sealed class Seat : ProtocolObject
             GetPointer?.Invoke(arg0);
         }
         
-        private void HandleGetKeyboardEvent(SocketConnection socketConnection, ushort length)
+        private void HandleGetKeyboardEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -114,10 +114,10 @@ public sealed class Seat : ProtocolObject
             GetKeyboard?.Invoke(arg0);
         }
         
-        private void HandleGetTouchEvent(SocketConnection socketConnection, ushort length)
+        private void HandleGetTouchEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
@@ -126,10 +126,10 @@ public sealed class Seat : ProtocolObject
             GetTouch?.Invoke(arg0);
         }
         
-        private void HandleReleaseEvent(SocketConnection socketConnection, ushort length)
+        private void HandleReleaseEvent(Socket socket, ushort length)
         {
             byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
+            socket.Read(buffer, 0, buffer.Length);
 
             MessageReader reader = new MessageReader(buffer);
 
