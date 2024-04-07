@@ -14,13 +14,13 @@ class Program
         Console.WriteLine("Connection established.");
 
         NewId displayId = ProtocolObject.AllocateId();
-        connection.Bind(Display.Name, displayId.Value, 1);
+        Display display = connection.Bind<Display>(displayId.Value, 1);
         
         NewId registryId = ProtocolObject.AllocateId();
-        connection.Bind(Registry.Name, registryId.Value, 1);
-        connection.Display.Requests.GetRegistry(registryId);
+        display.Requests.GetRegistry(registryId);
+        Registry registry = connection.Bind<Registry>(registryId.Value, 1);
 
-        connection.Registry!.Events.Global += (uint name, string @interface, uint version) =>
+        registry.Events.Global += (uint name, string @interface, uint version) =>
         {
             Console.WriteLine($"Global: {name} {@interface} {version}");
             connection.Bind(@interface, registryId.Value, version);
@@ -28,7 +28,7 @@ class Program
         
         NewId callbackId = ProtocolObject.AllocateId();
         connection.Bind(Callback.Name, callbackId.Value, 1);
-        connection.Display.Requests.Sync(callbackId);
+        display.Requests.Sync(callbackId);
 
         connection.Callback!.Events.Done += (uint callbackData) =>
         {

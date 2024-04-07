@@ -1,3 +1,4 @@
+using Wayland.Protocol.Client;
 using Wayland.Protocol.Common;
 
 namespace Wayland.Client;
@@ -20,6 +21,16 @@ public sealed partial class Connection : IDisposable
     public void Dispose()
     {
         _socketConnection.Dispose();
+    }
+    
+    public T Bind<T>(uint id, uint version)
+        where T : ProtocolObject
+    {
+        T? protocolObject = (T)Activator.CreateInstance(typeof(T), _socketConnection, id, version);
+        if (protocolObject == null)
+            throw new Exception("ProtocolType not found.");
+
+        return protocolObject;
     }
     
     private static string FindWaylandUnixSocketPath(string? name)
