@@ -3,7 +3,7 @@ using System.Text;
 
 namespace Wayland.Protocol.Common;
 
-public class MessageWriter
+public class MessageWriter : IDisposable
 {
     private readonly SocketConnection _socketConnection;
     private readonly BinaryWriter _binaryWriter;
@@ -125,5 +125,10 @@ public class MessageWriter
     {
         _binaryWriter.Flush();
         Available = 0;
+    }
+
+    public void Dispose()
+    {
+        _binaryWriter.Dispose();
     }
 }

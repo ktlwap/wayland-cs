@@ -5,11 +5,9 @@ namespace Wayland.Protocol.Common;
 
 public sealed class SocketConnection : IDisposable
 {
-    public readonly Socket _socket;
     private readonly NetworkStream _networkStream;
-    private readonly BinaryReader _binaryReader;
-    private readonly BinaryWriter _binaryWriter;
-
+    
+    public readonly Socket _socket;
     public readonly MessageReader MessageReader;
     public readonly MessageWriter MessageWriter;
 
@@ -18,51 +16,44 @@ public sealed class SocketConnection : IDisposable
         _socket = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified);
         _socket.Connect(new UnixDomainSocketEndPoint(unixSocketPath));
         _networkStream = new NetworkStream(_socket);
-        _binaryReader = new BinaryReader(_networkStream);
-        _binaryWriter = new BinaryWriter(_networkStream);
         MessageReader = new MessageReader(this, _networkStream);
         MessageWriter = new MessageWriter(this, _networkStream);
     }
 
     public void SendFileDescriptor(int fd)
     {
-        var sockFd = (int)_socket.Handle; // raw socket file descriptor
-        byte[] data = new byte[] { 0 }; // must send at least one byte
-
-        // Prepare iovec (the main message body)
-        var iov = new UnixInterop.iovec
+        int sockFd = (int)_socket.Handle;
+        byte[] data = [0];
+        
+        UnixInterop.iovec iov = new UnixInterop.iovec
         {
             iov_base = Marshal.UnsafeAddrOfPinnedArrayElement(data, 0),
-            iov_len = (IntPtr)data.Length
+            iov_len = data.Length
         };
-
-        // Prepare control buffer for FD passing
+        
         int fdSize = sizeof(int);
         int cmsgSpace = UnixInterop.CMsgSpace(fdSize);
         IntPtr controlBuffer = Marshal.AllocHGlobal(cmsgSpace);
         Span<byte> zero = new byte[cmsgSpace];
         Marshal.Copy(zero.ToArray(), 0, controlBuffer, cmsgSpace);
-
-        // Fill cmsghdr
-        var cmsg = new UnixInterop.cmsghdr
+        
+        UnixInterop.cmsghdr cmsg = new UnixInterop.cmsghdr
         {
             cmsg_len = UnixInterop.CMsgLength(fdSize),
             cmsg_level = UnixInterop.SOL_SOCKET,
             cmsg_type = UnixInterop.SCM_RIGHTS
         };
         Marshal.StructureToPtr(cmsg, controlBuffer, false);
-
-        // Write FD after header
+        
         IntPtr dataPtr = controlBuffer + UnixInterop.CMsgAlign(Marshal.SizeOf<UnixInterop.cmsghdr>());
         Marshal.WriteInt32(dataPtr, fd);
-
-        // Prepare msghdr
-        var msg = new UnixInterop.msghdr
+        
+        UnixInterop.msghdr msg = new UnixInterop.msghdr
         {
             msg_iov = Marshal.AllocHGlobal(Marshal.SizeOf<UnixInterop.iovec>()),
-            msg_iovlen = (IntPtr)1,
+            msg_iovlen = 1,
             msg_control = controlBuffer,
-            msg_controllen = (IntPtr)cmsgSpace
+            msg_controllen = cmsgSpace
         };
         Marshal.StructureToPtr(iov, msg.msg_iov, false);
 
@@ -76,25 +67,25 @@ public sealed class SocketConnection : IDisposable
 
     public int ReadFileDescriptor()
     {
-        var sockFd = (int)_socket.Handle;
+        int sockFd = (int) _socket.Handle;
         byte[] data = new byte[1];
 
-        var iov = new UnixInterop.iovec
+        UnixInterop.iovec iov = new UnixInterop.iovec
         {
             iov_base = Marshal.UnsafeAddrOfPinnedArrayElement(data, 0),
-            iov_len = (IntPtr)data.Length
+            iov_len = data.Length
         };
 
         int fdSize = sizeof(int);
         int cmsgSpace = UnixInterop.CMsgSpace(fdSize);
         IntPtr controlBuffer = Marshal.AllocHGlobal(cmsgSpace);
 
-        var msg = new UnixInterop.msghdr
+        UnixInterop.msghdr msg = new UnixInterop.msghdr
         {
             msg_iov = Marshal.AllocHGlobal(Marshal.SizeOf<UnixInterop.iovec>()),
-            msg_iovlen = (IntPtr)1,
+            msg_iovlen = 1,
             msg_control = controlBuffer,
-            msg_controllen = (IntPtr)cmsgSpace
+            msg_controllen = cmsgSpace
         };
         Marshal.StructureToPtr(iov, msg.msg_iov, false);
 
@@ -102,7 +93,6 @@ public sealed class SocketConnection : IDisposable
         if (ret == -1)
             throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error());
 
-        // Extract FD
         IntPtr dataPtr = controlBuffer + UnixInterop.CMsgAlign(Marshal.SizeOf<UnixInterop.cmsghdr>());
         int receivedFd = Marshal.ReadInt32(dataPtr);
 
@@ -116,7 +106,5 @@ public sealed class SocketConnection : IDisposable
     {
         _socket.Dispose();
         _networkStream.Dispose();
-        _binaryReader.Dispose();
-        _binaryWriter.Dispose();
     }
 }

@@ -3,7 +3,7 @@ using System.Text;
 
 namespace Wayland.Protocol.Common;
 
-public class MessageReader
+public class MessageReader : IDisposable
 {
     private readonly SocketConnection _socketConnection;
     private readonly NetworkStream _networkStream;
@@ -131,5 +131,10 @@ public class MessageReader
     public NewId ReadNewId()
     {
         return new NewId(ReadUInt());
+    }
+
+    public void Dispose()
+    {
+        _binaryReader.Dispose();
     }
 }
