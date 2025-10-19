@@ -2,14 +2,14 @@ using Wayland.Protocol.Common;
 
 namespace Wayland.Protocol.Client;
 
-public sealed class Registry : ProtocolObject
+public sealed class Shm : ProtocolObject
 {
-    public new const string Name = "wl_registry";
+    public new const string Name = "wl_shm";
 
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public Registry(SocketConnection socketConnection, uint id, uint version) : base(id, version, Name)
+    public Shm(SocketConnection socketConnection, uint id, uint version) : base(id, version, Name)
     {
         Events = new EventsWrapper(socketConnection, this);
         Requests = new RequestsWrapper(socketConnection, this);
@@ -17,64 +17,49 @@ public sealed class Registry : ProtocolObject
 
     private enum EventOpCode : ushort
     {
-        Global = 0,
-        GlobalRemove = 1,
+        Format = 0,
     }
 
     private enum RequestOpCode : ushort
     {
-        Bind = 0,
+        CreatePool = 0,
     }
 
     internal override void HandleEvent(ushort length, ushort opCode)
     {
         switch (opCode)
         {
-            case (ushort) EventOpCode.Global:
-                Events.HandleGlobalEvent(length);
-                return;
-            case (ushort) EventOpCode.GlobalRemove:
-                Events.HandleGlobalRemoveEvent(length);
+            case (ushort) EventOpCode.Format:
+                Events.HandleFormatEvent(length);
                 return;
         }
     }
 
     public class EventsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
-        public Action<uint, string, uint>? Global { get; set; }
-        public Action<uint>? GlobalRemove { get; set; }
+        public Action<uint>? Format { get; set; }
         
-        internal void HandleGlobalEvent(ushort length)
-        {
-            MessageReader reader = socketConnection.MessageReader;
-
-            uint arg0 = reader.ReadUInt();
-            string arg1 = reader.ReadString();
-            uint arg2 = reader.ReadUInt();
-
-            Global?.Invoke(arg0, arg1, arg2);
-        }
-        
-        internal void HandleGlobalRemoveEvent(ushort length)
+        internal void HandleFormatEvent(ushort length)
         {
             MessageReader reader = socketConnection.MessageReader;
 
             uint arg0 = reader.ReadUInt();
 
-            GlobalRemove?.Invoke(arg0);
+            Format?.Invoke(arg0);
         }
         
     }
 
     public class RequestsWrapper(SocketConnection socketConnection, ProtocolObject protocolObject)
     {
-        public void Bind(uint name, NewId id)
+        public void CreatePool(NewId id, Fd fd, int size)
         {
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
-            writer.Write((int) RequestOpCode.Bind);
-            writer.Write(name);
+            writer.Write((int) RequestOpCode.CreatePool);
             writer.Write(id.Value);
+            writer.Write(fd.Value);
+            writer.Write(size);
 
             int length = writer.Available;
             writer.Write((byte)(byte.MaxValue & length));

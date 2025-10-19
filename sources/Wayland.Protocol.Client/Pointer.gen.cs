@@ -92,10 +92,7 @@ public sealed class Pointer : ProtocolObject
         
         internal void HandleEnterEvent(ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
             uint arg0 = reader.ReadUInt();
             ObjectId arg1 = reader.ReadObjectId();
@@ -107,10 +104,7 @@ public sealed class Pointer : ProtocolObject
         
         internal void HandleLeaveEvent(ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
             uint arg0 = reader.ReadUInt();
             ObjectId arg1 = reader.ReadObjectId();
@@ -120,10 +114,7 @@ public sealed class Pointer : ProtocolObject
         
         internal void HandleMotionEvent(ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
             uint arg0 = reader.ReadUInt();
             Fixed arg1 = reader.ReadFixed();
@@ -134,10 +125,7 @@ public sealed class Pointer : ProtocolObject
         
         internal void HandleButtonEvent(ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
             uint arg0 = reader.ReadUInt();
             uint arg1 = reader.ReadUInt();
@@ -149,10 +137,7 @@ public sealed class Pointer : ProtocolObject
         
         internal void HandleAxisEvent(ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
             uint arg0 = reader.ReadUInt();
             uint arg1 = reader.ReadUInt();
@@ -163,10 +148,7 @@ public sealed class Pointer : ProtocolObject
         
         internal void HandleFrameEvent(ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
 
             Frame?.Invoke();
@@ -174,10 +156,7 @@ public sealed class Pointer : ProtocolObject
         
         internal void HandleAxisSourceEvent(ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
             uint arg0 = reader.ReadUInt();
 
@@ -186,10 +165,7 @@ public sealed class Pointer : ProtocolObject
         
         internal void HandleAxisStopEvent(ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
             uint arg0 = reader.ReadUInt();
             uint arg1 = reader.ReadUInt();
@@ -199,10 +175,7 @@ public sealed class Pointer : ProtocolObject
         
         internal void HandleAxisDiscreteEvent(ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
             uint arg0 = reader.ReadUInt();
             int arg1 = reader.ReadInt();
@@ -212,10 +185,7 @@ public sealed class Pointer : ProtocolObject
         
         internal void HandleAxisValue120Event(ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
             uint arg0 = reader.ReadUInt();
             int arg1 = reader.ReadInt();
@@ -225,10 +195,7 @@ public sealed class Pointer : ProtocolObject
         
         internal void HandleAxisRelativeDirectionEvent(ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
             uint arg0 = reader.ReadUInt();
             uint arg1 = reader.ReadUInt();
@@ -242,7 +209,7 @@ public sealed class Pointer : ProtocolObject
     {
         public void SetCursor(uint serial, ObjectId surface, int hotspotX, int hotspotY)
         {
-            MessageWriter writer = new MessageWriter();
+            MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.SetCursor);
             writer.Write(serial);
@@ -250,26 +217,24 @@ public sealed class Pointer : ProtocolObject
             writer.Write(hotspotX);
             writer.Write(hotspotY);
 
-            byte[] data = writer.ToArray();
-            int length = data.Length;
-            data[6] = (byte)(byte.MaxValue & length);
-            data[7] = (byte)(length >> 8);
+            int length = writer.Available;
+            writer.Write((byte)(byte.MaxValue & length));
+            writer.Write((byte)(length >> 8));
 
-            socketConnection.Write(data);
+            writer.Flush();
         }
 
         public void Release()
         {
-            MessageWriter writer = new MessageWriter();
+            MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.Release);
 
-            byte[] data = writer.ToArray();
-            int length = data.Length;
-            data[6] = (byte)(byte.MaxValue & length);
-            data[7] = (byte)(length >> 8);
+            int length = writer.Available;
+            writer.Write((byte)(byte.MaxValue & length));
+            writer.Write((byte)(length >> 8));
 
-            socketConnection.Write(data);
+            writer.Flush();
         }
 
     }

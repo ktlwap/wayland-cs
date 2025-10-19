@@ -1,22 +1,45 @@
+using System.Net.Sockets;
 using System.Text;
 
 namespace Wayland.Protocol.Common;
 
-public class MessageReader
+public class MessageReader : IDisposable
 {
-    private readonly byte[] _data;
-    private int _index;
+    private readonly SocketConnection _socketConnection;
+    private readonly NetworkStream _networkStream;
+    private readonly BinaryReader _binaryReader;
     
-    public MessageReader(byte[] data)
+    public bool IsDataAvailable => _networkStream.DataAvailable;
+    
+    internal MessageReader(SocketConnection socketConnection, NetworkStream networkStream)
     {
-        _data = data;
+        _socketConnection = socketConnection;
+        _networkStream = networkStream;
+        _binaryReader =  new BinaryReader(networkStream);
     }
     
     private byte ReadByte()
     {
-        return _data[_index++];
+        return _binaryReader.ReadByte();
     }
-    
+
+    public void ReadFixed(Span<byte> data, int index, int length, bool skipPadding = true)
+    {
+        for (int i = index; i < index + length; ++i)
+        {
+            data[i] = ReadByte();
+        }
+
+        if (skipPadding && length % 4 != 0)
+        {
+            int padding = 4 - length % 4;
+            for (int i = 0; i < padding; ++i)
+            {
+                ReadByte();
+            }
+        }
+    }
+
     public byte[] ReadByteArray()
     {
         int length = 0;
@@ -25,25 +48,22 @@ public class MessageReader
         length |= ReadByte() << 16;
         length |= ReadByte() << 24;
 
-        byte[] result;
-        if (length > 0)
+
+        byte[] result = new byte[length];
+        for (int i = 0; i < length; ++i)
         {
-            result = new byte[length];
-            Buffer.BlockCopy(_data, _index, result, 0, length);
-            _index += result.Length;
-            if (_index % 4 != 0)
-                _index += 4 - _index % 4;
-        }
-        else
-        {
-            result = [];
+            result[i] = ReadByte();
         }
 
-#if DEBUG
-        if (_index % 4 != 0)
-            throw new Exception("Index is not aligned to 4 bytes.");
-#endif
-        
+        if (length % 4 != 0)
+        {
+            int padding = 4 - length % 4;
+            for (int i = 0; i < padding; ++i)
+            {
+                ReadByte();
+            }
+        }
+
         return result;
     }
 
@@ -94,7 +114,8 @@ public class MessageReader
 
     public Fd ReadFd()
     {
-        return new Fd(ReadInt());
+        int fd = _socketConnection.ReadFileDescriptor();
+        return new Fd(fd);
     }
     
     public Fixed ReadFixed()
@@ -110,5 +131,10 @@ public class MessageReader
     public NewId ReadNewId()
     {
         return new NewId(ReadUInt());
+    }
+
+    public void Dispose()
+    {
+        _binaryReader.Dispose();
     }
 }

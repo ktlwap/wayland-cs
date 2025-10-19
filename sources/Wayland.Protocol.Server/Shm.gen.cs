@@ -2,12 +2,12 @@ using Wayland.Protocol.Common;
 
 namespace Wayland.Protocol.Server;
 
-public sealed class Compositor : ProtocolObject
+public sealed class Shm : ProtocolObject
 {
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public Compositor(uint id, uint version) : base(id, version)
+    public Shm(uint id, uint version) : base(id, version)
     {
         Events = new EventsWrapper(this);
         Requests = new RequestsWrapper(this);
@@ -15,22 +15,35 @@ public sealed class Compositor : ProtocolObject
 
     private enum EventOpCode : ushort
     {
+        Format = 0,
     }
 
     private enum RequestOpCode : ushort
     {
-        CreateSurface = 0,
-        CreateRegion = 1,
+        CreatePool = 0,
     }
 
     public class EventsWrapper(ProtocolObject protocolObject)
     {
+        public void Format(SocketConnection socketConnection, uint format)
+        {
+            MessageWriter writer = socketConnection.MessageWriter;
+            writer.Write(protocolObject.Id);
+            writer.Write((int) EventOpCode.Format);
+            writer.Write(format);
+
+            int length = writer.Available;
+            writer.Write((byte)(length >> 8));
+            writer.Write((byte)(byte.MaxValue & length));
+
+            writer.Flush();
+        }
+
     }
 
     public class RequestsWrapper(ProtocolObject protocolObject)
     {
-        public Action<NewId>? CreateSurface { get; set; }
-        public Action<NewId>? CreateRegion { get; set; }
+        public Action<NewId, Fd, int>? CreatePool { get; set; }
         
         internal void HandleEvent(SocketConnection socketConnection)
         {
@@ -40,31 +53,21 @@ public sealed class Compositor : ProtocolObject
             
             switch (opCode)
             {
-                case (ushort) RequestOpCode.CreateSurface:
-                    HandleCreateSurfaceEvent(socketConnection, length);
-                    return;
-                case (ushort) RequestOpCode.CreateRegion:
-                    HandleCreateRegionEvent(socketConnection, length);
+                case (ushort) RequestOpCode.CreatePool:
+                    HandleCreatePoolEvent(socketConnection, length);
                     return;
             }
         }
         
-        private void HandleCreateSurfaceEvent(SocketConnection socketConnection, ushort length)
+        private void HandleCreatePoolEvent(SocketConnection socketConnection, ushort length)
         {
             MessageReader reader = socketConnection.MessageReader;
 
             NewId arg0 = reader.ReadNewId();
+            Fd arg1 = reader.ReadFd();
+            int arg2 = reader.ReadInt();
 
-            CreateSurface?.Invoke(arg0);
-        }
-        
-        private void HandleCreateRegionEvent(SocketConnection socketConnection, ushort length)
-        {
-            MessageReader reader = socketConnection.MessageReader;
-
-            NewId arg0 = reader.ReadNewId();
-
-            CreateRegion?.Invoke(arg0);
+            CreatePool?.Invoke(arg0, arg1, arg2);
         }
         
     }

@@ -33,10 +33,6 @@ public static class CodeGenerator
         
         foreach (Interface @interface in protocol.Interfaces)
         {
-            if (@interface.Name is "Shm" or "DataOffer")
-                // These are not supported yet due to fd as argument.
-                continue;
-
             using FileStream fileStream = File.Create(Path.Combine(ClientFilePath, @interface.Name + ".gen.cs"));
 
             byte[] data = GenerateSource(@interface, true);
@@ -52,10 +48,6 @@ public static class CodeGenerator
 
         foreach (Interface @interface in protocol.Interfaces)
         {
-            if (@interface.Name is "Shm" or "DataOffer")
-                // These are not supported yet due to fd as argument.
-                continue;
-
             using FileStream fileStream = File.Create(Path.Combine(ServerFilePath, @interface.Name + ".gen.cs"));
 
             byte[] data = GenerateSource(@interface, false);
@@ -166,8 +158,9 @@ public static class CodeGenerator
         sb.Append("        \n");
         sb.Append("        internal void HandleEvent(SocketConnection socketConnection)\n");
         sb.Append("        {\n");
-        sb.Append("            ushort length = socketConnection.ReadUInt16();\n");
-        sb.Append("            ushort opCode = socketConnection.ReadUInt16();\n");
+        sb.Append("            MessageReader reader = socketConnection.MessageReader;\n");
+        sb.Append("            ushort length = reader.ReadUShort();\n");
+        sb.Append("            ushort opCode = reader.ReadUShort();\n");
         sb.Append("            \n");
         sb.Append("            switch (opCode)\n");
         sb.Append("            {\n");
@@ -188,10 +181,7 @@ public static class CodeGenerator
             sb.Append(
                 $"        private void Handle{@event.Name}Event(SocketConnection socketConnection, ushort length)\n");
             sb.Append("        {\n");
-            sb.Append("            byte[] buffer = new byte[length];\n");
-            sb.Append("            socketConnection.Read(buffer, 0, buffer.Length);\n");
-            sb.Append('\n');
-            sb.Append("            MessageReader reader = new MessageReader(buffer);\n");
+            sb.Append("            MessageReader reader = socketConnection.MessageReader;\n");
             sb.Append('\n');
 
             for (var i = 0; i < @event.Arguments.Count; ++i)
@@ -249,8 +239,9 @@ public static class CodeGenerator
         sb.Append("        \n");
         sb.Append("        internal void HandleEvent(SocketConnection socketConnection)\n");
         sb.Append("        {\n");
-        sb.Append("            ushort length = socketConnection.ReadUInt16();\n");
-        sb.Append("            ushort opCode = socketConnection.ReadUInt16();\n");
+        sb.Append("            MessageReader reader = socketConnection.MessageReader;\n");
+        sb.Append("            ushort length = reader.ReadUShort();\n");
+        sb.Append("            ushort opCode = reader.ReadUShort();\n");
         sb.Append("            \n");
         sb.Append("            switch (opCode)\n");
         sb.Append("            {\n");
@@ -271,10 +262,7 @@ public static class CodeGenerator
             sb.Append(
                 $"        private void Handle{request.Name}Event(SocketConnection socketConnection, ushort length)\n");
             sb.Append("        {\n");
-            sb.Append("            byte[] buffer = new byte[length];\n");
-            sb.Append("            socketConnection.Read(buffer, 0, buffer.Length);\n");
-            sb.Append('\n');
-            sb.Append("            MessageReader reader = new MessageReader(buffer);\n");
+            sb.Append("            MessageReader reader = socketConnection.MessageReader;\n");
             sb.Append('\n');
 
             for (var i = 0; i < request.Arguments.Count; ++i)
@@ -328,7 +316,7 @@ public static class CodeGenerator
             sb.Append($"        public void {name}(SocketConnection socketConnection)\n");
 
         sb.Append("        {\n");
-        sb.Append("            MessageWriter writer = new MessageWriter();\n");
+        sb.Append("            MessageWriter writer = socketConnection.MessageWriter;\n");
         sb.Append("            writer.Write(protocolObject.Id);\n");
         
         if (requestWrapper)
@@ -361,12 +349,11 @@ public static class CodeGenerator
         }
 
         sb.Append('\n');
-        sb.Append("            byte[] data = writer.ToArray();\n");
-        sb.Append("            int length = data.Length;\n");
-        sb.Append("            data[6] = (byte)(length >> 8);\n");
-        sb.Append("            data[7] = (byte)(byte.MaxValue & length);\n");
+        sb.Append("            int length = writer.Available;\n");
+        sb.Append("            writer.Write((byte)(length >> 8));\n");
+        sb.Append("            writer.Write((byte)(byte.MaxValue & length));\n");
         sb.Append('\n');
-        sb.Append("            socketConnection.Write(data);\n");
+        sb.Append("            writer.Flush();\n");
         sb.Append("        }\n");
         sb.Append('\n');
     }

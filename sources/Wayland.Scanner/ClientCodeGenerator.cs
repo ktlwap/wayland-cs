@@ -27,10 +27,6 @@ public static class ClientCodeGenerator
 
         foreach (Interface @interface in protocol.Interfaces)
         {
-            if (@interface.Name is "Shm" or "DataOffer")
-                // These are not supported yet due to fd as argument.
-                continue;
-
             using FileStream fileStream = File.Create(Path.Combine(ClientFilePath, @interface.Name + ".gen.cs"));
 
             byte[] data = GenerateSource(@interface, true);
@@ -130,10 +126,7 @@ public static class ClientCodeGenerator
             sb.Append(
                 $"        internal void Handle{@event.Name}Event(ushort length)\n");
             sb.Append("        {\n");
-            sb.Append("            byte[] buffer = new byte[length];\n");
-            sb.Append("            socketConnection.Read(buffer, 0, buffer.Length);\n");
-            sb.Append('\n');
-            sb.Append("            MessageReader reader = new MessageReader(buffer);\n");
+            sb.Append("            MessageReader reader = socketConnection.MessageReader;\n");
             sb.Append('\n');
 
             for (int i = 0; i < @event.Arguments.Count; ++i)
@@ -194,7 +187,7 @@ public static class ClientCodeGenerator
                 sb.Append($"        public void {request.Name}()\n"); // TODO
 
             sb.Append("        {\n");
-            sb.Append("            MessageWriter writer = new MessageWriter();\n");
+            sb.Append("            MessageWriter writer = socketConnection.MessageWriter;\n");
             sb.Append("            writer.Write(protocolObject.Id);\n");
             sb.Append($"            writer.Write((int) RequestOpCode.{request.Name});\n");
 
@@ -223,12 +216,11 @@ public static class ClientCodeGenerator
             }
 
             sb.Append('\n');
-            sb.Append("            byte[] data = writer.ToArray();\n");
-            sb.Append("            int length = data.Length;\n");
-            sb.Append("            data[6] = (byte)(byte.MaxValue & length);\n");
-            sb.Append("            data[7] = (byte)(length >> 8);\n");
+            sb.Append("            int length = writer.Available;\n");
+            sb.Append("            writer.Write((byte)(byte.MaxValue & length));\n");
+            sb.Append("            writer.Write((byte)(length >> 8));\n");
             sb.Append('\n');
-            sb.Append("            socketConnection.Write(data);\n");
+            sb.Append("            writer.Flush();\n");
             sb.Append("        }\n");
             sb.Append('\n');
         }

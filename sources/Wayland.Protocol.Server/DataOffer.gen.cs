@@ -2,12 +2,12 @@ using Wayland.Protocol.Common;
 
 namespace Wayland.Protocol.Server;
 
-public sealed class DataSource : ProtocolObject
+public sealed class DataOffer : ProtocolObject
 {
     public readonly EventsWrapper Events;
     public readonly RequestsWrapper Requests;
 
-    public DataSource(uint id, uint version) : base(id, version)
+    public DataOffer(uint id, uint version) : base(id, version)
     {
         Events = new EventsWrapper(this);
         Requests = new RequestsWrapper(this);
@@ -15,28 +15,27 @@ public sealed class DataSource : ProtocolObject
 
     private enum EventOpCode : ushort
     {
-        Target = 0,
-        Send = 1,
-        Cancelled = 2,
-        DndDropPerformed = 3,
-        DndFinished = 4,
-        Action = 5,
+        Offer = 0,
+        SourceActions = 1,
+        Action = 2,
     }
 
     private enum RequestOpCode : ushort
     {
-        Offer = 0,
-        Destroy = 1,
-        SetActions = 2,
+        Accept = 0,
+        Receive = 1,
+        Destroy = 2,
+        Finish = 3,
+        SetActions = 4,
     }
 
     public class EventsWrapper(ProtocolObject protocolObject)
     {
-        public void Target(SocketConnection socketConnection, string mimeType)
+        public void Offer(SocketConnection socketConnection, string mimeType)
         {
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
-            writer.Write((int) EventOpCode.Target);
+            writer.Write((int) EventOpCode.Offer);
             writer.Write(mimeType);
 
             int length = writer.Available;
@@ -46,52 +45,12 @@ public sealed class DataSource : ProtocolObject
             writer.Flush();
         }
 
-        public void Send(SocketConnection socketConnection, string mimeType, Fd fd)
+        public void SourceActions(SocketConnection socketConnection, uint sourceActions)
         {
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
-            writer.Write((int) EventOpCode.Send);
-            writer.Write(mimeType);
-            writer.Write(fd.Value);
-
-            int length = writer.Available;
-            writer.Write((byte)(length >> 8));
-            writer.Write((byte)(byte.MaxValue & length));
-
-            writer.Flush();
-        }
-
-        public void Cancelled(SocketConnection socketConnection)
-        {
-            MessageWriter writer = socketConnection.MessageWriter;
-            writer.Write(protocolObject.Id);
-            writer.Write((int) EventOpCode.Cancelled);
-
-            int length = writer.Available;
-            writer.Write((byte)(length >> 8));
-            writer.Write((byte)(byte.MaxValue & length));
-
-            writer.Flush();
-        }
-
-        public void DndDropPerformed(SocketConnection socketConnection)
-        {
-            MessageWriter writer = socketConnection.MessageWriter;
-            writer.Write(protocolObject.Id);
-            writer.Write((int) EventOpCode.DndDropPerformed);
-
-            int length = writer.Available;
-            writer.Write((byte)(length >> 8));
-            writer.Write((byte)(byte.MaxValue & length));
-
-            writer.Flush();
-        }
-
-        public void DndFinished(SocketConnection socketConnection)
-        {
-            MessageWriter writer = socketConnection.MessageWriter;
-            writer.Write(protocolObject.Id);
-            writer.Write((int) EventOpCode.DndFinished);
+            writer.Write((int) EventOpCode.SourceActions);
+            writer.Write(sourceActions);
 
             int length = writer.Available;
             writer.Write((byte)(length >> 8));
@@ -118,9 +77,11 @@ public sealed class DataSource : ProtocolObject
 
     public class RequestsWrapper(ProtocolObject protocolObject)
     {
-        public Action<string>? Offer { get; set; }
+        public Action<uint, string>? Accept { get; set; }
+        public Action<string, Fd>? Receive { get; set; }
         public Action? Destroy { get; set; }
-        public Action<uint>? SetActions { get; set; }
+        public Action? Finish { get; set; }
+        public Action<uint, uint>? SetActions { get; set; }
         
         internal void HandleEvent(SocketConnection socketConnection)
         {
@@ -130,11 +91,17 @@ public sealed class DataSource : ProtocolObject
             
             switch (opCode)
             {
-                case (ushort) RequestOpCode.Offer:
-                    HandleOfferEvent(socketConnection, length);
+                case (ushort) RequestOpCode.Accept:
+                    HandleAcceptEvent(socketConnection, length);
+                    return;
+                case (ushort) RequestOpCode.Receive:
+                    HandleReceiveEvent(socketConnection, length);
                     return;
                 case (ushort) RequestOpCode.Destroy:
                     HandleDestroyEvent(socketConnection, length);
+                    return;
+                case (ushort) RequestOpCode.Finish:
+                    HandleFinishEvent(socketConnection, length);
                     return;
                 case (ushort) RequestOpCode.SetActions:
                     HandleSetActionsEvent(socketConnection, length);
@@ -142,13 +109,24 @@ public sealed class DataSource : ProtocolObject
             }
         }
         
-        private void HandleOfferEvent(SocketConnection socketConnection, ushort length)
+        private void HandleAcceptEvent(SocketConnection socketConnection, ushort length)
+        {
+            MessageReader reader = socketConnection.MessageReader;
+
+            uint arg0 = reader.ReadUInt();
+            string arg1 = reader.ReadString();
+
+            Accept?.Invoke(arg0, arg1);
+        }
+        
+        private void HandleReceiveEvent(SocketConnection socketConnection, ushort length)
         {
             MessageReader reader = socketConnection.MessageReader;
 
             string arg0 = reader.ReadString();
+            Fd arg1 = reader.ReadFd();
 
-            Offer?.Invoke(arg0);
+            Receive?.Invoke(arg0, arg1);
         }
         
         private void HandleDestroyEvent(SocketConnection socketConnection, ushort length)
@@ -159,13 +137,22 @@ public sealed class DataSource : ProtocolObject
             Destroy?.Invoke();
         }
         
+        private void HandleFinishEvent(SocketConnection socketConnection, ushort length)
+        {
+            MessageReader reader = socketConnection.MessageReader;
+
+
+            Finish?.Invoke();
+        }
+        
         private void HandleSetActionsEvent(SocketConnection socketConnection, ushort length)
         {
             MessageReader reader = socketConnection.MessageReader;
 
             uint arg0 = reader.ReadUInt();
+            uint arg1 = reader.ReadUInt();
 
-            SetActions?.Invoke(arg0);
+            SetActions?.Invoke(arg0, arg1);
         }
         
     }
