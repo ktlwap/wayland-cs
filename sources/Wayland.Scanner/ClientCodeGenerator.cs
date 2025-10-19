@@ -27,10 +27,6 @@ public static class ClientCodeGenerator
 
         foreach (Interface @interface in protocol.Interfaces)
         {
-            if (@interface.Name is "Shm" or "DataOffer")
-                // These are not supported yet due to fd as argument.
-                continue;
-
             using FileStream fileStream = File.Create(Path.Combine(ClientFilePath, @interface.Name + ".gen.cs"));
 
             byte[] data = GenerateSource(@interface, true);
