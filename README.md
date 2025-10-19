@@ -1,7 +1,6 @@
 # Wayland Implementation in C#
 
 This project is a C# implementation of the Wayland protocol, a protocol that specifies the communication between a display server and its clients. The project is divided into two main parts: the Wayland Server and the Wayland Client.
-File descriptors are not supported yet due to missing support in System.Net.Sockets, it'll be added at a later point.
 
 ## Wayland Server
 
