@@ -109,7 +109,7 @@ public sealed class ShellSurface : ProtocolObject
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.Move);
-            writer.Write(seat.Value);
+            writer.Write(seat);
             writer.Write(serial);
 
             int length = writer.Available;
@@ -124,7 +124,7 @@ public sealed class ShellSurface : ProtocolObject
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.Resize);
-            writer.Write(seat.Value);
+            writer.Write(seat);
             writer.Write(serial);
             writer.Write(edges);
 
@@ -153,7 +153,7 @@ public sealed class ShellSurface : ProtocolObject
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.SetTransient);
-            writer.Write(parent.Value);
+            writer.Write(parent);
             writer.Write(x);
             writer.Write(y);
             writer.Write(flags);
@@ -172,7 +172,7 @@ public sealed class ShellSurface : ProtocolObject
             writer.Write((int) RequestOpCode.SetFullscreen);
             writer.Write(method);
             writer.Write(framerate);
-            writer.Write(output.Value);
+            writer.Write(output);
 
             int length = writer.Available;
             writer.Write((byte)(byte.MaxValue & length));
@@ -186,9 +186,9 @@ public sealed class ShellSurface : ProtocolObject
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.SetPopup);
-            writer.Write(seat.Value);
+            writer.Write(seat);
             writer.Write(serial);
-            writer.Write(parent.Value);
+            writer.Write(parent);
             writer.Write(x);
             writer.Write(y);
             writer.Write(flags);
@@ -205,7 +205,7 @@ public sealed class ShellSurface : ProtocolObject
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.SetMaximized);
-            writer.Write(output.Value);
+            writer.Write(output);
 
             int length = writer.Available;
             writer.Write((byte)(byte.MaxValue & length));

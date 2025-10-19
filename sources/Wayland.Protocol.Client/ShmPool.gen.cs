@@ -45,7 +45,7 @@ public sealed class ShmPool : ProtocolObject
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.CreateBuffer);
-            writer.Write(id.Value);
+            writer.Write(id);
             writer.Write(offset);
             writer.Write(width);
             writer.Write(height);

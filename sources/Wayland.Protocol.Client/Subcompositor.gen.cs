@@ -57,9 +57,9 @@ public sealed class Subcompositor : ProtocolObject
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.GetSubsurface);
-            writer.Write(id.Value);
-            writer.Write(surface.Value);
-            writer.Write(parent.Value);
+            writer.Write(id);
+            writer.Write(surface);
+            writer.Write(parent);
 
             int length = writer.Available;
             writer.Write((byte)(byte.MaxValue & length));

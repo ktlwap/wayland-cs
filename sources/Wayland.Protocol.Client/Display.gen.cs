@@ -74,7 +74,7 @@ public sealed class Display : ProtocolObject
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.Sync);
-            writer.Write(callback.Value);
+            writer.Write(callback);
 
             int length = writer.Available;
             writer.Write((byte)(byte.MaxValue & length));
@@ -88,7 +88,7 @@ public sealed class Display : ProtocolObject
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.GetRegistry);
-            writer.Write(registry.Value);
+            writer.Write(registry);
 
             int length = writer.Available;
             writer.Write((byte)(byte.MaxValue & length));

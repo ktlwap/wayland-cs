@@ -43,8 +43,8 @@ public sealed class Shell : ProtocolObject
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.GetShellSurface);
-            writer.Write(id.Value);
-            writer.Write(surface.Value);
+            writer.Write(id);
+            writer.Write(surface);
 
             int length = writer.Available;
             writer.Write((byte)(byte.MaxValue & length));

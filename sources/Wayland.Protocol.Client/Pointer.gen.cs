@@ -213,7 +213,7 @@ public sealed class Pointer : ProtocolObject
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.SetCursor);
             writer.Write(serial);
-            writer.Write(surface.Value);
+            writer.Write(surface);
             writer.Write(hotspotX);
             writer.Write(hotspotY);
 

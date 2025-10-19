@@ -32,7 +32,7 @@ public sealed class Display : ProtocolObject
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) EventOpCode.Error);
-            writer.Write(objectId.Value);
+            writer.Write(objectId);
             writer.Write(code);
             writer.Write(message);
 

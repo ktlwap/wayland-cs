@@ -20,7 +20,7 @@ public sealed class SocketConnection : IDisposable
         MessageWriter = new MessageWriter(this, _networkStream);
     }
 
-    public void SendFileDescriptor(int fd)
+    public void WriteFileDescriptor(int fd)
     {
         int sockFd = (int)_socket.Handle;
         byte[] data = [0];

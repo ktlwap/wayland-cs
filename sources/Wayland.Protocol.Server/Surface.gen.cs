@@ -43,7 +43,7 @@ public sealed class Surface : ProtocolObject
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) EventOpCode.Enter);
-            writer.Write(output.Value);
+            writer.Write(output);
 
             int length = writer.Available;
             writer.Write((byte)(length >> 8));
@@ -57,7 +57,7 @@ public sealed class Surface : ProtocolObject
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) EventOpCode.Leave);
-            writer.Write(output.Value);
+            writer.Write(output);
 
             int length = writer.Available;
             writer.Write((byte)(length >> 8));

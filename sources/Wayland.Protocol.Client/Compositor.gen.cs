@@ -44,7 +44,7 @@ public sealed class Compositor : ProtocolObject
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.CreateSurface);
-            writer.Write(id.Value);
+            writer.Write(id);
 
             int length = writer.Available;
             writer.Write((byte)(byte.MaxValue & length));
@@ -58,7 +58,7 @@ public sealed class Compositor : ProtocolObject
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.CreateRegion);
-            writer.Write(id.Value);
+            writer.Write(id);
 
             int length = writer.Available;
             writer.Write((byte)(byte.MaxValue & length));

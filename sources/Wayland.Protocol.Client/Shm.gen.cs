@@ -57,8 +57,8 @@ public sealed class Shm : ProtocolObject
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.CreatePool);
-            writer.Write(id.Value);
-            writer.Write(fd.Value);
+            writer.Write(id);
+            writer.Write(fd);
             writer.Write(size);
 
             int length = writer.Available;

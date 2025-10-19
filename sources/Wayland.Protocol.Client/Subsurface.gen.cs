@@ -76,7 +76,7 @@ public sealed class Subsurface : ProtocolObject
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.PlaceAbove);
-            writer.Write(sibling.Value);
+            writer.Write(sibling);
 
             int length = writer.Available;
             writer.Write((byte)(byte.MaxValue & length));
@@ -90,7 +90,7 @@ public sealed class Subsurface : ProtocolObject
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.PlaceBelow);
-            writer.Write(sibling.Value);
+            writer.Write(sibling);
 
             int length = writer.Available;
             writer.Write((byte)(byte.MaxValue & length));

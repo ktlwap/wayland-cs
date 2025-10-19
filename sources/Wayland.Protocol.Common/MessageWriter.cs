@@ -95,7 +95,7 @@ public class MessageWriter : IDisposable
     
     public void Write(Fd id)
     {
-        Write(id.Value);
+        _socketConnection.WriteFileDescriptor(id.Value);
     }
     
     public void Write(Fixed id)

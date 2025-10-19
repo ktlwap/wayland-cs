@@ -127,7 +127,7 @@ public sealed class XdgToplevel : ProtocolObject
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.SetParent);
-            writer.Write(parent.Value);
+            writer.Write(parent);
 
             int length = writer.Available;
             writer.Write((byte)(byte.MaxValue & length));
@@ -169,7 +169,7 @@ public sealed class XdgToplevel : ProtocolObject
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.ShowWindowMenu);
-            writer.Write(seat.Value);
+            writer.Write(seat);
             writer.Write(serial);
             writer.Write(x);
             writer.Write(y);
@@ -186,7 +186,7 @@ public sealed class XdgToplevel : ProtocolObject
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.Move);
-            writer.Write(seat.Value);
+            writer.Write(seat);
             writer.Write(serial);
 
             int length = writer.Available;
@@ -201,7 +201,7 @@ public sealed class XdgToplevel : ProtocolObject
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.Resize);
-            writer.Write(seat.Value);
+            writer.Write(seat);
             writer.Write(serial);
             writer.Write(edges);
 
@@ -273,7 +273,7 @@ public sealed class XdgToplevel : ProtocolObject
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.SetFullscreen);
-            writer.Write(output.Value);
+            writer.Write(output);
 
             int length = writer.Available;
             writer.Write((byte)(byte.MaxValue & length));

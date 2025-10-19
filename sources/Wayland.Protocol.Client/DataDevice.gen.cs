@@ -133,9 +133,9 @@ public sealed class DataDevice : ProtocolObject
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.StartDrag);
-            writer.Write(source.Value);
-            writer.Write(origin.Value);
-            writer.Write(icon.Value);
+            writer.Write(source);
+            writer.Write(origin);
+            writer.Write(icon);
             writer.Write(serial);
 
             int length = writer.Available;
@@ -150,7 +150,7 @@ public sealed class DataDevice : ProtocolObject
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.SetSelection);
-            writer.Write(source.Value);
+            writer.Write(source);
             writer.Write(serial);
 
             int length = writer.Available;

@@ -102,7 +102,7 @@ public sealed class XdgPopup : ProtocolObject
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.Grab);
-            writer.Write(seat.Value);
+            writer.Write(seat);
             writer.Write(serial);
 
             int length = writer.Available;
@@ -117,7 +117,7 @@ public sealed class XdgPopup : ProtocolObject
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.Reposition);
-            writer.Write(positioner.Value);
+            writer.Write(positioner);
             writer.Write(token);
 
             int length = writer.Available;

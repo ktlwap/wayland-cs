@@ -38,10 +38,10 @@ public sealed class Touch : ProtocolObject
             writer.Write((int) EventOpCode.Down);
             writer.Write(serial);
             writer.Write(time);
-            writer.Write(surface.Value);
+            writer.Write(surface);
             writer.Write(id);
-            writer.Write(x.Value);
-            writer.Write(y.Value);
+            writer.Write(x);
+            writer.Write(y);
 
             int length = writer.Available;
             writer.Write((byte)(length >> 8));
@@ -73,8 +73,8 @@ public sealed class Touch : ProtocolObject
             writer.Write((int) EventOpCode.Motion);
             writer.Write(time);
             writer.Write(id);
-            writer.Write(x.Value);
-            writer.Write(y.Value);
+            writer.Write(x);
+            writer.Write(y);
 
             int length = writer.Available;
             writer.Write((byte)(length >> 8));
@@ -115,8 +115,8 @@ public sealed class Touch : ProtocolObject
             writer.Write(protocolObject.Id);
             writer.Write((int) EventOpCode.Shape);
             writer.Write(id);
-            writer.Write(major.Value);
-            writer.Write(minor.Value);
+            writer.Write(major);
+            writer.Write(minor);
 
             int length = writer.Available;
             writer.Write((byte)(length >> 8));
@@ -131,7 +131,7 @@ public sealed class Touch : ProtocolObject
             writer.Write(protocolObject.Id);
             writer.Write((int) EventOpCode.Orientation);
             writer.Write(id);
-            writer.Write(orientation.Value);
+            writer.Write(orientation);
 
             int length = writer.Available;
             writer.Write((byte)(length >> 8));

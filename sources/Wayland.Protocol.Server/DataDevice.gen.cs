@@ -37,7 +37,7 @@ public sealed class DataDevice : ProtocolObject
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) EventOpCode.DataOffer);
-            writer.Write(id.Value);
+            writer.Write(id);
 
             int length = writer.Available;
             writer.Write((byte)(length >> 8));
@@ -52,10 +52,10 @@ public sealed class DataDevice : ProtocolObject
             writer.Write(protocolObject.Id);
             writer.Write((int) EventOpCode.Enter);
             writer.Write(serial);
-            writer.Write(surface.Value);
-            writer.Write(x.Value);
-            writer.Write(y.Value);
-            writer.Write(id.Value);
+            writer.Write(surface);
+            writer.Write(x);
+            writer.Write(y);
+            writer.Write(id);
 
             int length = writer.Available;
             writer.Write((byte)(length >> 8));
@@ -83,8 +83,8 @@ public sealed class DataDevice : ProtocolObject
             writer.Write(protocolObject.Id);
             writer.Write((int) EventOpCode.Motion);
             writer.Write(time);
-            writer.Write(x.Value);
-            writer.Write(y.Value);
+            writer.Write(x);
+            writer.Write(y);
 
             int length = writer.Available;
             writer.Write((byte)(length >> 8));
@@ -111,7 +111,7 @@ public sealed class DataDevice : ProtocolObject
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) EventOpCode.Selection);
-            writer.Write(id.Value);
+            writer.Write(id);
 
             int length = writer.Available;
             writer.Write((byte)(length >> 8));

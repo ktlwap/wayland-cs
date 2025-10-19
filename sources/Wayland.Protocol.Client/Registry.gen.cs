@@ -74,7 +74,7 @@ public sealed class Registry : ProtocolObject
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.Bind);
             writer.Write(name);
-            writer.Write(id.Value);
+            writer.Write(id);
 
             int length = writer.Available;
             writer.Write((byte)(byte.MaxValue & length));

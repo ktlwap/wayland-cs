@@ -74,7 +74,7 @@ public sealed class Seat : ProtocolObject
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.GetPointer);
-            writer.Write(id.Value);
+            writer.Write(id);
 
             int length = writer.Available;
             writer.Write((byte)(byte.MaxValue & length));
@@ -88,7 +88,7 @@ public sealed class Seat : ProtocolObject
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.GetKeyboard);
-            writer.Write(id.Value);
+            writer.Write(id);
 
             int length = writer.Available;
             writer.Write((byte)(byte.MaxValue & length));
@@ -102,7 +102,7 @@ public sealed class Seat : ProtocolObject
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.GetTouch);
-            writer.Write(id.Value);
+            writer.Write(id);
 
             int length = writer.Available;
             writer.Write((byte)(byte.MaxValue & length));

@@ -341,7 +341,7 @@ public static class CodeGenerator
                 case "ObjectId":
                 case "NewId":
                     sb.Append(
-                        $"            writer.Write({argument.Name}.Value);\n");
+                        $"            writer.Write({argument.Name});\n");
                     break;
                 default:
                     throw new Exception("Unknown type: " + argument.Type);

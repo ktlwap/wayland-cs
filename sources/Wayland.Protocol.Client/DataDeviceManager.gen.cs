@@ -44,7 +44,7 @@ public sealed class DataDeviceManager : ProtocolObject
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.CreateDataSource);
-            writer.Write(id.Value);
+            writer.Write(id);
 
             int length = writer.Available;
             writer.Write((byte)(byte.MaxValue & length));
@@ -58,8 +58,8 @@ public sealed class DataDeviceManager : ProtocolObject
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.GetDataDevice);
-            writer.Write(id.Value);
-            writer.Write(seat.Value);
+            writer.Write(id);
+            writer.Write(seat);
 
             int length = writer.Available;
             writer.Write((byte)(byte.MaxValue & length));

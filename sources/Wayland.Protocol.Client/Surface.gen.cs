@@ -122,7 +122,7 @@ public sealed class Surface : ProtocolObject
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.Attach);
-            writer.Write(buffer.Value);
+            writer.Write(buffer);
             writer.Write(x);
             writer.Write(y);
 
@@ -155,7 +155,7 @@ public sealed class Surface : ProtocolObject
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.Frame);
-            writer.Write(callback.Value);
+            writer.Write(callback);
 
             int length = writer.Available;
             writer.Write((byte)(byte.MaxValue & length));
@@ -169,7 +169,7 @@ public sealed class Surface : ProtocolObject
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.SetOpaqueRegion);
-            writer.Write(region.Value);
+            writer.Write(region);
 
             int length = writer.Available;
             writer.Write((byte)(byte.MaxValue & length));
@@ -183,7 +183,7 @@ public sealed class Surface : ProtocolObject
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.SetInputRegion);
-            writer.Write(region.Value);
+            writer.Write(region);
 
             int length = writer.Available;
             writer.Write((byte)(byte.MaxValue & length));

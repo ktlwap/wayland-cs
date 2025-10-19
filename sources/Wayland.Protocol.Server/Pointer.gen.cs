@@ -42,9 +42,9 @@ public sealed class Pointer : ProtocolObject
             writer.Write(protocolObject.Id);
             writer.Write((int) EventOpCode.Enter);
             writer.Write(serial);
-            writer.Write(surface.Value);
-            writer.Write(surfaceX.Value);
-            writer.Write(surfaceY.Value);
+            writer.Write(surface);
+            writer.Write(surfaceX);
+            writer.Write(surfaceY);
 
             int length = writer.Available;
             writer.Write((byte)(length >> 8));
@@ -59,7 +59,7 @@ public sealed class Pointer : ProtocolObject
             writer.Write(protocolObject.Id);
             writer.Write((int) EventOpCode.Leave);
             writer.Write(serial);
-            writer.Write(surface.Value);
+            writer.Write(surface);
 
             int length = writer.Available;
             writer.Write((byte)(length >> 8));
@@ -74,8 +74,8 @@ public sealed class Pointer : ProtocolObject
             writer.Write(protocolObject.Id);
             writer.Write((int) EventOpCode.Motion);
             writer.Write(time);
-            writer.Write(surfaceX.Value);
-            writer.Write(surfaceY.Value);
+            writer.Write(surfaceX);
+            writer.Write(surfaceY);
 
             int length = writer.Available;
             writer.Write((byte)(length >> 8));
@@ -108,7 +108,7 @@ public sealed class Pointer : ProtocolObject
             writer.Write((int) EventOpCode.Axis);
             writer.Write(time);
             writer.Write(axis);
-            writer.Write(value.Value);
+            writer.Write(value);
 
             int length = writer.Available;
             writer.Write((byte)(length >> 8));

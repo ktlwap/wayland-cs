@@ -52,7 +52,7 @@ public sealed class DataSource : ProtocolObject
             writer.Write(protocolObject.Id);
             writer.Write((int) EventOpCode.Send);
             writer.Write(mimeType);
-            writer.Write(fd.Value);
+            writer.Write(fd);
 
             int length = writer.Available;
             writer.Write((byte)(length >> 8));

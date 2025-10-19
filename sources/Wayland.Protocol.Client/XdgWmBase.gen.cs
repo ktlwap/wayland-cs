@@ -73,7 +73,7 @@ public sealed class XdgWmBase : ProtocolObject
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.CreatePositioner);
-            writer.Write(id.Value);
+            writer.Write(id);
 
             int length = writer.Available;
             writer.Write((byte)(byte.MaxValue & length));
@@ -87,8 +87,8 @@ public sealed class XdgWmBase : ProtocolObject
             MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.GetXdgSurface);
-            writer.Write(id.Value);
-            writer.Write(surface.Value);
+            writer.Write(id);
+            writer.Write(surface);
 
             int length = writer.Available;
             writer.Write((byte)(byte.MaxValue & length));

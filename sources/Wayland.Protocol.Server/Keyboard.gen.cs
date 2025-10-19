@@ -36,7 +36,7 @@ public sealed class Keyboard : ProtocolObject
             writer.Write(protocolObject.Id);
             writer.Write((int) EventOpCode.Keymap);
             writer.Write(format);
-            writer.Write(fd.Value);
+            writer.Write(fd);
             writer.Write(size);
 
             int length = writer.Available;
@@ -52,7 +52,7 @@ public sealed class Keyboard : ProtocolObject
             writer.Write(protocolObject.Id);
             writer.Write((int) EventOpCode.Enter);
             writer.Write(serial);
-            writer.Write(surface.Value);
+            writer.Write(surface);
             writer.Write(keys);
 
             int length = writer.Available;
@@ -68,7 +68,7 @@ public sealed class Keyboard : ProtocolObject
             writer.Write(protocolObject.Id);
             writer.Write((int) EventOpCode.Leave);
             writer.Write(serial);
-            writer.Write(surface.Value);
+            writer.Write(surface);
 
             int length = writer.Available;
             writer.Write((byte)(length >> 8));
