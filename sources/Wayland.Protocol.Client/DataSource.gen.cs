@@ -68,10 +68,7 @@ public sealed class DataSource : ProtocolObject
         
         internal void HandleTargetEvent(ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
             string arg0 = reader.ReadString();
 
@@ -80,10 +77,7 @@ public sealed class DataSource : ProtocolObject
         
         internal void HandleSendEvent(ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
             string arg0 = reader.ReadString();
             Fd arg1 = reader.ReadFd();
@@ -93,10 +87,7 @@ public sealed class DataSource : ProtocolObject
         
         internal void HandleCancelledEvent(ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
 
             Cancelled?.Invoke();
@@ -104,10 +95,7 @@ public sealed class DataSource : ProtocolObject
         
         internal void HandleDndDropPerformedEvent(ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
 
             DndDropPerformed?.Invoke();
@@ -115,10 +103,7 @@ public sealed class DataSource : ProtocolObject
         
         internal void HandleDndFinishedEvent(ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
 
             DndFinished?.Invoke();
@@ -126,10 +111,7 @@ public sealed class DataSource : ProtocolObject
         
         internal void HandleActionEvent(ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
             uint arg0 = reader.ReadUInt();
 
@@ -142,46 +124,43 @@ public sealed class DataSource : ProtocolObject
     {
         public void Offer(string mimeType)
         {
-            MessageWriter writer = new MessageWriter();
+            MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.Offer);
             writer.Write(mimeType);
 
-            byte[] data = writer.ToArray();
-            int length = data.Length;
-            data[6] = (byte)(byte.MaxValue & length);
-            data[7] = (byte)(length >> 8);
+            int length = writer.Available;
+            writer.Write((byte)(byte.MaxValue & length));
+            writer.Write((byte)(length >> 8));
 
-            socketConnection.Write(data);
+            writer.Flush();
         }
 
         public void Destroy()
         {
-            MessageWriter writer = new MessageWriter();
+            MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.Destroy);
 
-            byte[] data = writer.ToArray();
-            int length = data.Length;
-            data[6] = (byte)(byte.MaxValue & length);
-            data[7] = (byte)(length >> 8);
+            int length = writer.Available;
+            writer.Write((byte)(byte.MaxValue & length));
+            writer.Write((byte)(length >> 8));
 
-            socketConnection.Write(data);
+            writer.Flush();
         }
 
         public void SetActions(uint dndActions)
         {
-            MessageWriter writer = new MessageWriter();
+            MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.SetActions);
             writer.Write(dndActions);
 
-            byte[] data = writer.ToArray();
-            int length = data.Length;
-            data[6] = (byte)(byte.MaxValue & length);
-            data[7] = (byte)(length >> 8);
+            int length = writer.Available;
+            writer.Write((byte)(byte.MaxValue & length));
+            writer.Write((byte)(length >> 8));
 
-            socketConnection.Write(data);
+            writer.Flush();
         }
 
     }

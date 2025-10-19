@@ -71,10 +71,7 @@ public sealed class Touch : ProtocolObject
         
         internal void HandleDownEvent(ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
             uint arg0 = reader.ReadUInt();
             uint arg1 = reader.ReadUInt();
@@ -88,10 +85,7 @@ public sealed class Touch : ProtocolObject
         
         internal void HandleUpEvent(ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
             uint arg0 = reader.ReadUInt();
             uint arg1 = reader.ReadUInt();
@@ -102,10 +96,7 @@ public sealed class Touch : ProtocolObject
         
         internal void HandleMotionEvent(ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
             uint arg0 = reader.ReadUInt();
             int arg1 = reader.ReadInt();
@@ -117,10 +108,7 @@ public sealed class Touch : ProtocolObject
         
         internal void HandleFrameEvent(ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
 
             Frame?.Invoke();
@@ -128,10 +116,7 @@ public sealed class Touch : ProtocolObject
         
         internal void HandleCancelEvent(ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
 
             Cancel?.Invoke();
@@ -139,10 +124,7 @@ public sealed class Touch : ProtocolObject
         
         internal void HandleShapeEvent(ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
             int arg0 = reader.ReadInt();
             Fixed arg1 = reader.ReadFixed();
@@ -153,10 +135,7 @@ public sealed class Touch : ProtocolObject
         
         internal void HandleOrientationEvent(ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
             int arg0 = reader.ReadInt();
             Fixed arg1 = reader.ReadFixed();
@@ -170,16 +149,15 @@ public sealed class Touch : ProtocolObject
     {
         public void Release()
         {
-            MessageWriter writer = new MessageWriter();
+            MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.Release);
 
-            byte[] data = writer.ToArray();
-            int length = data.Length;
-            data[6] = (byte)(byte.MaxValue & length);
-            data[7] = (byte)(length >> 8);
+            int length = writer.Available;
+            writer.Write((byte)(byte.MaxValue & length));
+            writer.Write((byte)(length >> 8));
 
-            socketConnection.Write(data);
+            writer.Flush();
         }
 
     }

@@ -47,10 +47,7 @@ public sealed class Display : ProtocolObject
         
         internal void HandleErrorEvent(ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
             ObjectId arg0 = reader.ReadObjectId();
             uint arg1 = reader.ReadUInt();
@@ -61,10 +58,7 @@ public sealed class Display : ProtocolObject
         
         internal void HandleDeleteIdEvent(ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
             uint arg0 = reader.ReadUInt();
 
@@ -77,32 +71,30 @@ public sealed class Display : ProtocolObject
     {
         public void Sync(NewId callback)
         {
-            MessageWriter writer = new MessageWriter();
+            MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.Sync);
             writer.Write(callback.Value);
 
-            byte[] data = writer.ToArray();
-            int length = data.Length;
-            data[6] = (byte)(byte.MaxValue & length);
-            data[7] = (byte)(length >> 8);
+            int length = writer.Available;
+            writer.Write((byte)(byte.MaxValue & length));
+            writer.Write((byte)(length >> 8));
 
-            socketConnection.Write(data);
+            writer.Flush();
         }
 
         public void GetRegistry(NewId registry)
         {
-            MessageWriter writer = new MessageWriter();
+            MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.GetRegistry);
             writer.Write(registry.Value);
 
-            byte[] data = writer.ToArray();
-            int length = data.Length;
-            data[6] = (byte)(byte.MaxValue & length);
-            data[7] = (byte)(length >> 8);
+            int length = writer.Available;
+            writer.Write((byte)(byte.MaxValue & length));
+            writer.Write((byte)(length >> 8));
 
-            socketConnection.Write(data);
+            writer.Flush();
         }
 
     }

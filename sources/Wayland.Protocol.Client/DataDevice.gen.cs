@@ -68,10 +68,7 @@ public sealed class DataDevice : ProtocolObject
         
         internal void HandleDataOfferEvent(ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
             NewId arg0 = reader.ReadNewId();
 
@@ -80,10 +77,7 @@ public sealed class DataDevice : ProtocolObject
         
         internal void HandleEnterEvent(ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
             uint arg0 = reader.ReadUInt();
             ObjectId arg1 = reader.ReadObjectId();
@@ -96,10 +90,7 @@ public sealed class DataDevice : ProtocolObject
         
         internal void HandleLeaveEvent(ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
 
             Leave?.Invoke();
@@ -107,10 +98,7 @@ public sealed class DataDevice : ProtocolObject
         
         internal void HandleMotionEvent(ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
             uint arg0 = reader.ReadUInt();
             Fixed arg1 = reader.ReadFixed();
@@ -121,10 +109,7 @@ public sealed class DataDevice : ProtocolObject
         
         internal void HandleDropEvent(ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
 
             Drop?.Invoke();
@@ -132,10 +117,7 @@ public sealed class DataDevice : ProtocolObject
         
         internal void HandleSelectionEvent(ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
             ObjectId arg0 = reader.ReadObjectId();
 
@@ -148,7 +130,7 @@ public sealed class DataDevice : ProtocolObject
     {
         public void StartDrag(ObjectId source, ObjectId origin, ObjectId icon, uint serial)
         {
-            MessageWriter writer = new MessageWriter();
+            MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.StartDrag);
             writer.Write(source.Value);
@@ -156,42 +138,39 @@ public sealed class DataDevice : ProtocolObject
             writer.Write(icon.Value);
             writer.Write(serial);
 
-            byte[] data = writer.ToArray();
-            int length = data.Length;
-            data[6] = (byte)(byte.MaxValue & length);
-            data[7] = (byte)(length >> 8);
+            int length = writer.Available;
+            writer.Write((byte)(byte.MaxValue & length));
+            writer.Write((byte)(length >> 8));
 
-            socketConnection.Write(data);
+            writer.Flush();
         }
 
         public void SetSelection(ObjectId source, uint serial)
         {
-            MessageWriter writer = new MessageWriter();
+            MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.SetSelection);
             writer.Write(source.Value);
             writer.Write(serial);
 
-            byte[] data = writer.ToArray();
-            int length = data.Length;
-            data[6] = (byte)(byte.MaxValue & length);
-            data[7] = (byte)(length >> 8);
+            int length = writer.Available;
+            writer.Write((byte)(byte.MaxValue & length));
+            writer.Write((byte)(length >> 8));
 
-            socketConnection.Write(data);
+            writer.Flush();
         }
 
         public void Release()
         {
-            MessageWriter writer = new MessageWriter();
+            MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.Release);
 
-            byte[] data = writer.ToArray();
-            int length = data.Length;
-            data[6] = (byte)(byte.MaxValue & length);
-            data[7] = (byte)(length >> 8);
+            int length = writer.Available;
+            writer.Write((byte)(byte.MaxValue & length));
+            writer.Write((byte)(length >> 8));
 
-            socketConnection.Write(data);
+            writer.Flush();
         }
 
     }

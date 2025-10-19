@@ -45,90 +45,84 @@ public sealed class Subsurface : ProtocolObject
     {
         public void Destroy()
         {
-            MessageWriter writer = new MessageWriter();
+            MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.Destroy);
 
-            byte[] data = writer.ToArray();
-            int length = data.Length;
-            data[6] = (byte)(byte.MaxValue & length);
-            data[7] = (byte)(length >> 8);
+            int length = writer.Available;
+            writer.Write((byte)(byte.MaxValue & length));
+            writer.Write((byte)(length >> 8));
 
-            socketConnection.Write(data);
+            writer.Flush();
         }
 
         public void SetPosition(int x, int y)
         {
-            MessageWriter writer = new MessageWriter();
+            MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.SetPosition);
             writer.Write(x);
             writer.Write(y);
 
-            byte[] data = writer.ToArray();
-            int length = data.Length;
-            data[6] = (byte)(byte.MaxValue & length);
-            data[7] = (byte)(length >> 8);
+            int length = writer.Available;
+            writer.Write((byte)(byte.MaxValue & length));
+            writer.Write((byte)(length >> 8));
 
-            socketConnection.Write(data);
+            writer.Flush();
         }
 
         public void PlaceAbove(ObjectId sibling)
         {
-            MessageWriter writer = new MessageWriter();
+            MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.PlaceAbove);
             writer.Write(sibling.Value);
 
-            byte[] data = writer.ToArray();
-            int length = data.Length;
-            data[6] = (byte)(byte.MaxValue & length);
-            data[7] = (byte)(length >> 8);
+            int length = writer.Available;
+            writer.Write((byte)(byte.MaxValue & length));
+            writer.Write((byte)(length >> 8));
 
-            socketConnection.Write(data);
+            writer.Flush();
         }
 
         public void PlaceBelow(ObjectId sibling)
         {
-            MessageWriter writer = new MessageWriter();
+            MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.PlaceBelow);
             writer.Write(sibling.Value);
 
-            byte[] data = writer.ToArray();
-            int length = data.Length;
-            data[6] = (byte)(byte.MaxValue & length);
-            data[7] = (byte)(length >> 8);
+            int length = writer.Available;
+            writer.Write((byte)(byte.MaxValue & length));
+            writer.Write((byte)(length >> 8));
 
-            socketConnection.Write(data);
+            writer.Flush();
         }
 
         public void SetSync()
         {
-            MessageWriter writer = new MessageWriter();
+            MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.SetSync);
 
-            byte[] data = writer.ToArray();
-            int length = data.Length;
-            data[6] = (byte)(byte.MaxValue & length);
-            data[7] = (byte)(length >> 8);
+            int length = writer.Available;
+            writer.Write((byte)(byte.MaxValue & length));
+            writer.Write((byte)(length >> 8));
 
-            socketConnection.Write(data);
+            writer.Flush();
         }
 
         public void SetDesync()
         {
-            MessageWriter writer = new MessageWriter();
+            MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) RequestOpCode.SetDesync);
 
-            byte[] data = writer.ToArray();
-            int length = data.Length;
-            data[6] = (byte)(byte.MaxValue & length);
-            data[7] = (byte)(length >> 8);
+            int length = writer.Available;
+            writer.Write((byte)(byte.MaxValue & length));
+            writer.Write((byte)(length >> 8));
 
-            socketConnection.Write(data);
+            writer.Flush();
         }
 
     }

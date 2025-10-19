@@ -14,13 +14,12 @@ public sealed class EventQueue
 
     public bool Dispatch()
     {
-        if (!_socketConnection.IsDataAvailable())
+        MessageReader reader = _socketConnection.MessageReader;
+        if (!reader.IsDataAvailable)
             return false;
-        
-        byte[] header = new byte[8];
-        int number = _socketConnection.Read(header, 0, header.Length);
-        if (number < 1)
-            return false;
+
+        Span<byte> header = stackalloc byte[8];
+        reader.ReadFixed(header, 0, header.Length);
 
         uint objectId = 0;
         objectId |= (uint)(header[0] << 0);

@@ -50,8 +50,9 @@ public sealed class XdgPositioner : ProtocolObject
         
         internal void HandleEvent(SocketConnection socketConnection)
         {
-            ushort length = socketConnection.ReadUInt16();
-            ushort opCode = socketConnection.ReadUInt16();
+            MessageReader reader = socketConnection.MessageReader;
+            ushort length = reader.ReadUShort();
+            ushort opCode = reader.ReadUShort();
             
             switch (opCode)
             {
@@ -90,10 +91,7 @@ public sealed class XdgPositioner : ProtocolObject
         
         private void HandleDestroyEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
 
             Destroy?.Invoke();
@@ -101,10 +99,7 @@ public sealed class XdgPositioner : ProtocolObject
         
         private void HandleSetSizeEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
             int arg0 = reader.ReadInt();
             int arg1 = reader.ReadInt();
@@ -114,10 +109,7 @@ public sealed class XdgPositioner : ProtocolObject
         
         private void HandleSetAnchorRectEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
             int arg0 = reader.ReadInt();
             int arg1 = reader.ReadInt();
@@ -129,10 +121,7 @@ public sealed class XdgPositioner : ProtocolObject
         
         private void HandleSetAnchorEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
             uint arg0 = reader.ReadUInt();
 
@@ -141,10 +130,7 @@ public sealed class XdgPositioner : ProtocolObject
         
         private void HandleSetGravityEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
             uint arg0 = reader.ReadUInt();
 
@@ -153,10 +139,7 @@ public sealed class XdgPositioner : ProtocolObject
         
         private void HandleSetConstraintAdjustmentEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
             uint arg0 = reader.ReadUInt();
 
@@ -165,10 +148,7 @@ public sealed class XdgPositioner : ProtocolObject
         
         private void HandleSetOffsetEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
             int arg0 = reader.ReadInt();
             int arg1 = reader.ReadInt();
@@ -178,10 +158,7 @@ public sealed class XdgPositioner : ProtocolObject
         
         private void HandleSetReactiveEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
 
             SetReactive?.Invoke();
@@ -189,10 +166,7 @@ public sealed class XdgPositioner : ProtocolObject
         
         private void HandleSetParentSizeEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
             int arg0 = reader.ReadInt();
             int arg1 = reader.ReadInt();
@@ -202,10 +176,7 @@ public sealed class XdgPositioner : ProtocolObject
         
         private void HandleSetParentConfigureEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
             uint arg0 = reader.ReadUInt();
 

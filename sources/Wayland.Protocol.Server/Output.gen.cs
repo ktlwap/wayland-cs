@@ -32,7 +32,7 @@ public sealed class Output : ProtocolObject
     {
         public void Geometry(SocketConnection socketConnection, int x, int y, int physicalWidth, int physicalHeight, int subpixel, string make, string model, int transform)
         {
-            MessageWriter writer = new MessageWriter();
+            MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) EventOpCode.Geometry);
             writer.Write(x);
@@ -44,17 +44,16 @@ public sealed class Output : ProtocolObject
             writer.Write(model);
             writer.Write(transform);
 
-            byte[] data = writer.ToArray();
-            int length = data.Length;
-            data[6] = (byte)(length >> 8);
-            data[7] = (byte)(byte.MaxValue & length);
+            int length = writer.Available;
+            writer.Write((byte)(length >> 8));
+            writer.Write((byte)(byte.MaxValue & length));
 
-            socketConnection.Write(data);
+            writer.Flush();
         }
 
         public void Mode(SocketConnection socketConnection, uint flags, int width, int height, int refresh)
         {
-            MessageWriter writer = new MessageWriter();
+            MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) EventOpCode.Mode);
             writer.Write(flags);
@@ -62,71 +61,66 @@ public sealed class Output : ProtocolObject
             writer.Write(height);
             writer.Write(refresh);
 
-            byte[] data = writer.ToArray();
-            int length = data.Length;
-            data[6] = (byte)(length >> 8);
-            data[7] = (byte)(byte.MaxValue & length);
+            int length = writer.Available;
+            writer.Write((byte)(length >> 8));
+            writer.Write((byte)(byte.MaxValue & length));
 
-            socketConnection.Write(data);
+            writer.Flush();
         }
 
         public void Done(SocketConnection socketConnection)
         {
-            MessageWriter writer = new MessageWriter();
+            MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) EventOpCode.Done);
 
-            byte[] data = writer.ToArray();
-            int length = data.Length;
-            data[6] = (byte)(length >> 8);
-            data[7] = (byte)(byte.MaxValue & length);
+            int length = writer.Available;
+            writer.Write((byte)(length >> 8));
+            writer.Write((byte)(byte.MaxValue & length));
 
-            socketConnection.Write(data);
+            writer.Flush();
         }
 
         public void Scale(SocketConnection socketConnection, int factor)
         {
-            MessageWriter writer = new MessageWriter();
+            MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) EventOpCode.Scale);
             writer.Write(factor);
 
-            byte[] data = writer.ToArray();
-            int length = data.Length;
-            data[6] = (byte)(length >> 8);
-            data[7] = (byte)(byte.MaxValue & length);
+            int length = writer.Available;
+            writer.Write((byte)(length >> 8));
+            writer.Write((byte)(byte.MaxValue & length));
 
-            socketConnection.Write(data);
+            writer.Flush();
         }
 
         public void Name(SocketConnection socketConnection, string name)
         {
-            MessageWriter writer = new MessageWriter();
+            MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) EventOpCode.Name);
             writer.Write(name);
 
-            byte[] data = writer.ToArray();
-            int length = data.Length;
-            data[6] = (byte)(length >> 8);
-            data[7] = (byte)(byte.MaxValue & length);
+            int length = writer.Available;
+            writer.Write((byte)(length >> 8));
+            writer.Write((byte)(byte.MaxValue & length));
 
-            socketConnection.Write(data);
+            writer.Flush();
         }
 
         public void Description(SocketConnection socketConnection, string description)
         {
-            MessageWriter writer = new MessageWriter();
+            MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) EventOpCode.Description);
             writer.Write(description);
 
-            byte[] data = writer.ToArray();
-            int length = data.Length;
-            data[6] = (byte)(length >> 8);
-            data[7] = (byte)(byte.MaxValue & length);
+            int length = writer.Available;
+            writer.Write((byte)(length >> 8));
+            writer.Write((byte)(byte.MaxValue & length));
 
-            socketConnection.Write(data);
+            writer.Flush();
         }
 
     }
@@ -137,8 +131,9 @@ public sealed class Output : ProtocolObject
         
         internal void HandleEvent(SocketConnection socketConnection)
         {
-            ushort length = socketConnection.ReadUInt16();
-            ushort opCode = socketConnection.ReadUInt16();
+            MessageReader reader = socketConnection.MessageReader;
+            ushort length = reader.ReadUShort();
+            ushort opCode = reader.ReadUShort();
             
             switch (opCode)
             {
@@ -150,10 +145,7 @@ public sealed class Output : ProtocolObject
         
         private void HandleReleaseEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
 
             Release?.Invoke();

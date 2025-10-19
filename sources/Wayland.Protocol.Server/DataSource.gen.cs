@@ -34,90 +34,84 @@ public sealed class DataSource : ProtocolObject
     {
         public void Target(SocketConnection socketConnection, string mimeType)
         {
-            MessageWriter writer = new MessageWriter();
+            MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) EventOpCode.Target);
             writer.Write(mimeType);
 
-            byte[] data = writer.ToArray();
-            int length = data.Length;
-            data[6] = (byte)(length >> 8);
-            data[7] = (byte)(byte.MaxValue & length);
+            int length = writer.Available;
+            writer.Write((byte)(length >> 8));
+            writer.Write((byte)(byte.MaxValue & length));
 
-            socketConnection.Write(data);
+            writer.Flush();
         }
 
         public void Send(SocketConnection socketConnection, string mimeType, Fd fd)
         {
-            MessageWriter writer = new MessageWriter();
+            MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) EventOpCode.Send);
             writer.Write(mimeType);
             writer.Write(fd.Value);
 
-            byte[] data = writer.ToArray();
-            int length = data.Length;
-            data[6] = (byte)(length >> 8);
-            data[7] = (byte)(byte.MaxValue & length);
+            int length = writer.Available;
+            writer.Write((byte)(length >> 8));
+            writer.Write((byte)(byte.MaxValue & length));
 
-            socketConnection.Write(data);
+            writer.Flush();
         }
 
         public void Cancelled(SocketConnection socketConnection)
         {
-            MessageWriter writer = new MessageWriter();
+            MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) EventOpCode.Cancelled);
 
-            byte[] data = writer.ToArray();
-            int length = data.Length;
-            data[6] = (byte)(length >> 8);
-            data[7] = (byte)(byte.MaxValue & length);
+            int length = writer.Available;
+            writer.Write((byte)(length >> 8));
+            writer.Write((byte)(byte.MaxValue & length));
 
-            socketConnection.Write(data);
+            writer.Flush();
         }
 
         public void DndDropPerformed(SocketConnection socketConnection)
         {
-            MessageWriter writer = new MessageWriter();
+            MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) EventOpCode.DndDropPerformed);
 
-            byte[] data = writer.ToArray();
-            int length = data.Length;
-            data[6] = (byte)(length >> 8);
-            data[7] = (byte)(byte.MaxValue & length);
+            int length = writer.Available;
+            writer.Write((byte)(length >> 8));
+            writer.Write((byte)(byte.MaxValue & length));
 
-            socketConnection.Write(data);
+            writer.Flush();
         }
 
         public void DndFinished(SocketConnection socketConnection)
         {
-            MessageWriter writer = new MessageWriter();
+            MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) EventOpCode.DndFinished);
 
-            byte[] data = writer.ToArray();
-            int length = data.Length;
-            data[6] = (byte)(length >> 8);
-            data[7] = (byte)(byte.MaxValue & length);
+            int length = writer.Available;
+            writer.Write((byte)(length >> 8));
+            writer.Write((byte)(byte.MaxValue & length));
 
-            socketConnection.Write(data);
+            writer.Flush();
         }
 
         public void Action(SocketConnection socketConnection, uint dndAction)
         {
-            MessageWriter writer = new MessageWriter();
+            MessageWriter writer = socketConnection.MessageWriter;
             writer.Write(protocolObject.Id);
             writer.Write((int) EventOpCode.Action);
             writer.Write(dndAction);
 
-            byte[] data = writer.ToArray();
-            int length = data.Length;
-            data[6] = (byte)(length >> 8);
-            data[7] = (byte)(byte.MaxValue & length);
+            int length = writer.Available;
+            writer.Write((byte)(length >> 8));
+            writer.Write((byte)(byte.MaxValue & length));
 
-            socketConnection.Write(data);
+            writer.Flush();
         }
 
     }
@@ -130,8 +124,9 @@ public sealed class DataSource : ProtocolObject
         
         internal void HandleEvent(SocketConnection socketConnection)
         {
-            ushort length = socketConnection.ReadUInt16();
-            ushort opCode = socketConnection.ReadUInt16();
+            MessageReader reader = socketConnection.MessageReader;
+            ushort length = reader.ReadUShort();
+            ushort opCode = reader.ReadUShort();
             
             switch (opCode)
             {
@@ -149,10 +144,7 @@ public sealed class DataSource : ProtocolObject
         
         private void HandleOfferEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
             string arg0 = reader.ReadString();
 
@@ -161,10 +153,7 @@ public sealed class DataSource : ProtocolObject
         
         private void HandleDestroyEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
 
             Destroy?.Invoke();
@@ -172,10 +161,7 @@ public sealed class DataSource : ProtocolObject
         
         private void HandleSetActionsEvent(SocketConnection socketConnection, ushort length)
         {
-            byte[] buffer = new byte[length];
-            socketConnection.Read(buffer, 0, buffer.Length);
-
-            MessageReader reader = new MessageReader(buffer);
+            MessageReader reader = socketConnection.MessageReader;
 
             uint arg0 = reader.ReadUInt();
 

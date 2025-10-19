@@ -1,14 +1,25 @@
+using System.Net.Sockets;
 using System.Text;
 
 namespace Wayland.Protocol.Common;
 
 public class MessageWriter
 {
-    private readonly List<byte> _data = new List<byte>(512);
+    private readonly SocketConnection _socketConnection;
+    private readonly BinaryWriter _binaryWriter;
+    
+    public int Available { get; private set; }
+    
+    internal MessageWriter(SocketConnection socketConnection, NetworkStream networkStream)
+    {
+        _socketConnection = socketConnection;
+        _binaryWriter =  new BinaryWriter(networkStream);
+    }
 
     private void Write(byte value)
     {
-        _data.Add(value);
+        _binaryWriter.Write(value);
+        ++Available;
     }
     
     public void Write(byte[] data)
@@ -110,8 +121,9 @@ public class MessageWriter
         }
     }
 
-    public byte[] ToArray()
+    public void Flush()
     {
-        return _data.ToArray();
+        _binaryWriter.Flush();
+        Available = 0;
     }
 }
